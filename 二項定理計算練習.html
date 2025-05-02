@@ -2,142 +2,69 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>二項定理の係数を求める問題</title>
+  <title>二項定理クイズ</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    .question { margin-bottom: 25px; }
-    input { width: 100px; margin-left: 10px; }
-    .correct { color: green; }
-    .incorrect { color: red; }
+    .question { margin-bottom: 1.5em; }
+    code { font-size: 1.2em; background: #f0f0f0; padding: 4px 8px; border-radius: 5px; display: inline-block; }
   </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-  </script>
 </head>
 <body>
+  <h1>二項定理の係数を求める問題</h1>
+  <div id="questions"></div>
+  <button onclick="generateQuestions()">再出題</button>
 
-<h1>二項定理：係数を求める問題</h1>
-<div id="score"></div>
-<form id="quizForm"></form>
-<button onclick="checkAnswers()">答え合わせ</button>
-<button onclick="generateProblems()">再出題</button>
-
-<script>
-const quizForm = document.getElementById("quizForm");
-const scoreDisplay = document.getElementById("score");
-let problems = [];
-
-function getRandomNonZero(min, max) {
-  let val;
-  do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0);
-  return val;
-}
-
-function gcd(a, b) {
-  while (b !== 0) {
-    [a, b] = [b, a % b];
-  }
-  return Math.abs(a);
-}
-
-function generateCoprimePair() {
-  const a = Math.floor(Math.random() * 4) + 1; // a = 1~4
-  const bCandidates = [...Array(5).keys()].map(i => i + 1).concat([...Array(5).keys()].map(i => -i - 1)).concat([5, -5]);
-  let b;
-  do {
-    b = bCandidates[Math.floor(Math.random() * bCandidates.length)];
-  } while (gcd(a, Math.abs(b)) !== 1);
-  return [a, b];
-}
-
-function factorial(n) {
-  return n <= 1 ? 1 : n * factorial(n - 1);
-}
-
-function binomialCoeff(n, k) {
-  return factorial(n) / (factorial(k) * factorial(n - k));
-}
-
-function generateProblems() {
-  quizForm.innerHTML = "";
-  scoreDisplay.textContent = "";
-  problems = [];
-
-  // 1問目: (x + a)^n
-  {
-    const a = getRandomNonZero(-3, 4);
-    const n = Math.floor(Math.random() * 6) + 3;
-    const r = Math.floor(Math.random() * 3) + 1;
-    const coeff = binomialCoeff(n, r) * Math.pow(a, n - r);
-    const tex = `(x ${a >= 0 ? '+' : ''}${a})^{${n}}`;
-    const target = (r === 1) ? `x` : `x^{${r}}`;
-    problems.push({ tex, target, answer: coeff });
-  }
-
-  // 2問目: (ax + b)^n
-  {
-    const a = Math.floor(Math.random() * 4) + 1;
-    const b = getRandomNonZero(-5, 5);
-    const n = Math.floor(Math.random() * 6) + 3;
-    const r = Math.floor(Math.random() * 3) + 1;
-    const coeff = binomialCoeff(n, r) * Math.pow(a, r) * Math.pow(b, n - r);
-    const tex = `(${a === 1 ? '' : a}x ${b >= 0 ? '+' : ''}${b})^{${n}}`;
-    const target = (r === 1) ? `x` : `x^{${r}}`;
-    problems.push({ tex, target, answer: coeff });
-  }
-
-  // 3問目: (ax + by)^n（a,b互いに素）
-  {
-    const [a, b] = generateCoprimePair();
-    const n = Math.floor(Math.random() * 6) + 3;
-    const r = Math.floor(Math.random() * 3) + 1;
-    const s = n - r;
-    const coeff = binomialCoeff(n, r) * Math.pow(a, r) * Math.pow(b, s);
-
-    let yPart = '';
-    if (b === 1) yPart = '+ y';
-    else if (b === -1) yPart = '- y';
-    else yPart = `${b > 0 ? '+' : ''}${b}y`;
-
-    const tex = `(${a === 1 ? '' : a}x ${yPart})^{${n}}`;
-    const xPart = (r === 1) ? 'x' : `x^{${r}}`;
-    const yPartT = (s === 1) ? 'y' : `y^{${s}}`;
-    const target = `${xPart} ${yPartT}`;
-    problems.push({ tex, target, answer: coeff });
-  }
-
-  problems.forEach((p, i) => {
-    const div = document.createElement("div");
-    div.className = "question";
-    div.innerHTML = `
-      <div><strong>問${i + 1}.</strong> \\( ${p.tex} \\) の展開における \\( ${p.target} \\) の係数を求めよ。</div>
-      <input type="number" step="1" id="input${i}" placeholder="係数を入力">
-      <span id="result${i}"></span>
-    `;
-    quizForm.appendChild(div);
-  });
-
-  MathJax.typeset();
-}
-
-function checkAnswers() {
-  let correct = 0;
-  problems.forEach((p, i) => {
-    const input = parseInt(document.getElementById(`input${i}`).value);
-    const result = document.getElementById(`result${i}`);
-    if (input === p.answer) {
-      result.innerHTML = `<span class="correct">← 正解！</span>`;
-      correct++;
-    } else {
-      result.innerHTML = `<span class="incorrect">← 不正解（正: ${p.answer}）</span>`;
+  <script>
+    function gcd(a, b) {
+      while (b !== 0) {
+        [a, b] = [b, a % b];
+      }
+      return Math.abs(a);
     }
-  });
-  scoreDisplay.textContent = `スコア：${correct} / ${problems.length} 正解`;
-}
 
-generateProblems();
-</script>
+    function getCoprimePair() {
+      const aCandidates = [2, 3, 4, 5];
+      const bCandidates = [-3, -2, -1, 1, 2, 3];
+      while (true) {
+        const a = aCandidates[Math.floor(Math.random() * aCandidates.length)];
+        const b = bCandidates[Math.floor(Math.random() * bCandidates.length)];
+        if (gcd(a, Math.abs(b)) === 1) {
+          return [a, b];
+        }
+      }
+    }
 
+    function formatTerm(a, b) {
+      const aStr = a === 1 ? "" : a;
+      let bStr;
+      if (b > 0) {
+        bStr = `+${b}`;
+      } else {
+        bStr = `${b}`;
+      }
+      return `(${aStr}x ${bStr})`;
+    }
+
+    function generateQuestions() {
+      const container = document.getElementById("questions");
+      container.innerHTML = "";
+
+      for (let i = 0; i < 3; i++) {
+        const [a, b] = getCoprimePair();
+        const r = Math.floor(Math.random() * 3) + 3; // 3 <= r <= 5
+        const k = Math.floor(Math.random() * (r - 1)) + 1; // 1 <= k <= r-1
+
+        const term = formatTerm(a, b);
+        const questionText = `${term}<sup>${r}</sup> の展開において、x<sup>${k}</sup> の係数を求めよ。`;
+
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `<code>Q${i + 1}:</code> ${questionText}`;
+        container.appendChild(div);
+      }
+    }
+
+    generateQuestions();
+  </script>
 </body>
 </html>
