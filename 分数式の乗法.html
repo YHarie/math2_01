@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>分数式の乗法クイズ</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .question { margin-bottom: 10px; font-size: 18px; }
+    label, input, button { display: block; margin-top: 10px; font-size: 16px; }
+    input { width: 300px; height: 32px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1>分数式の乗法クイズ</h1>
+<div class="question" id="question"></div>
+<form id="quizForm">
+  <label>簡約した分子:
+    <input type="text" id="numerator" placeholder="例: x+1" /></label>
+  <label>簡約した分母:
+    <input type="text" id="denominator" placeholder="例: x-2" /></label>
+  <button type="button" onclick="checkAnswers()">答え合わせ</button>
+  <button type="button" onclick="generateQuestion()">再生成</button>
+</form>
+<div id="feedback"></div>
+
+<script>
+function getRandomInt(min, max, exclude = []) {
+  let val;
+  do {
+    val = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while (exclude.includes(val));
+  return val;
+}
+
+function formatTerm(coef, variable = "x") {
+  if (coef === 0) return "";
+  if (coef === 1) return `+${variable}`;
+  if (coef === -1) return `-${variable}`;
+  return coef > 0 ? `+${coef}${variable}` : `${coef}${variable}`;
+}
+
+function formatQuadratic(r1, r2) {
+  const b = r1 + r2;
+  const c = r1 * r2;
+  const bStr = formatTerm(b);
+  const cStr = c > 0 ? `+${c}` : c < 0 ? `${c}` : "";
+  return `x^2${bStr}${cStr}`.replace(/\+\-/g, "-").replace(/\(\-([0-9]+)\)/g, "-$1");
+}
+
+function formatLinear(r) {
+  if (r === 0) return "x";
+  if (r > 0) return `x+${r}`;
+  return `x${r}`;
+}
+
+function generateQuestion() {
+  const questionEl = document.getElementById("question");
+  const feedback = document.getElementById("feedback");
+  feedback.innerHTML = "";
+  document.getElementById("numerator").value = "";
+  document.getElementById("denominator").value = "";
+
+  let r1 = getRandomInt(-5, 5);
+  let r2 = getRandomInt(-5, 5, [r1]);
+  let r3 = getRandomInt(-5, 5, [r1, r2]);
+  let r4 = getRandomInt(-5, 5, [r1, r2, r3]);
+
+  const num1 = formatQuadratic(r1, r2);
+  const den1 = formatQuadratic(r4, r3);
+  const num2 = formatLinear(r3);
+  const den2 = formatLinear(r1);
+
+  const questionLatex = `\\left( \\frac{${num1}}{${den1}} \\right) \\times \\left( \\frac{${num2}}{${den2}} \\right)`;
+  questionEl.innerHTML = `次の式を約分し、分子と分母をそれぞれ入力してください。<br>\\[ ${questionLatex} \\]`;
+
+  const simplifiedNum = formatLinear(r2);
+  const simplifiedDen = formatLinear(r4);
+
+  window.correctAnswer = {
+    numerator: simplifiedNum.replace(/\+\-/g, "-").replace(/\(\-([0-9]+)\)/g, "-$1"),
+    denominator: simplifiedDen.replace(/\+\-/g, "-").replace(/\(\-([0-9]+)\)/g, "-$1")
+  };
+
+  MathJax.typeset();
+}
+
+function normalize(str) {
+  return str.replace(/\s+/g, "").replace(/^\+/, "");
+}
+
+function checkAnswers() {
+  const numInput = normalize(document.getElementById("numerator").value);
+  const denInput = normalize(document.getElementById("denominator").value);
+
+  const correctNum = normalize(window.correctAnswer.numerator);
+  const correctDen = normalize(window.correctAnswer.denominator);
+
+  const feedback = document.getElementById("feedback");
+
+  if (numInput === correctNum && denInput === correctDen) {
+    feedback.innerHTML = '<div class="correct">すべて正解です！</div>';
+  } else {
+    feedback.innerHTML = `<div class="incorrect">不正解です。<br>正解: 分子 = ${correctNum}, 分母 = ${correctDen}</div>`;
+  }
+
+  MathJax.typeset();
+}
+
+generateQuestion();
+</script>
+</body>
+</html>
