@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>複素数 四則演算クイズ</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .question { margin-bottom: 20px; }
+    input { width: 60px; margin: 0 5px; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+  </style>
+
+  <!-- MathJax -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+<h1>複素数 四則演算 練習</h1>
+<div id="score"></div>
+<form id="quizForm"></form>
+<button onclick="checkAnswers()">答え合わせ</button>
+<button onclick="resetQuiz()">再出題</button>
+
+<script>
+const quizForm = document.getElementById("quizForm");
+const scoreDisplay = document.getElementById("score");
+let problems = [];
+const epsilon = 0.01;
+
+function randNonZero() {
+  let val = 0;
+  while (val === 0) val = Math.floor(Math.random() * 11) - 5;
+  return val;
+}
+
+function formatTeXComplex(a, b) {
+  const sign = b >= 0 ? '+' : '-';
+  return `${a} ${sign} ${Math.abs(b)}i`;
+}
+
+function compute(a, b, c, d, op) {
+  let real = 0, imag = 0;
+  switch (op) {
+    case '+':
+      real = a + c;
+      imag = b + d;
+      break;
+    case '-':
+      real = a - c;
+      imag = b - d;
+      break;
+    case '*':
+      real = a * c - b * d;
+      imag = a * d + b * c;
+      break;
+    case '/':
+      const denom = c * c + d * d;
+      real = (a * c + b * d) / denom;
+      imag = (b * c - a * d) / denom;
+      break;
+  }
+  return { real, imag };
+}
+
+function generateProblems() {
+  quizForm.innerHTML = '';
+  scoreDisplay.textContent = '';
+  problems = [];
+
+  const ops = [
+    { op: '+', count: 1 },
+    { op: '-', count: 1 },
+    { op: '*', count: 2 },
+    { op: '/', count: 1 },
+  ];
+
+  let idx = 0;
+  ops.forEach(({ op, count }) => {
+    for (let i = 0; i < count; i++) {
+      let a, b, c, d;
+      do { a = randNonZero(); b = randNonZero(); } while (a === 0 || b === 0);
+      do { c = randNonZero(); d = randNonZero(); } while (c === 0 || d === 0);
+
+      const result = compute(a, b, c, d, op);
+      problems.push({ a, b, c, d, op, answer: result });
+
+      const texExpr = (op === '/')
+        ? `\\dfrac{${formatTeXComplex(a, b)}}{${formatTeXComplex(c, d)}}`
+        : `(${formatTeXComplex(a, b)}) ${op === '*' ? '\\times' : op} (${formatTeXComplex(c, d)})`;
+
+      const container = document.createElement("div");
+      container.className = "question";
+      container.innerHTML = `
+        <div><strong>問${++idx}.</strong> \\( ${texExpr} = \\)</div>
+        <input type="number" step="any" id="real${idx}" placeholder="実部"> + 
+        <input type="number" step="any" id="imag${idx}" placeholder="虚部">i
+        <div id="result${idx}"></div>
+      `;
+      quizForm.appendChild(container);
+    }
+  });
+
+  MathJax.typeset();
+}
+
+function checkAnswers() {
+  let correct = 0;
+
+  problems.forEach((p, i) => {
+    const realInput = parseFloat(document.getElementById(`real${i + 1}`).value);
+    const imagInput = parseFloat(document.getElementById(`imag${i + 1}`).value);
+    const resultSpan = document.getElementById(`result${i + 1}`);
+
+    if (isNaN(realInput) || isNaN(imagInput)) {
+      resultSpan.innerHTML = `<span class="incorrect">← 入力なし</span>`;
+      return;
+    }
+
+    const isCorrect = Math.abs(realInput - p.answer.real) < epsilon &&
+                      Math.abs(imagInput - p.answer.imag) < epsilon;
+
+    if (isCorrect) correct++;
+
+    resultSpan.innerHTML = isCorrect
+      ? `<span class="correct">← 正解！</span>`
+      : `<span class="incorrect">← 不正解（正: ${p.answer.real.toFixed(2)} + ${p.answer.imag.toFixed(2)}i）</span>`;
+  });
+
+  scoreDisplay.textContent = `スコア: ${correct} / ${problems.length} 正解`;
+}
+
+function resetQuiz() {
+  generateProblems();
+}
+
+generateProblems();
+</script>
+</body>
+</html>
