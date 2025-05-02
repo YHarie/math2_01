@@ -2,71 +2,140 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>複素数の四則演算練習</title>
+  <title>複素数の四則演算クイズ</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    .question { margin-bottom: 1em; }
-    .answer { margin-left: 1em; color: green; font-weight: bold; }
-    button { margin-top: 10px; }
+    .question { margin-bottom: 20px; }
+    input { width: 100px; margin-left: 10px; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    /* MathJaxの数式を左寄せに */
+    .mj-tex {
+      text-align: left;
+      display: block;
+    }
   </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
 </head>
 <body>
-  <h1>複素数の四則演算練習</h1>
-  <div id="quiz"></div>
-  <button onclick="generateProblems()">再出題</button>
 
-  <script>
-    function getRandomInt(min, max, excludeZero = false) {
-      let n;
-      do {
-        n = Math.floor(Math.random() * (max - min + 1)) + min;
-      } while (excludeZero && n === 0);
-      return n;
+<h1>複素数の四則演算クイズ</h1>
+<div id="score"></div>
+<div id="quiz"></div>
+<button onclick="checkAnswers()">答え合わせ</button>
+<button onclick="generateProblems()">再出題</button>
+
+<script>
+const quizContainer = document.getElementById("quiz");
+const scoreDisplay = document.getElementById("score");
+let problems = [];
+
+function getRandomInt(min, max, excludeZero = false) {
+  let value;
+  do {
+    value = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while (excludeZero && value === 0);
+  return value;
+}
+
+function formatComplex(a, b) {
+  const re = a !== 0 ? a.toString() : "";
+  let im = "";
+  if (b === 1) im = "+i";
+  else if (b === -1) im = "-i";
+  else if (b > 0) im = "+" + b + "i";
+  else if (b < 0) im = b + "i";
+  return re + im || "0";
+}
+
+function toTexComplex(a, b) {
+  const re = a !== 0 ? a.toString() : "";
+  let im = "";
+  if (b === 1) im = "+i";
+  else if (b === -1) im = "-i";
+  else if (b > 0) im = "+" + b + "i";
+  else if (b < 0) im = b + "i";
+  return `(${re}${im})` || "(0)";
+}
+
+function generateProblems() {
+  quizContainer.innerHTML = "";
+  scoreDisplay.textContent = "";
+  problems = [];
+  const operations = ["+", "-", "*", "*", "/"];
+
+  for (let i = 0; i < 5; i++) {
+    const a = getRandomInt(-5, 5, true);
+    const b = getRandomInt(-5, 5, true);
+    const c = getRandomInt(-5, 5, true);
+    const d = getRandomInt(-5, 5, true);
+    const op = operations[i];
+    let question, answer;
+
+    if (op === "+") {
+      question = `${toTexComplex(a,b)} + ${toTexComplex(c,d)}`;
+      answer = `${a + c} + ${(b + d)}i`;
+    } else if (op === "-") {
+      question = `${toTexComplex(a,b)} - ${toTexComplex(c,d)}`;
+      answer = `${a - c} + ${(b - d)}i`;
+    } else if (op === "*") {
+      const real = a * c - b * d;
+      const imag = a * d + b * c;
+      question = `${toTexComplex(a,b)} \\times ${toTexComplex(c,d)}`;
+      answer = `${real} + ${imag}i`;
+    } else if (op === "/") {
+      const denom = c * c + d * d;
+      const real = (a * c + b * d) / denom;
+      const imag = (b * c - a * d) / denom;
+      question = `\\dfrac{${toTexComplex(a,b)}}{${toTexComplex(c,d)}}`;
+      answer = `${Math.round(real)} + ${Math.round(imag)}i`;
     }
 
-    function formatComplex(a, b) {
-      let real = a !== 0 ? a.toString() : "";
-      let imag = b !== 0 ? (b > 0 ? (a !== 0 ? "+" : "") + (b === 1 ? "i" : b + "i") : (b === -1 ? "-i" : b + "i")) : "";
-      return (real + imag) || "0";
+    problems.push({ question, answer });
+
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `
+      <div><strong>問${i + 1}.</strong> <span class="mj-tex">\\( ${question} \\)</span></div>
+      <div>
+        実部: <input type="number" id="realInput${i}" placeholder="実部を入力">
+        虚部: <input type="number" id="imagInput${i}" placeholder="虚部を入力">
+      </div>
+      <span id="result${i}"></span>
+    `;
+    quizContainer.appendChild(div);
+  }
+  MathJax.typeset();
+}
+
+function checkAnswers() {
+  let correct = 0;
+  problems.forEach((p, i) => {
+    const realInput = parseInt(document.getElementById(`realInput${i}`).value);
+    const imagInput = parseInt(document.getElementById(`imagInput${i}`).value);
+    const result = document.getElementById(`result${i}`);
+    const correctAns = p.answer.replace(/\s+/g, "").toLowerCase();
+    
+    const answerParts = p.answer.split("+");
+    const correctReal = parseInt(answerParts[0]);
+    const correctImag = parseInt(answerParts[1]);
+
+    if (realInput === correctReal && imagInput === correctImag) {
+      result.innerHTML = `<span class="correct">← 正解！</span>`;
+      correct++;
+    } else {
+      result.innerHTML = `<span class="incorrect">← 不正解（正: ${p.answer}）</span>`;
     }
+  });
+  scoreDisplay.textContent = `スコア：${correct} / ${problems.length} 正解`;
+}
 
-    function addComplex(a, b, c, d) {
-      return [a + c, b + d];
-    }
+generateProblems();
+</script>
 
-    function subtractComplex(a, b, c, d) {
-      return [a - c, b - d];
-    }
-
-    function multiplyComplex(a, b, c, d) {
-      return [a * c - b * d, a * d + b * c];
-    }
-
-    function divideComplex(a, b, c, d) {
-      const denominator = c * c + d * d;
-      const real = Math.floor((a * c + b * d) / denominator);
-      const imag = Math.floor((b * c - a * d) / denominator);
-      return [real, imag];
-    }
-
-    function generateProblems() {
-      const quizDiv = document.getElementById("quiz");
-      quizDiv.innerHTML = "";
-
-      const problems = [];
-      for (let i = 0; i < 2; i++) {
-        let a = getRandomInt(-5, 5, true);
-        let b = getRandomInt(-5, 5, true);
-        let c = getRandomInt(-5, 5, true);
-        let d = getRandomInt(-5, 5, true);
-        problems.push({ a, b, c, d, op: i === 0 ? "+" : "-" });
-      }
-      for (let i = 0; i < 2; i++) {
-        let a = getRandomInt(-5, 5, true);
-        let b = getRandomInt(-5, 5, true);
-        let c = getRandomInt(-5, 5, true);
-        let d = getRandomInt(-5, 5, true);
-        problems.push({ a, b, c, d, op: "×" });
-      }
-      for (let i = 0; i < 1; i++) {
-        let a = getRa
+</body>
+</html>
