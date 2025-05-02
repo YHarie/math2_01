@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>整式の割り算のあまりを求める問題</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .question { margin-bottom: 25px; }
+    input { width: 80px; margin-left: 10px; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<h1>整式の割り算のあまりを求める問題</h1>
+<div id="score"></div>
+<form id="quizForm"></form>
+<button type="button" onclick="checkAnswers()">答え合わせ</button>
+<button type="button" onclick="generateProblems()">再出題</button>
+
+<script>
+const quizForm = document.getElementById("quizForm");
+const scoreDisplay = document.getElementById("score");
+let problems = [];
+
+function getRandomInt(min, max, excludeZero = false) {
+  let v;
+  do { v = Math.floor(Math.random() * (max - min + 1)) + min; }
+  while (excludeZero && v === 0);
+  return v;
+}
+
+function formatPoly(coefs) {
+  const terms = [];
+  const n = coefs.length - 1;
+  coefs.forEach((c, i) => {
+    if (c === 0) return;
+    const exp = n - i;
+    const sign = c < 0 ? '-' : (terms.length ? '+' : '');
+    const absVal = Math.abs(c);
+    let term = '';
+    if (exp === 0) {
+      term = absVal.toString();
+    } else if (exp === 1) {
+      term = (absVal === 1 ? '' : absVal) + 'x';
+    } else {
+      term = (absVal === 1 ? '' : absVal) + `x^{${exp}}`;
+    }
+    terms.push(sign + term);
+  });
+  return terms.join('');
+}
+
+function generateProblems() {
+  quizForm.innerHTML = '';
+  scoreDisplay.textContent = '';
+  problems = [];
+
+  // 問題1: ax^2+bx+c を x+r で割った余り
+  {
+    const a = getRandomInt(1, 3);
+    const b = getRandomInt(-3, 3, true);
+    const c = getRandomInt(-3, 3, true);
+    const r = getRandomInt(-2, 2, true);
+    const poly = formatPoly([a, b, c]);
+    const rem = a * r * r + b * r + c;
+    problems.push({ poly, r, answer: rem });
+  }
+
+  // 問題2: ax^3+bx^2+cx+d を x+r で割った余り
+  {
+    const a = getRandomInt(1, 3);
+    const b = getRandomInt(-3, 3, true);
+    const c = getRandomInt(-3, 3, true);
+    const d = getRandomInt(-3, 3, true);
+    const r = getRandomInt(-2, 2, true);
+    const poly = formatPoly([a, b, c, d]);
+    const rem = a * r * r * r + b * r * r + c * r + d;
+    problems.push({ poly, r, answer: rem });
+  }
+
+  problems.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+      <div><strong>問${i + 1}.</strong> \\(${p.poly}\\) を \\(x${p.r >= 0 ? '+' : ''}${p.r}\\) で割った余りを求めなさい。</div>
+      <input type="number" id="input${i}" placeholder="あまり">
+      <span id="result${i}"></span>
+    `;
+    quizForm.appendChild(div);
+  });
+
+  MathJax.typeset();
+}
+
+function checkAnswers() {
+  let correct = 0;
+  problems.forEach((p, i) => {
+    const val = parseInt(document.getElementById(`input${i}`).value);
+    const res = document.getElementById(`result${i}`);
+    if (val === p.answer) {
+      res.innerHTML = `<span class='correct'>← 正解！</span>`;
+      correct++;
+    } else {
+      res.innerHTML = `<span class='incorrect'>← 不正解（正: ${p.answer}）</span>`;
+    }
+  });
+  scoreDisplay.textContent = `スコア：${correct} / ${problems.length} 正解`;
+}
+
+generateProblems();
+</script>
+
+</body>
+</html>
