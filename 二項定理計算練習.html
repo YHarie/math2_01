@@ -34,15 +34,15 @@
       }
     }
 
-    function formatTerm(a, b) {
-      const aStr = a === 1 ? "" : a;
+    function formatTerm(ax, by, isXY) {
+      const aStr = ax === 1 ? "" : ax;
       let bStr;
-      if (b > 0) {
-        bStr = `+${b}`;
+      if (by > 0) {
+        bStr = by === 1 ? "+y" : `+${by}y`;
       } else {
-        bStr = `${b}`;
+        bStr = by === -1 ? "-y" : `${by}y`;
       }
-      return `(${aStr}x ${bStr})`;
+      return isXY ? `(${aStr}x ${bStr})` : `(${aStr}x ${by > 0 ? "+" + by : by})`;
     }
 
     function generateQuestions() {
@@ -54,8 +54,10 @@
         const r = Math.floor(Math.random() * 3) + 3; // 3 <= r <= 5
         const k = Math.floor(Math.random() * (r - 1)) + 1; // 1 <= k <= r-1
 
-        const term = formatTerm(a, b);
-        const questionText = `${term}<sup>${r}</sup> の展開において、x<sup>${k}</sup> の係数を求めよ。`;
+        const isXY = Math.random() < 0.5; // ランダムに (ax+b) か (ax+by) を出題
+        const term = formatTerm(a, b, isXY);
+        const variable = isXY ? `x<sup>${k}</sup>y<sup>${r - k}</sup>` : `x<sup>${k}</sup>`;
+        const questionText = `${term}<sup>${r}</sup> の展開において、${variable} の係数を求めよ。`;
 
         const div = document.createElement("div");
         div.className = "question";
