@@ -79,7 +79,7 @@ function generateProblems() {
     const c = getRandomInt(-3, 3, true);
     const r = getRandomInt(-2, 2, true);
     const poly = formatPoly([a, b, c]);
-    const rem = a * r * r + b * r + c;
+    const rem = a * r * r - b * r + c;
     problems.push({ poly, r, answer: rem });
   }
 
@@ -91,7 +91,7 @@ function generateProblems() {
     const d = getRandomInt(-3, 3, true);
     const r = getRandomInt(-2, 2, true);
     const poly = formatPoly([a, b, c, d]);
-    const rem = a * r * r * r + b * r * r + c * r + d;
+    const rem = -a * r * r * r + b * r * r - c * r + d;
     problems.push({ poly, r, answer: rem });
   }
 
