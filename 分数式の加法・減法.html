@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>分数式の加法・減法クイズ</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .question { margin-bottom: 10px; font-size: 18px; text-align: left; }
+    label, input, button { display: block; margin-top: 10px; font-size: 16px; }
+    input { width: 300px; height: 32px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    #feedback { text-align: left; margin-top: 10px; font-size: 18px; }
+
+  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1>分数式の加法・減法練習問題</h1>
+<div class="question" id="question"></div>
+<form id="quizForm">
+  <button type="button" onclick="showAnswer()">答え合わせ</button>
+  <button type="button" onclick="generateQuestion()">再出題</button>
+</form>
+<div id="feedback"></div>
+
+<script>
+function getRandomInt(min, max, exclude = []) {
+  let val;
+  do {
+    val = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while (exclude.includes(val));
+  return val;
+}
+
+function formatSigned(num) {
+  if (num === 0) return "";
+  return num > 0 ? `+${num}` : `${num}`;
+}
+
+function formatPolynomial(a, b) {
+  let ax = a === 0 ? "" : a === 1 ? "+x" : a === -1 ? "-x" :a>0 ? `+${a}x`: `${a}x`;
+  let bStr = b === 0 ? "" : (b > 0 ? `+${b}` : `${b}`);
+  return `x^2${ax}${bStr}`;
+}
+
+function formatXPlus(r) {
+  if (r === 0) return "x";
+  return r === 1 ? "x+1" : r === -1 ? "x-1" : (r > 0 ? `x+${r}` : `x${r}`);
+}
+
+function generateQuestion() {
+  const questionEl = document.getElementById("question");
+  const feedback = document.getElementById("feedback");
+  feedback.innerHTML = "";
+
+  let r1 = getRandomInt(-5, 5);
+  let r2 = getRandomInt(-5, 5, [r1]);
+  let r3 = getRandomInt(-5, 5, [r1, r2]);
+  let i = Math.random() < 0.5 ? 1 : -1;
+
+  let a = i * (r1 + r3 - r2);
+  let b = i * (r1 * r3);
+
+  const num1 = `x`;
+  const den1 = formatXPlus(r1);
+  const ax = a === 0 ? "" : (a === 1 ? "x" : a === -1 ? "-x" : `${a}x`);
+  const bStr = b === 0 ? "" : (b > 0 ? `+${b}` : `${b}`);
+  const num2 = `${ax}${bStr}`;
+  const den2 = formatPolynomial(r1 + r2, r1 * r2);
+  const sign = i === 1 ? "+" : "-";
+
+  const questionLatex = `\\frac{${num1}}{${den1}} ${sign} \\frac{${num2}}{${den2}}`;
+  questionEl.innerHTML = `次の計算をせよ。<br>\\[ ${questionLatex} \\]`;
+
+  window.correctAnswer = `\\[ \\frac{${formatXPlus(r3)}}{${formatXPlus(r2)}} \\]`;
+
+  MathJax.typesetPromise && MathJax.typesetPromise();
+}
+
+function showAnswer() {
+  document.getElementById("feedback").innerHTML = `正解: ${window.correctAnswer}`;
+  MathJax.typesetPromise && MathJax.typesetPromise();
+}
+
+generateQuestion();
+</script>
+</body>
+</html>
