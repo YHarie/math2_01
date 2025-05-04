@@ -28,7 +28,11 @@
   <button type="button" onclick="generateQuestion()">再生成</button>
 </form>
 <div id="feedback"></div>
-
+<script>
+MathJax = { chtml: { displayAlign: "left", }
+};
+</script>
+  
 <script>
 function getRandomInt(min, max, exclude = []) {
   let val;
