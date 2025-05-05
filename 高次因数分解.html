@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>因数分解の問題</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: left; }
+    .question, #feedback { margin-bottom: 10px; font-size: 18px; text-align: left; }
+    button { padding: 10px 20px; font-size: 16px; margin-right: 20px; }
+  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1>因数分解の問題</h1>
+<div class="question" id="question"></div>
+<div style="margin-top: 20px;">
+  <button type="button" onclick="showAnswer()">答え</button>
+  <button type="button" onclick="generateQuestion()">再出題</button>
+</div>
+<div id="feedback" style="margin-top: 20px;"></div>
+
+<script>
+MathJax = { chtml: { displayAlign: "left", }
+};
+</script>
+
+<script>
+function getRandomElement(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function formatSign(n, j) {
+  if (n === 0) return '';
+  if (j > 1) {
+    if (n === 1) return `+x^${j}`;
+    if (n === -1) return `-x^${j}`;
+    return n > 0 ? `+${n}x^${j}` : `${n}x^${j}`;
+  } else if (j === 1) {
+    if (n === 1) return '+x';
+    if (n === -1) return '-x';
+    return n > 0 ? `+${n}x` : `${n}x`;
+  } else {
+    // 定数項（xの次数が0）
+    return n > 0 ? `+${n}` : `${n}`;
+  }
+}
+function generateQuestion() {
+  const i = getRandomInt(1, 2);
+  const values = [1, -1, 2, -2, 3, -3];
+  let a1 = getRandomElement(values);
+  let a2 = getRandomElement(values);
+  let a3 = getRandomElement(values);
+  let a4;
+
+  do {
+    a4 = getRandomElement([2, 3]);
+  } while (a4 === a1 || a4 === -a1);
+
+  let r1, r2, r3, R1, R2, R3, questionText, answerText;
+
+  if (i === 1) {
+    r1 = a1 + a2 + a3;
+    r2 = a1 * a2 + a2 * a3 + a3 * a1;
+    r3 = a1 * a2 * a3;
+    R1 = formatSign(r1,2);
+    R2 = formatSign(r2,1);
+    R3 = formatSign(r3,0);
+    questionText = `$$x^3 ${R1} ${R2} ${R3} ~を因数分解せよ。$$`;
+    answerText = `$$ (x${formatSign(a1)})(x${formatSign(a2)})(x${formatSign(a3)}) $$`;
+  } else {
+    r1 = a1 + a4 * a2 + a4 * a3;
+    r2 = a1 * a2 + a4 * a2 * a3 + a4 * a3 * a1;
+    r3 = a1 * a2 * a3;
+    R1 = formatSign(r1,2);
+    R2 = formatSign(r2,1);
+    R3 = formatSign(r3,0);
+    questionText = `$$ ${a4} x^3 ${R1} ${R2} ${R3}  を因数分解せよ。$$`;
+    answerText = `$$ (${a4}x${formatSign(a1)})(x${formatSign(a2)})(x${formatSign(a3)}) $$`;
+  }
+
+  document.getElementById("question").innerHTML = questionText;
+  document.getElementById("feedback").innerHTML = '';
+  window.answerText = answerText;
+  MathJax.typeset();
+}
+
+function showAnswer() {
+  document.getElementById("feedback").innerHTML = window.answerText;
+  MathJax.typeset();
+}
+
+generateQuestion();
+</script>
+</body>
+</html>
