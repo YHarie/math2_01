@@ -39,7 +39,7 @@ function generateQuestion() {
     a1 = getRandomInt(-8, 8);
     a2 = getRandomInt(-8, 8);
   } while (a1 === a2);  // a1とa2が異なるまで繰り返す
-  a = a1 + a2;
+  a = (a1 + a2)*(-1);
   b = a1 * a2;
  answerText = `$$x=${a1},\ ${a2}$$`;
 }
