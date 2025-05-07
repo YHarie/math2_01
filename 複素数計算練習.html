@@ -2,30 +2,73 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>複素数の四則演算クイズ</title>
+  <title>複素数の四則演算問題</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .question { margin-bottom: 20px; }
-    input { width: 100px; margin-left: 10px; }
-    .correct { color: green; }
-    .incorrect { color: red; }
+   body {
+  font-family: sans-serif;
+  padding: 4vw;
+  font-size: 4vw;
+  text-align: left;
+}
 
-    /* MathJaxの数式を左寄せに */
-    .mj-tex {
-      text-align: left;
-      display: block;
-    }
-    input {
-    width: 80px;  /* 幅の調整 */
-    height: 40px;  /* 高さの調整 */
+.question {
+  margin-bottom: 4vw;
+}
+
+input {
+  width: 20vw;
+  height: 8vw;
+  padding: 1vw;
+  font-size: 4vw;
+  margin-left: 2vw;
+}
+
+button {
+  width: 40vw;
+  height: 10vw;
+  font-size: 4vw;
+  padding: 2vw;
+  margin-right: 2vw;
+}
+
+.correct {
+  color: green;
+}
+
+.incorrect {
+  color: red;
+}
+
+.mj-tex {
+  text-align: left;
+  display: block;
+}
+
+/* PC向けのスタイル調整 */
+@media (min-width: 768px) {
+  body {
+    padding: 20px;
+    font-size: 18px;
+  }
+
+  .question {
+    margin-bottom: 20px;
+  }
+
+  input {
+    width: 100px;
+    height: 40px;
     padding: 5px;
+    font-size: 16px;
   }
- button {
-    width: 200px;  /* ボタンの幅 */
-    height: 40px;  /* ボタンの高さ */
-    font-size: 16px;  /* 文字の大きさ */
-    padding: 10px;  /* 内側の余白 */
+
+  button {
+    width: 200px;
+    height: 40px;
+    font-size: 16px;
+    padding: 10px;
   }
+}
 
   </style>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -35,7 +78,7 @@
 </head>
 <body>
 
-<h1>複素数の四則演算クイズ</h1>
+<h1>複素数の四則演算</h1>
 <div id="score"></div>
 <div id="quiz"></div>
 <button onclick="checkAnswers()">答え合わせ</button>
