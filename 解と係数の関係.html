@@ -42,7 +42,7 @@ input {
     height: 40px;  /* 高さの調整 */
     padding: 5px;
   }
-  }
+  
   </style>
 </head>
 <body>
@@ -110,23 +110,21 @@ function generateQuiz() {
   const quizDiv = document.getElementById('quiz');
   const eq = generateEquationString(a, b);
   quizDiv.innerHTML = `
-    <div class="question">次の二次方程式 \\(${eq}\\) の解 \\alpha 、\\beta について、次の値を求めよ。</div>
+    <div class="question">'次の二次方程式 \\(${eq}\\) の解 \\alpha 、\\beta について、次の値を求めよ。'</div>
     <div>
       \\(α + β = \\)
       <input type="text" id="sum" placeholder="答えを入力">
-    </div>
-<br>
+    </div><br>
     <div>
       \\(αβ = \\)
       <input type="text" id="product" placeholder="答えを入力">
-    </div>
-<br>
+    </div><br>
     <div>
       \\(α^2 + β^2 = \\)
       <input type="text" id="squareSum" placeholder="答えを入力">
-    </div>
+    </div><br>
   `;
-<br>
+
   const alphaBetaSum = -a; // α + β = -a
   const alphaBetaProd = b; // αβ = b
   const alphaBetaSquareSum = a*a - 2*b; // α² + β² = a² - 2b
