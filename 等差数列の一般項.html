@@ -4,50 +4,142 @@
   <meta charset="UTF-8" />
   <title>等差数列の一般項</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: sans-serif;
-      padding: 4vw;
-      font-size: 4vw;
     }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1.2em;
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+
+    /* スマホでは縦並びにする */
+    @media (max-width: 767px) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+    }
+
     select, input, button {
       font-size: 1em;
       margin: 0.5em 0;
     }
+
     input {
-      width: 40px;
-      height: 40px;
-      padding: 5px;
+      width: 50px;
+      height: 30px;
     }
+
     button {
       padding: 10px 20px;
       margin-right: 10px;
     }
+
     .correct { color: green; }
     .incorrect { color: red; }
-
-    @media (min-width: 768px) {
-      body { font-size: 18px; padding: 20px; }
-      input { width: 50px; height: 30px; }
-      button { font-size: 16px; }
-    }
   </style>
 </head>
 <body>
-  <h1>等差数列の一般項</h1>
-  <label>モード選択:
-    <select id="modeSelect" onchange="generateQuiz()">
-      <option value="1" selected>1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="0">0</option>
-    </select>
-  </label>
-  <div id="question"></div>
-  <div id="feedback"></div>
-  <div id="solution"></div>
-  <button onclick="checkAnswer()">答え合わせ</button>
-  <button onclick="showSolution()">解説</button>
-  <button onclick="generateQuiz()">再出題</button>
+  <div class="container">
+    <div id="left-area">
+      <h1>等差数列の一般項</h1>
+      <label>モード選択:
+        <select id="modeSelect" onchange="generateQuiz()">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="0">0</option>
+        </select>
+      </label>
+      <div id="question"></div>
+      <div id="feedback"></div>
+      <div id="solution"></div>
+      <button onclick="checkAnswer()">答え合わせ</button>
+      <button onclick="showSolution()">解説</button>
+      <button onclick="generateQuiz()">再出題</button>
+    </div>
+    <div id="right-area">
+      <!-- 黒板として自由に使えるエリア -->
+      <canvas id="blackboard" width="700"height="700"></canvas>
+    <button onclick="clearBoard()">黒板をクリア</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    // タッチ対応
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
 
   <script>
     MathJax = { chtml: { displayAlign: "left" } };
@@ -60,20 +152,17 @@
 
     let currentA, currentD, currentN1, currentN2;
 
-   function generateQuiz() {
-  document.getElementById('feedback').textContent = '';
-  document.getElementById('solution').textContent = '';
+    function generateQuiz() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('solution').textContent = '';
 
-  let i = parseInt(document.getElementById('modeSelect').value);
-
-  if (i === 0) {
-    i = getRandomInt(1, 3);  // 1〜3のどれかをランダムに選ぶ
-  }
+      let i = parseInt(document.getElementById('modeSelect').value);
+      if (i === 0) i = getRandomInt(1, 3);
 
       if (i === 1) {
         const a = getRandomInt(-10, 10);
         let d;
-        do { d = getRandomInt(2, 9)*getRandomInt(-1, 1); } while (d === 0);
+        do { d = getRandomInt(2, 9) * getRandomInt(-1, 1); } while (d === 0);
         currentA = a;
         currentD = d;
         document.getElementById('question').innerHTML = `
@@ -83,12 +172,12 @@
       } else if (i === 2) {
         const a = getRandomInt(-10, 10);
         let d;
-        do { d = getRandomInt(2, 9)*getRandomInt(-1, 1); } while (d === 0);
+        do { d = getRandomInt(2, 9) * getRandomInt(-1, 1); } while (d === 0);
         const n1 = getRandomInt(6, 15);
         currentA = a;
         currentD = d;
         currentN1 = n1;
-        const seq = `${a}, ${a + d}, ${a + 2*d}, ${a + 3*d}, \\cdots`;
+        const seq = `${a}, ${a + d}, ${a + 2 * d}, ${a + 3 * d}, \\cdots`;
         document.getElementById('question').innerHTML = `
           $$次の等差数列の一般項を求めよ。また，その第${n1}項を求めよ。$$
           $$${seq}$$<br>
@@ -98,10 +187,9 @@
       } else if (i === 3) {
         const a = getRandomInt(-10, 10);
         let d;
-        do { d = getRandomInt(2, 9)*getRandomInt(-1, 1); } while (d === 0);
+        do { d = getRandomInt(2, 9) * getRandomInt(-1, 1); } while (d === 0);
         let n1 = getRandomInt(4, 10), n2;
         do { n2 = getRandomInt(4, 10); } while (n1 === n2);
-
         currentA = a;
         currentD = d;
         currentN1 = n1;
@@ -153,24 +241,22 @@
 
       const i = parseInt(document.getElementById('modeSelect').value);
 
-       if (i === 1) {
+      if (i === 1) {
         explanation = `
-          $$a_{n} = ${a} + (n - 1)\\cdot ${d >= 0 ? '' : '('}${d}${ d >= 0 ? '' : ')'}$$
+          $$a_{n} = ${a} + (n - 1)\\cdot ${d}$$
           $$すなわち，a_{n} = ${d}n ${a - d >= 0 ? '+' : ''}${a - d}$$
         `;
       } else if (i === 2) {
         explanation = `
-          $$d = ${a + d} - ${a >= 0 ? '' : '('}${a}${a>= 0 ? '' : ')'} = ${d}$$
-          $$よって，a_{n} = ${a} + (n - 1)\\cdot ${d >= 0 ? '' : '('}${d}${ d >= 0 ? '' : ')'}$$
-          $$すなわち，a_{n} = ${d}n ${a - d >= 0 ? '+' : ''}${a - d}$$
+          $$d = ${a + d} - ${a} = ${d}$$
+          $$a_{n} = ${a} + (n - 1)\\cdot ${d} = ${d}n ${a - d >= 0 ? '+' : ''}${a - d}$$
           $$a_{${n1}} = ${a} + (${n1} - 1)\\cdot ${d} = ${a + d * (n1 - 1)}$$
         `;
       } else if (i === 3) {
         explanation = `
-          $$この数列の初項をa，公差をdとすると~~~~a_{n} = a + (n - 1)d$$
-          $$第${n1}項が${term1}より，a + ${n1 - 1}d = ${term1}$$
-          $$第${n2}項が${term2}より，a + ${n2 - 1}d = ${term2}$$
-          $$これを解いて，a = ${a}, d = ${d}$$
+          $$a_{n} = a + (n - 1)d$$
+          $$a + ${n1 - 1}d = ${term1},~~a + ${n2 - 1}d = ${term2}$$
+          $$解いて~~a = ${a},~~d = ${d}$$
           $$よって，a_{n} = ${d}n ${a - d >= 0 ? '+' : ''}${a - d}$$
         `;
       }
@@ -178,7 +264,6 @@
       document.getElementById('solution').innerHTML = `解説：${explanation}`;
       MathJax.typeset();
     }
-
 
     generateQuiz();
   </script>
