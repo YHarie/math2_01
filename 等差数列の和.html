@@ -2,33 +2,45 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>等差数列の和</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>等差数列の問題と黒板</title>
   <style>
     body {
+      margin: 0;
       font-family: sans-serif;
-      padding: 5vw;
-      font-size: 4vw;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
-    select, button, input {
-      font-size: 4vw;
-      padding: 1vw;
-      margin: 2vw 0;
+
+    #problem-area {
+      flex: 1;
+      padding: 20px;
+      overflow: auto;
+      background-color: #f0f0f0;
     }
-    .question, .feedback, .solution {
-      margin: 3vw 0;
+
+    #blackboard-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #222;
+      padding: 10px;
     }
-    @media (min-width: 768px) {
-      body {
-        font-size: 18px;
-        padding: 5px;
-      }
-      select, button, input {
-        font-size: 18px;
-        padding: 5px;
-      }
+
+    canvas {
+      border: 2px solid #fff;
+      background-color: #000;
+      touch-action: none;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
     }
   </style>
-  <script>
+ <script>
     function getRandomInt(min, max, excludeZero = false) {
       let v;
       do {
@@ -44,26 +56,26 @@
       if (i === 0) i = getRandomInt(1, 2);
 
       const a = getRandomInt(-10, 10);
-      do { d = getRandomInt(2, 5)*getRandomInt(-1, 1); } while (d === 0);
+      const d = getRandomInt(-3, 3, true);
       const n = getRandomInt(10, 25);
       const an = a - d + d * n;
       let question = '', answer = '', solution = '';
 
       if (i === 1) {
-        question = `$$初項${a}，末項${an}，項数${n}の等差数列の和を求めよ。$$`;
+        question = `$$初項${a}，公差${d}，項数${n}の等差数列の和を求めよ。$$`;
         answer = (a + an) * n / 2;
         solution = `$$
-          \\frac{1}{2}\\cdot ${n}(${a}+ ${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
+          \\frac{1}{2}\\cdot ${n}(${a}${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
         $$`;
       } else if (i === 2) {
-        question = `$$初項${a}，公差${d}，項数${n}の等差数列の和を求めよ。$$`;
+        question = `$$初項${a}，末項${an}，項数${n}の等差数列の和を求めよ。$$`;
         answer = (a + an) * n / 2;
         solution = `$$
           \\frac{1}{2}\\cdot ${n}\\{2\\cdot${a >= 0 ? '' : '('}${a}${a >= 0 ? '' : ')'}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}\\}=${answer}
         $$<br>
         $$<<別解>>$$
-        $$a_{ ${n} }=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
-        $$\\frac{1}{2}\\cdot ${n}(${a}+ ${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$
+        $$a_{n}=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
+        $$\\frac{1}{2}\\cdot ${n}(${a}${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$
         `;
       }
 
@@ -92,9 +104,12 @@
     MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 </head>
 <body>
-  <h1>等差数列の和</h1>
+  <!-- 上：問題表示エリア -->
+  <div id="problem-area">
+      <h1>等差数列の和</h1>
   <label>モード:
     <select id="modeSelect" onchange="generateQuiz()">
       <option value="1" selected>1</option>
@@ -111,5 +126,64 @@
   </div>
   <div id="feedback" class="feedback"></div>
   <div id="solution" class="solution"></div>
+
+  </div>
+
+  <!-- 下：黒板エリア -->
+  <div id="blackboard-area">
+    <canvas id="blackboard" width="1000" height="200"></canvas>
+    <button onclick="clearBoard()">黒板をクリア</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    // タッチ対応
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
 </body>
 </html>
