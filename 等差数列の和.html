@@ -1,45 +1,70 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>等差数列の問題と黒板</title>
+   <meta charset="UTF-8" />
+  <title>等差数列の一般項</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: sans-serif;
+    }
+
+    .container {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       height: 100vh;
     }
 
-    #problem-area {
-      flex: 1;
-      padding: 20px;
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
       overflow: auto;
-      background-color: #f0f0f0;
     }
 
-    #blackboard-area {
+    #left-area {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #222;
-      padding: 10px;
+      background-color: #f9f9f9;
+      font-size: 1.2em;
     }
 
-    canvas {
-      border: 2px solid #fff;
-      background-color: #000;
-      touch-action: none;
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+
+    /* スマホでは縦並びにする */
+    @media (max-width: 767px) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+    }
+
+    select, input, button {
+      font-size: 1em;
+      margin: 0.5em 0;
+    }
+
+    input {
+      width: 50px;
+      height: 30px;
     }
 
     button {
-      margin-top: 10px;
-      padding: 10px;
+      padding: 10px 20px;
+      margin-right: 10px;
     }
+
+    .correct { color: green; }
+    .incorrect { color: red; }
   </style>
+
  <script>
     function getRandomInt(min, max, excludeZero = false) {
       let v;
@@ -56,26 +81,26 @@
       if (i === 0) i = getRandomInt(1, 2);
 
       const a = getRandomInt(-10, 10);
-      const d = getRandomInt(-3, 3, true);
+       do { d = getRandomInt(2, 9) * getRandomInt(-1, 1); } while (d === 0);
       const n = getRandomInt(10, 25);
       const an = a - d + d * n;
       let question = '', answer = '', solution = '';
 
       if (i === 1) {
-        question = `$$初項${a}，公差${d}，項数${n}の等差数列の和を求めよ。$$`;
+        question = `$$初項${a}，末項${an}，項数${n}の等差数列の和を求めよ。$$`;
         answer = (a + an) * n / 2;
         solution = `$$
-          \\frac{1}{2}\\cdot ${n}(${a}${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
+          \\frac{1}{2}\\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
         $$`;
       } else if (i === 2) {
-        question = `$$初項${a}，末項${an}，項数${n}の等差数列の和を求めよ。$$`;
+        question = `$$初項${a}，公差${d}，項数${n}の等差数列の和を求めよ。$$`;
         answer = (a + an) * n / 2;
         solution = `$$
           \\frac{1}{2}\\cdot ${n}\\{2\\cdot${a >= 0 ? '' : '('}${a}${a >= 0 ? '' : ')'}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}\\}=${answer}
         $$<br>
         $$<<別解>>$$
-        $$a_{n}=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
-        $$\\frac{1}{2}\\cdot ${n}(${a}${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$
+        $$a_{${n}}=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
+        $$\\frac{1}{2}\\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$
         `;
       }
 
@@ -107,8 +132,10 @@
 
 </head>
 <body>
+  <div class="container">
+    <div id="left-area">
+
   <!-- 上：問題表示エリア -->
-  <div id="problem-area">
       <h1>等差数列の和</h1>
   <label>モード:
     <select id="modeSelect" onchange="generateQuiz()">
@@ -128,10 +155,9 @@
   <div id="solution" class="solution"></div>
 
   </div>
-
-  <!-- 下：黒板エリア -->
-  <div id="blackboard-area">
-    <canvas id="blackboard" width="1000" height="200"></canvas>
+ <div id="right-area">
+      <!-- 黒板として自由に使えるエリア -->
+    <canvas id="blackboard" width="800"height="800"></canvas>
     <button onclick="clearBoard()">黒板をクリア</button>
   </div>
 
