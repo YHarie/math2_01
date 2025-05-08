@@ -151,7 +151,7 @@ function generateQuestion() {
       r1 = 0;
       r2 = -a1 + a2*a2;
       r3 = 0;
-      correctAnswer = `$$x=\\pm \\sqrt{${a1}},\\pm${a2}i$$`;
+      correctAnswer = `$$x=\\pm \\sqrt{${a1}},\\pm${a2>1 ? an:''}i$$`;
     } else if (j === 3) {
       a1 = getRandomElement([2,3,5,7,10]);
       a2 = getRandomInt(1, 3);
