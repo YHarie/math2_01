@@ -153,15 +153,15 @@
 
       const i = parseInt(document.getElementById('modeSelect').value);
 
-      if (i === 1) {
+       if (i === 1) {
         explanation = `
-          $$a_{n} = ${a} + (n - 1)\\cdot (${d})$$
+          $$a_{n} = ${a} + (n - 1)\\cdot ${d >= 0 ? '' : '('}${d}${ d >= 0 ? '' : ')'}$$
           $$すなわち，a_{n} = ${d}n ${a - d >= 0 ? '+' : ''}${a - d}$$
         `;
       } else if (i === 2) {
         explanation = `
-          $$d = ${a + d} - ${a} = ${d}$$
-          $$よって，a_{n} = ${a} + (n - 1)\\cdot (${d})$$
+          $$d = ${a + d} - ${a >= 0 ? '' : '('}${a}${a>= 0 ? '' : ')'} = ${d}$$
+          $$よって，a_{n} = ${a} + (n - 1)\\cdot ${d >= 0 ? '' : '('}${d}${ d >= 0 ? '' : ')'}$$
           $$すなわち，a_{n} = ${d}n ${a - d >= 0 ? '+' : ''}${a - d}$$
           $$a_{${n1}} = ${a} + (${n1} - 1)\\cdot ${d} = ${a + d * (n1 - 1)}$$
         `;
@@ -178,6 +178,7 @@
       document.getElementById('solution').innerHTML = `解説：${explanation}`;
       MathJax.typeset();
     }
+
 
     generateQuiz();
   </script>
