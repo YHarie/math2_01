@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>等差数列の和</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 5vw;
+      font-size: 4vw;
+    }
+    select, button, input {
+      font-size: 4vw;
+      padding: 1vw;
+      margin: 2vw 0;
+    }
+    .question, .feedback, .solution {
+      margin: 3vw 0;
+    }
+    @media (min-width: 768px) {
+      body {
+        font-size: 18px;
+        padding: 5px;
+      }
+      select, button, input {
+        font-size: 18px;
+        padding: 5px;
+      }
+    }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+
+    function generateQuiz() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('solution').textContent = '';
+      let i = parseInt(document.getElementById('modeSelect').value);
+      if (i === 0) i = getRandomInt(1, 2);
+
+      const a = getRandomInt(-10, 10);
+      do { d = getRandomInt(2, 5)*getRandomInt(-1, 1); } while (d === 0);
+      const n = getRandomInt(10, 25);
+      const an = a - d + d * n;
+      let question = '', answer = '', solution = '';
+
+      if (i === 1) {
+        question = `$$初項${a}，末項${an}，項数${n}の等差数列の和を求めよ。$$`;
+        answer = (a + an) * n / 2;
+        solution = `$$
+          \\frac{1}{2}\\cdot ${n}(${a}+ ${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
+        $$`;
+      } else if (i === 2) {
+        question = `$$初項${a}，公差${d}，項数${n}の等差数列の和を求めよ。$$`;
+        answer = (a + an) * n / 2;
+        solution = `$$
+          \\frac{1}{2}\\cdot ${n}\\{2\\cdot${a >= 0 ? '' : '('}${a}${a >= 0 ? '' : ')'}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}\\}=${answer}
+        $$<br>
+        $$<<別解>>$$
+        $$a_{ ${n} }=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
+        $$\\frac{1}{2}\\cdot ${n}(${a}+ ${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$
+        `;
+      }
+
+      document.getElementById('question').innerHTML = question;
+      document.getElementById('userInput').value = '';
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = generateQuiz;
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <h1>等差数列の和</h1>
+  <label>モード:
+    <select id="modeSelect" onchange="generateQuiz()">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="0">0 (ランダム)</option>
+    </select>
+  </label>
+  <div id="question" class="question"></div>
+  <input type="number" id="userInput" placeholder="答えを入力">
+  <div>
+    <button onclick="checkAnswer()">答え合わせ</button>
+    <button onclick="showSolution()">解説</button>
+    <button onclick="generateQuiz()">再出題</button>
+  </div>
+  <div id="feedback" class="feedback"></div>
+  <div id="solution" class="solution"></div>
+</body>
+</html>
