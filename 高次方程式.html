@@ -129,7 +129,7 @@ function generateQuestion() {
         a2 = getRandomElement(values);
       } while (a1 === a2);
       r0 = -a1*a1*a2;
-      r1 = 2*a1*a2 - a1*a1;
+      r1 = 2*a1*a2 + a1*a1;
       r2 = -(a2 + 2*a1);
       correctAnswer = `$$x=${a2},${a1}$$`;
     }
