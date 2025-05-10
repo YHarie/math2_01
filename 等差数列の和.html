@@ -64,6 +64,7 @@
     .correct { color: green; }
     .incorrect { color: red; }
   </style>
+</head>
 
  <script>
     function getRandomInt(min, max, excludeZero = false) {
@@ -102,7 +103,24 @@
         $$a_{${n}}=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
         $$\\frac{1}{2}\\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$
         `;
+      }      else if (i === 3) {
+        question = `$$次の等差数列の和~S~を求めよ。$$<center>
+	$$${a}，${a + d}，${a + 2 * d}，\\cdots \\cdots ，${an}$$`;
+
+        answer = (a + an) * n / 2;
+
+        const d_display = d >= 0 ? d : `(${d})`;
+        const a_sign = a >= 0 ? `+${a}` : `${a}`;
+        const an_sign = an >= 0 ? `${an}` : `(${an})`;
+
+        solution = `$$この等差数列の初項は${a}，公差は${d}であるから，末項${an}が第~n~項であるとすると$$
+	$${a}+(n-1) \\cdot ${d_display}$$
+	$$すなわち~~~~~${d}n${a >= 0 ? `+${a}` : a}=${an}$$
+	$$ゆえに~~n=${n}$$
+	$$よって，初項${a}，末項${an}，項数${n}の等差数列の和を求めて$$
+	$$S=\\frac{1}{2}\\cdot ${n}(${a}+${an_sign})=${answer}$`;
       }
+
 
       document.getElementById('question').innerHTML = question;
       document.getElementById('userInput').value = '';
@@ -141,6 +159,7 @@
     <select id="modeSelect" onchange="generateQuiz()">
       <option value="1" selected>1</option>
       <option value="2">2</option>
+	<option value="3">3</option>
       <option value="0">0 (ランダム)</option>
     </select>
   </label>
@@ -157,9 +176,18 @@
   </div>
  <div id="right-area">
       <!-- 黒板として自由に使えるエリア -->
-    <canvas id="blackboard" width="800"height="800"></canvas>
+    <body>
+  <div class="container">
+    <div id="left-area">
+    <div id="right-area">
+      <!-- 黒板として自由に使えるエリア -->
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+<canvas id="blackboard" width="800"height="800"></canvas>
     <button onclick="clearBoard()">黒板をクリア</button>
+
+    </div>
   </div>
+
 
   <script>
     const canvas = document.getElementById('blackboard');
