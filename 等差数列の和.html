@@ -27,6 +27,7 @@
       flex: 1;
       background-color: #f9f9f9;
       font-size: 1em;
+
     }
 
     #right-area {
@@ -35,7 +36,7 @@
       color: white;
     }
 
-    @media screen and (orientation: portrait) {
+    @media (orientation: portrait) {
       .container {
         flex-direction: column;
       }
@@ -43,7 +44,7 @@
       #left-area, #right-area {
         height: 80vh;
       }
-    }
+
 
     body {
     font-size: 2em;
@@ -52,7 +53,7 @@
   input, select, button {
     font-size: 1.5em;
   }
-
+}
     .correct { color: green; }
     .incorrect { color: red; }
 
@@ -62,6 +63,7 @@
       max-height: 80vh;
       touch-action: none;
     }
+         body{font-size:1.3em;}
   </style>
   <script>
     function getRandomInt(min, max, excludeZero = false) {
