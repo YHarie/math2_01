@@ -36,31 +36,28 @@
     }
 
     /* スマホでは縦並びにする */
-    @media (max-width: 767px) {
-      .container {
-        flex-direction: column;
-      }
+	@media (max-width: 767px) {
+  .container {
+    flex-direction: column;
+  }
 
-      #left-area, #right-area {
-        height: 50vh;
-      }
-    }
+  #left-area, #right-area {
+    height: auto;
+  }
 
-    select, input, button {
-      font-size: 1em;
-      margin: 0.5em 0;
-    }
+  #blackboard {
+    width: 100% !important;
+    height: 300px;
+  }
 
-    input {
-      width: 50px;
-      height: 30px;
-    }
+  body {
+    font-size: 1.2em;
+  }
 
-    button {
-      padding: 10px 20px;
-      margin-right: 10px;
-    }
-
+  input, select, button {
+    font-size: 1.1em;
+  }
+}
     .correct { color: green; }
     .incorrect { color: red; }
   </style>
