@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>等差数列の一般項</title>
+  <title>等差数列の和</title>
   <style>
     html, body {
       margin: 0;
@@ -26,7 +26,7 @@
     #left-area {
       flex: 1;
       background-color: #f9f9f9;
-      font-size: 1.2em;
+      font-size: 1em;
     }
 
     #right-area {
@@ -41,18 +41,17 @@
       }
 
       #left-area, #right-area {
-        height: 40vh;
+        height: 80vh;
       }
     }
 
-   body {
-    font-size: 2em;
-  }
-
-  input, select, button {
+    body {
     font-size: 1.5em;
   }
 
+  input, select, button {
+    font-size: 1em;
+  }
 
     .correct { color: green; }
     .incorrect { color: red; }
@@ -60,7 +59,7 @@
     #blackboard {
       width: 100%;
       height: auto;
-      max-height: 1200vh;
+      max-height: 80vh;
       touch-action: none;
     }
   </style>
@@ -90,32 +89,31 @@
         question = `$$初項${a}，末項${an}，項数${n}の等差数列の和を求めよ。$$`;
         answer = (a + an) * n / 2;
         solution = `$$
-          \frac{1}{2}\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
+          \\frac{1}{2}\\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}
         $$`;
       } else if (i === 2) {
         question = `$$初項${a}，公差${d}，項数${n}の等差数列の和を求めよ。$$`;
         answer = (a + an) * n / 2;
         solution = `$$
-          \frac{1}{2}\cdot ${n}\{2\cdot${a >= 0 ? '' : '('}${a}${a >= 0 ? '' : ')'}+(${n}-1)\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}\}=${answer}
+          \\frac{1}{2}\\cdot ${n}\{2\\cdot${a >= 0 ? '' : '('}${a}${a >= 0 ? '' : ')'}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}\}=${answer}
         $$<br>
         $$<<別解>>$$
-        $$a_{${n}}=${a}+(${n}-1)\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
-        $$\frac{1}{2}\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$`;
+        $$a_{${n}}=${a}+(${n}-1)\\cdot${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}=${an}$$<br>
+        $$\\frac{1}{2}\\cdot ${n}(${a}+${an >= 0 ? '' : '('}${an}${an >= 0 ? '' : ')'})=${answer}$$`;
       } else if (i === 3) {
-        question = `$$次の等差数列の和~S~を求めよ。$$<br>
+        question = `$$次の等差数列の和~S~を求めよ。$$
           <center>
-          $${a}，${a + d}，${a + 2 * d}，\\cdots \cdots ，${an}$$</center>`;
+          $${a}，${a + d}，${a + 2 * d}，\\cdots \\cdots ，${an}$</center><br>`;
         answer = (a + an) * n / 2;
 
         const dStr = d > 0 ? `${d}` : `(${d})`;
         const aStr = a >= 0 ? `+${a}` : `${a}`;
 
-        solution = `$$この等差数列の初項は${a}，公差は${d}であるから，末項${an}が第~n~項であるとすると$$<br>
-          $${a}+(n-1) \cdot ${dStr}$$<br>
-          $$すなわち~~~~~${d}n${aStr}=${an}$$<br>
+        solution = `$$この等差数列の初項は${a}，公差は${d}であるから，$$ $$末項${an}が第~n~項であるとすると$$<br>
+          $$${a}+(n-1) \\cdot ${dStr}=${an}$$   $$~すなわち~~~~~${d}n${aStr}=${an}$$
           $$ゆえに~~n=${n}$$<br>
           $$よって，初項${a}，末項${an}，項数${n}の等差数列の和を求めて$$<br>
-          $$S=\frac{1}{2}\cdot ${n}(${a}+${an})=${answer}$$`;
+          $$S= \\frac{1}{2}\\cdot ${n}(${a}+${an})=${answer}$$`;
       }
 
       document.getElementById('question').innerHTML = question;
@@ -180,8 +178,8 @@
     </div>
     <div id="right-area">
       <p>ここにメモを書いたり、図形を描いたりできます。</p>
-<button onclick="clearBoard()">黒板をクリア</button>
       <canvas id="blackboard"></canvas>
+<button onclick="clearBoard()">クリア</button>
       
     </div>
   </div>
