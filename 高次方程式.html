@@ -1,64 +1,76 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>高次方程式の問題</title>
+  <meta charset="UTF-8" />
+  <title>高次方程式</title>
   <style>
-body {
-  font-family: sans-serif;
-  padding: 4vw;
-  text-align: left;
-  font-size: 4vw;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-.question, #feedback {
-  margin-bottom: 2vw;
-  font-size: 4vw;
-}
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
 
-button {
-  padding: 2vw 4vw;
-  font-size: 4vw;
-  margin-right: 3vw;
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+  input, select, button {
+    font-size: 1.5em;
+  }
 }
-@media (min-width: 768px) {
-  body {
-    font-size: 18px;
-    padding: 20px;
-  }
-  .question, #feedback {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  button {
-    font-size: 16px;
-    padding: 10px 20px;
-    margin-right: 20px;
-  }
-}
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 50vh;
+      touch-action: none;
+    }
+
   </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
-<body>
-<h1>高次方程式の問題</h1>
-<div class="question" id="question"></div>
-<div style="margin-top: 20px;">
-  <button type="button" onclick="showAnswer()">答え</button>
-  <button type="button" onclick="generateQuestion()">再出題</button>
-</div>
-<div id="feedback" style="margin-top: 20px;"></div>
-<script>
-MathJax = { chtml: { displayAlign: "left", }
-};
-</script>
-
-
-<script>
+  <script>
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-function getRandomElement(arr) {
+
+  function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 function formatTerm(r, k) {
@@ -70,7 +82,11 @@ function formatTerm(r, k) {
   return r > 0 ? `+${r}${xk}` : `${r}${xk}`;
 }
 
-function generateQuestion() {
+
+
+ function generateQuiz() {
+
+
   const i = getRandomInt(1, 2);
   let j = getRandomInt(1, 6);
   let a1, a2, a3, a4, r0, r1, r2, r3;
@@ -78,7 +94,7 @@ function generateQuestion() {
 
   if (i === 1) {
     if (j === 1) {
-      const values = [-4,-3,-2,-1,0,1,2,3,4].filter((v, i, a) => a.indexOf(v) === i);
+      const values = [-4,-3,-2,-1,1,2,3,4].filter((v, i, a) => a.indexOf(v) === i);
       do {
         a1 = getRandomElement(values);
         a2 = getRandomElement(values);
@@ -87,7 +103,20 @@ function generateQuestion() {
       r2 = -(a1 + a2 + a3);
       r1 = a1 * a2 + a2 * a3 + a3 * a1;
       r0 = -(a1 * a2 * a3);
-      correctAnswer = `$$x=${a1}，${a2}，${a3}$$`;
+	let a11=formatTerm(-a1, 0);
+        let a22=formatTerm((a2+a3)*(-1), 1);
+	let a33=formatTerm(a2*a3, 0);
+
+      correctAnswer = `$$x=${a1}，${a2}，${a3}$$
+$$<解説>$$
+$$方程式の左辺をP(x) とすると$$
+$$P(${a1})=0であるから，P(x)はx${a11}で割り切れる。$$
+$$P(x)を因数分解すると，$$
+$$P(x)=(x${a11})(x^2${a22} ${a33})$$
+$$P(x)=0 から$$
+$$ x${a11}=0~または~x^2${a22}${a33}=0$$
+$$ゆえに，x=${a1}，${a2}，${a3}$$`;
+
     } else if (j === 2) {
       do { a1 = getRandomInt(-2, 2); } while (a1 === 0);
       a2 = getRandomElement([-5, -3, -1, 1, 3, 5]);
@@ -96,7 +125,19 @@ function generateQuestion() {
       r0 = -a1 * (a2*a2 - a3)/4;
       r1 = (a2*a2 - a3)/4 - a2*a1;
       r2 = -a1 + a2;
-      correctAnswer = `$$x=\\frac{${-a2} \\pm \\sqrt{${a3}}}{2},${a1}$$`;
+	let a11=formatTerm(-a1, 0);
+        let a22=formatTerm(a2, 1);
+	let a33=formatTerm((a2*a2-a3)/4, 0);
+      correctAnswer = `$$x=\\frac{${-a2} \\pm \\sqrt{${a3}}}{2},${a1}$$
+$$<解説>$$
+$$方程式の左辺をP(x) とすると$$
+$$P(${a1})=0であるから，P(x)はx${a11}で割り切れる。$$
+$$よって，P(x)を因数分解すると，$$
+$$P(x)=(x${a11})(x^2${a22}${a33})$$
+$$P(x)=0 から$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$ゆえに，x={a1}，\\frac{${-a2} \\pm \\sqrt{${a3}}}{2}$$`;
+
     } else if (j === 3) {
       do { a1 = getRandomInt(-2, 2); } while (a1 === 0);
       a2 = getRandomElement([-5, -3, -1, 1, 3, 5]);
@@ -105,7 +146,18 @@ function generateQuestion() {
       r0 = -a1 * (a2*a2 + a3)/4;
       r1 = (a2*a2 + a3)/4 - a2*a1;
       r2 = -a1 + a2;
-      correctAnswer = `$$x=\\frac{${-a2} \\pm \\sqrt{${a3}}i}{2},${a1}$$`;
+	let a11=formatTerm(-a1, 0);
+        let a22=formatTerm(a2, 1);
+	let a33=formatTerm((a2*a2+a3)/4, 0);
+      correctAnswer = `$$x=\\frac{${-a2} \\pm \\sqrt{${a3}}i}{2},${a1}$$
+$$<解説>$$
+$$方程式の左辺をP(x) とすると$$
+$$P(${a1})=0であるから，P(x)はx${a11}で割り切れる。$$
+$$P(x)を因数分解すると，$$
+$$P(x)=(x${a11})(x^2${a22}${a33})$$
+$$P(x)=0 から$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$ゆえに，x=\\frac{${-a2} \\pm \\sqrt{${a3}}i}{2},${a1}$$`;
     } else if (j === 4) {
       do { a1 = getRandomInt(-2, 2); } while (a1 === 0);
       do { a2 = getRandomInt(-2, 2); } while (a2 === 0);
@@ -113,7 +165,19 @@ function generateQuestion() {
       r0 = -a1 * (a2*a2 - a3);
       r1 = (a2*a2 - a3) - 2*a2*a1;
       r2 = -a1 + 2*a2;
-      correctAnswer = `$$x=${-a2} \\pm \\sqrt{${a3}},${a1}$$`;
+	let a11=formatTerm(-a1, 0);
+        let a22=formatTerm(2*a2, 1);
+	let a33=formatTerm((a2*a2-a3), 0);
+      correctAnswer = `$$x=${-a2} \\pm \\sqrt{${a3}},${a1}$$
+$$<解説>$$
+$$方程式の左辺をP(x) とすると$$
+$$P(${a1})=0であるから，P(x)はx${a11}で割り切れる。$$
+$$P(x)を因数分解すると，$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$P(x)=0 から$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$ゆえに，x=${-a2} \\pm \\sqrt{${a3}},${a1}$$`;
+
     } else if (j === 5) {
       do { a1 = getRandomInt(-2, 2); } while (a1 === 0);
       do { a2 = getRandomInt(-2, 2); } while (a2 === 0);
@@ -121,7 +185,19 @@ function generateQuestion() {
       r0 = -a1 * (a2*a2 + a3);
       r1 = (a2*a2 + a3) - 2*a2*a1;
       r2 = -a1 + 2*a2;
-      correctAnswer = `$$x=${-a2} \\pm \\sqrt{${a3}}i,${a1}$$`;
+	let a11=formatTerm(-a1, 0);
+        let a22=formatTerm(2*a2, 1);
+	let a33=formatTerm(a2*a2+a3, 0);
+      correctAnswer = `$$x=${-a2} \\pm \\sqrt{${a3}}i,${a1}$$
+$$<解説>$$
+$$方程式の左辺をP(x) とすると$$
+$$P(${a1})=0であるから，P(x)はx${a11}で割り切れる。$$
+$$P(x)を因数分解すると，$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$P(x)=0 から$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$ゆえに，x=${-a2} \\pm \\sqrt{${a3}}i,${a1}$$`;
+
     } else if (j === 6) {
       const values = [-3,-2,-1,1,2,3];
       do {
@@ -131,19 +207,38 @@ function generateQuestion() {
       r0 = -a1*a1*a2;
       r1 = 2*a1*a2 + a1*a1;
       r2 = -(a2 + 2*a1);
-      correctAnswer = `$$x=${a2},${a1}$$`;
+	let a11=formatTerm(-a2, 0);
+        let a22=formatTerm(-2*a1, 1);
+	let a33=formatTerm(a1*a1, 0);
+      correctAnswer = `$$x=${a2},${a1}$$
+$$<解説>$$
+$$方程式の左辺をP(x) とすると$$
+$$P(${a1})=0であるから，P(x)はx${a11}で割り切れる。$$
+$$P(x)を因数分解すると，$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$P(x)=0 から$$
+$$x${a11}=0~または~x^2${a22}${a33}=0$$
+$$ゆえに，x=${a2},${a1}$$`;
     }
     const R2 = formatTerm(r2, 2);
     const R1 = formatTerm(r1, 1);
     const R0 = formatTerm(r0, 0);
-    questionText = `$$方程式~x^3${R2}${R1}${R0}~を解け。$$`;
+    questionText = `$$方程式~x^3${R2}${R1}${R0}=0~を解け。$$`;
   } else if (i === 2) {
     j = getRandomInt(1, 3);
     if (j === 1) {
       a1 = getRandomInt(1, 3);
       r1 = r2 = r3 = 0;
       r0 = -Math.pow(a1, 4);
-      correctAnswer = `$$x=\\pm${a1},\\pm${a1}i$$`;
+	let a11=formatTerm(-a1*a1, 0);
+        let a22=formatTerm(a1*a1, 0);
+      correctAnswer = `$$x=\\pm${a1},\\pm${a1}i$$
+$$<解説>$$
+$$左辺を因数分解すると，$$
+$$(x^2${a11})(x^2${a22})=0$$
+$$x^2${a11}=0~または~x^2${a22}=0$$
+$$ゆえに，x=\\pm${a1}，\\pm${a1}i$$`;
+
     } else if (j === 2) {
       a1 = getRandomElement([2,3,5,7,10]);
       a2 = getRandomInt(1, 3);
@@ -151,7 +246,15 @@ function generateQuestion() {
       r1 = 0;
       r2 = -a1 + a2*a2;
       r3 = 0;
-      correctAnswer = `$$x=\\pm \\sqrt{${a1}},\\pm${a2}i$$`;
+	let a11=formatTerm(-a1, 0);
+        let a22=formatTerm(a2*a2, 0);
+      correctAnswer = `$$x=\\pm \\sqrt{${a1}},\\pm${a2}i$$
+$$<解説>$$
+$$左辺を因数分解すると，$$
+$$(x^2${a11})(x^2${a22})=0$$
+$$x^2${a11}=0~または~x^2${a22}=0$$
+$$ゆえに，x=\\pm \\sqrt{${a1}},\\pm${a2}i$$`;
+
     } else if (j === 3) {
       a1 = getRandomElement([2,3,5,7,10]);
       a2 = getRandomInt(1, 3);
@@ -159,27 +262,133 @@ function generateQuestion() {
       r1 = 0;
       r2 = a1 - a2*a2;
       r3 = 0;
-      correctAnswer = `$$x=\\pm${a2},\\pm \\sqrt{${a1}}i$$`;
+	let a11=formatTerm(-a2*a2, 0);
+        let a22=formatTerm(a1, 0);
+      correctAnswer = `$$x=\\pm${a2},\\pm \\sqrt{${a1}}i$$
+$$<解説>$$
+$$左辺を因数分解すると，$$
+$$(x^2${a11})(x^2${a22})=0$$
+$$x^2${a11}=0~または~x^2${a22}=0$$
+$$ゆえに，x=\\pm${a2},\\pm \\sqrt{${a1}}i$$`;
+
     }
     const R3 = formatTerm(r3, 3);
     const R2 = formatTerm(r2, 2);
     const R1 = formatTerm(r1, 1);
     const R0 = formatTerm(r0, 0);
-    questionText = `$$方程式~x^4${R3}${R2}${R1}${R0}~を解け。$$`;
+    questionText = `$$方程式~x^4${R3}${R2}${R1}${R0}=0~を解け。$$`;
   }
+
 
   document.getElementById("question").innerHTML = questionText;
   document.getElementById("feedback").innerHTML = '';
-  window.answerText = correctAnswer;
+  document.getElementById("solution").innerHTML = '';
+  window.correctAnswer = null;  // 入力式ではないので不要
+  window.solutionText = correctAnswer;
   MathJax.typeset();
 }
 
-function showAnswer() {
-  document.getElementById("feedback").innerHTML = window.answerText;
-  MathJax.typeset();
-}
 
-generateQuestion();
-</script>
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>高次方程式</h1>
+      <div id="question" class="question"></div>
+      <div>
+       <button onclick="showSolution()">解説</button>
+	<button onclick="generateQuiz()">再出題</button>
+
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+    <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard"></canvas>
+<button onclick="clearBoard()">クリア</button>
+      
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
 </body>
 </html>
