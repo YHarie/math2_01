@@ -77,7 +77,7 @@
       document.getElementById('feedback').textContent = '';
       document.getElementById('solution').textContent = '';
       let i = parseInt(document.getElementById('modeSelect').value);
-      if (i === 0) i = getRandomInt(1, 3);
+      if (i === 0) i = getRandomInt(1, 4);
 
       const a = getRandomInt(-10, 10);
       let d;
@@ -115,7 +115,41 @@
           $$ゆえに~~n=${n}$$<br>
           $$よって，初項${a}，末項${an}，項数${n}の等差数列の和を求めて$$<br>
           $$S= \\frac{1}{2}\\cdot ${n}(${a}+${an})=${answer}$$`;
-      }
+      } else if (i === 4) {
+  let a1;
+  if (d > 0) {
+    a1 = getRandomInt(-d+1,  -1);
+  } else {
+    a1 = getRandomInt(1 , -d-1);
+  }
+
+  let m = (d > 0) ? "最小" : "最大";
+  let an1 = a1 - d * (n - 1);
+   answer = (a1 + an1) * n / 2;
+ const a1Str = a1 >= 0 ? `+${a1}` : `${a1}`;
+const dStr = d > 0 ? `${d}` : `(${d})`;
+
+  question = `$$初項${an1}, 公差${d}の等差数列において，$$
+$$初項から第何項までの和が${m}となるか。その和を求めよ。$$`;
+  solution = `$$この数列の一般項a_{n}は$$
+        $$a_{n}=${an1}+(n-1)\\cdot ${d >= 0 ? '' : '('}${d}${d >= 0 ? '' : ')'}$$
+        $$すなわち，a_{n}=${d}n${(an1 - d) >= 0 ? '+' + (an1 - d) : (an1 - d)}$$
+        $$a_{n}${d>=0 ?  '>' : '<'}0 とすると，${d}n${(an1 - d) >= 0 ? '+' + (an1 - d) : (an1 - d)}${d>=0 ?  '>' : '<'}0$$
+	$$これを解いて　n>${(an1-d)/-d}$$
+        $$よって，${n+1}項で初めて${d >= 0 ? '正' : '負'}となる。$$
+        $$ゆえに，初項から${n}項までの和が${m}となる。$$
+	$$a_{${n}}=${dStr}\\cdot${n}${(an1 - d) >= 0 ? '+' + (an1 - d) : (an1 - d)}=${a1}~~~であるから，その和は$$
+        $$\\frac{1}{2}\\cdot ${n}(${an1}${a1Str})=${answer}$$`;
+
+  window.correctAnswer = answer;
+  window.solutionText = solution;
+}
+
+
+
+       
+
+       
 
       document.getElementById('question').innerHTML = question;
       document.getElementById('userInput').value = '';
@@ -164,6 +198,7 @@
           <option value="1" selected>1</option>
           <option value="2">2</option>
           <option value="3">3</option>
+          <option value="4">4</option>
           <option value="0">0 (ランダム)</option>
         </select>
       </label>
