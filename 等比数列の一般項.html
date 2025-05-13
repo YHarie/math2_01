@@ -91,6 +91,8 @@
         }
         let qstr = q === 1 ? "" : q === -1 ? "-" : `${q}\\cdot`;
         let kstr = k - 1 < 0 ? `${k - 1}` : k - 1 > 0 ? `+${k - 1}` : "";
+	      let i2=getRandomInt(1, 2);
+	      if (j===1){
         question = `$$初項${a}，公比${r}の等比数列の一般項を求めよ$$`;
 	 if(r>0){answer=` ${qstr} ${r}^{n ${kstr} }`;
 	solution = `$$初項が${a}，公比が${r}であるから$$
@@ -98,6 +100,19 @@
 	else{answer=` a_{n}=${qstr} (${r})^{n ${kstr} } `;
 	solution = `$$初項が${a}，公比が${r}であるから$$
 	$$a_{n}=${a}\\cdot (${r})^{n-1}=${answer}$$`;}                 
+	      }else{
+		      let n = getRandomInt(3, 5);
+		      question = `$$第${n}項${a*r**(n-1)}，公比${r}の等比数列の一般項を求めよ$$`;
+		       if(r>0){answer=` ${qstr} ${r}^{n ${kstr} }`;
+	solution = `$$この数列の初項をaとすると，${n}項が${a*r**(n-1)}，公比が${r}であるから$$
+ 		$$a\\cdot ${r}^{${n-1}}=${a*r**(n-1)}$$
+   		$$ゆえに，a=${a}$$
+	$$よって，a_{n}=${a}\\cdot ${r}^{n-1}=${answer}$$`;}
+	else{answer=` a_{n}=${qstr} (${r})^{n ${kstr} } `;
+	solution = `$$この数列の初項をaとすると，${n}項が${a*r**(n-1)}，公比が${r}であるから$$
+ 		$$a\\cdot (${r})^{${n-1}}=${a*r**(n-1)}$$
+   		$$ゆえに，a=${a}$$
+	$$よって，a_{n}=${a}\\cdot (${r})^{n-1}=${answer}$$`;}
         
       } else if (i === 2) {
 	let rstr = r > 0 ? `\\frac{1}{${r}}` : `-\\frac{1}{${-r}}`;
