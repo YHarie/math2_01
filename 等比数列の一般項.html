@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>等比数列の一般項</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 50vh;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+
+    function generateQuiz() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('solution').textContent = '';
+      let i = parseInt(document.getElementById('modeSelect').value);
+      if (i === 0) i = getRandomInt(1, 4);
+	let a = getRandomInt(-9, 9, true);
+	let r = getRandomInt(2, 5)*getRandomInt(-1, 1,true);
+        let question = '', answer = '', solution = '';
+
+      if (i === 1) {
+ 	let k = 0, q = a;
+        while (q % r === 0) {
+          q = q / r;
+          k++;
+        }
+        let qstr = q === 1 ? "" : q === -1 ? "-" : `${q}\\cdot`;
+        let kstr = k - 1 < 0 ? `${k - 1}` : k - 1 > 0 ? `+${k - 1}` : "";
+        question = `$$初項${a}，公比${r}の等比数列の一般項を求めよ$$`;
+	 if(r>0){answer=` ${qstr} ${r}^{n ${kstr} }`;
+	solution = `$$初項が${a}，公比が${r}であるから$$
+	$$a_{n}=${a}\\cdot ${r}^{n-1}=${answer}$$`;}
+	else{answer=` a_{n}=${qstr} (${r})^{n ${kstr} } `;
+	solution = `$$初項が${a}，公比が${r}であるから$$
+	$$a_{n}=${a}\\cdot (${r})^{n-1}=${answer}$$`;}                 
+        
+      } else if (i === 2) {
+	let rstr = r > 0 ? `\\frac{1}{${r}}` : `-\\frac{1}{${-r}}`;
+        answer = `${a}\\cdot \\left(${rstr} \\right)^{n-1}`;
+        question = `$$初項${a}，公比${rstr}である等比数列の一般項を求めよ。$$`;
+        solution = `$$初項が ${a}，公比が ${rstr}であるから$$
+	$$a_{n} = ${answer}$$`;
+     
+ } else if (i === 3) {
+		let a = getRandomInt(-5, 5, true);
+	let r = getRandomInt(2, 3)*getRandomInt(-1, 1,true);
+	  let n = getRandomInt(6, 7);
+	  let k = 0, q = a;
+        while (q % r === 0) {
+          q = q / r;
+          k++;
+        }
+        let qstr = q === 1 ? "" : q === -1 ? "-" : `${q}\\cdot`;
+        let kstr = k - 1 < 0 ? `${k - 1}` : k - 1 > 0 ? `+${k - 1}` : "";
+        answer = r > 0 ?
+          `${qstr}${r}^{n${kstr}}` :
+          `${qstr}(${r})^{n${kstr}}`;
+        let sequence = [a, a * r, a * r ** 2, a * r ** 3].join("，");
+        let an = a * r ** (n - 1);
+	question =`$$次の等比数列の一般項を求めよ。また，第${n}項を求めよ。$$
+	$$${a}，${a*r}，${a*r*r}，${a*r*r*r}，\\cdots \\cdots$$`;
+	if(r<0){
+        solution = `$$${a}，公比が ${r} であるから$$
+	$$a_{n} = ${answer}$$
+	$$また，第${n}項は，${a}\\cdot(${r})^{${n - 1}} = ${an}$$`;}
+	else{solution = `$$${a}，公比が ${r} であるから$$
+	$$a_{n} = ${answer}$$
+	$$また，第${n}項は，${a}\\cdot${r}^{${n - 1}} = ${an}$$`;}
+
+      }else if (i === 4) {       let r = getRandomInt(2, 3);
+        let a = getRandomInt(1, 5);
+	 let k = 0, q = a;
+        while (q % r === 0) {
+          q = q / r;
+          k++;
+        }
+	let qstr = q === 1 ? "" : q === -1 ? "-" : `${q}\\cdot`;
+        let kstr = k - 1 < 0 ? `${k - 1}` : k - 1 > 0 ? `+${k - 1}` : "";
+        answer = r > 0 ?
+          `a_{n}=${qstr}${r}^{n${kstr}}` :
+          `a_{n}=${qstr}(${r})^{n${kstr}}`;
+        let [n1, n2] = [getRandomInt(3, 7), getRandomInt(2, 6)];
+        if (n1 === n2) n2 = n1 +getRandomInt(2, 3) ;
+        if (n1 > n2) [n1, n2] = [n2, n1];
+        let an1 = a * r ** (n1 - 1);
+        let an2 = a * r ** (n2 - 1);
+	let p= n2-n1 === 1 ? "" : n2-n1;
+	question=`$$第${n1}項が ${an1}，第${n2}項が ${an2} である$$ $$等比数列\\{a_{n}\\}の一般項を求めよ。$$`;
+	if(p===2){let a2=an1/((-r)**(n1-1));
+	 let k2 = 0, q2 = a2;
+        while (q2 % -r === 0) {
+          q2 = q2 / -r;
+          k2++;
+        }
+	let q2str = q2 === 1 ? "" : q2 === -1 ? "-" : `${q2}\\cdot`;
+        let k2str = k2 - 1 < 0 ? `${k2 - 1}` : k2 - 1 > 0 ? `+${k2 - 1}` : "";
+
+	let answer2 = r<0 ?
+	 `a_{n}=${q2str}${-r}^{n${k2str}}` :
+          `a_{n}=${q2str}(${-r})^{n${k2str}}`;
+
+	solution=`$$この数列の初項をa，公比をrとすると$$
+	$$第${n1}項が ${an1}であるから，ar^{${n1-1}}=${an1}~~\\cdots①$$
+	$$第${n2}項が ${an2} であるから，ar^{${n2-1}}=${an2}~~\\cdots②$$
+	$$したがって，${an1}r^{${p}}=${an2}$$
+	$$よって，r^{${p}}=${r**(n2-n1)}$$
+	$$ゆえに，r=${r}または${-r}$$
+	$$①より，r=${r}のとき，a=${a}，　r=${-r}のときa=${a2}$$
+	$$よって，一般項は${answer}，または${answer2}$$`;}
+	else{
+	solution=`$$この数列の初項をa，公比をrとすると$$
+	$$第${n1}項が ${an1}であるから，ar^{${n1-1}}=${an1}~~\\cdots①$$
+	$$第${n2}項が ${an2} であるから，ar^{${n2-1}}=${an2}~~\\cdots②$$
+	$$したがって，${an1}r^{${p}}=${an2}$$
+	$$よって，r^{${p}}=${r**(n2-n1)}$$
+	$$ゆえに，r=${r}$$
+	$$①より，a=${a}$$
+	$$よって，一般項は${answer}$$`;}
+	}
+
+
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>等比数列の一般項</h1>
+      <label>モード:
+        <select id="modeSelect" onchange="generateQuiz()">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+      </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()">解説</button>
+        <button onclick="generateQuiz()">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+    <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard"></canvas>
+<button onclick="clearBoard()">クリア</button>
+      
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
