@@ -92,7 +92,7 @@
         let qstr = q === 1 ? "" : q === -1 ? "-" : `${q}\\cdot`;
         let kstr = k - 1 < 0 ? `${k - 1}` : k - 1 > 0 ? `+${k - 1}` : "";
 	      let i2=getRandomInt(1, 2);
-	      if (j===1){
+	      if (i2===1){
         question = `$$初項${a}，公比${r}の等比数列の一般項を求めよ$$`;
 	 if(r>0){answer=` ${qstr} ${r}^{n ${kstr} }`;
 	solution = `$$初項が${a}，公比が${r}であるから$$
