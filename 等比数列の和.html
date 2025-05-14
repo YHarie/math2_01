@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>等比数列の和</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 50vh;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+function gcd(a, b) {
+  if (b === 0) {
+    return a;
+  }
+  return gcd(b, a % b);
+}
+
+
+
+    function generateQuiz() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('solution').textContent = '';
+      let i = parseInt(document.getElementById('modeSelect').value);
+      if (i === 0) i = getRandomInt(1, 3);
+
+        let question = '', answer = '', solution = '';
+
+      if (i === 1) {
+	 // パターン3: 等比数列の和
+        const a = getRandomInt(1, 3);
+        const r = getRandomInt(2, 5);
+        const n = getRandomInt(3, 6);
+        const sn = a * (1 - Math.pow(r, n)) / (1 - r);
+
+        question= `
+          $$初項が ${a}、公比が ${r} の等比数列の第 ${n} 項までの和を求めよ。$$
+        `;
+
+        solution = `
+          $$和の公式: ( S_{n} = \\frac{a( r^n -1)}{r - 1} )$$
+          $$計算: ( S_{n} = ${a} \\cdot \\frac{ ${r}^{${n}}-1}{	 ${r} -1} = ${sn} )$$
+        `;
+      } else if (i === 2) {
+  const a = getRandomInt(1, 5); // 初項
+  const rNumerator = getRandomInt(1, 3);
+  let rDenominator ;
+do{rDenominator = getRandomInt(2, 5);}while(gcd(rNumerator,rDenominator)>1);
+
+
+  const r = rNumerator / rDenominator; // 分数の公比
+  const n = getRandomInt(3, 4); // 項数
+
+  // 和の計算
+  let sum1,sum2;
+    	sum1=a*(Math.pow(rDenominator,n)-Math.pow(rNumerator, n));
+	sum2 = Math.pow(rDenominator, n - 1) * ( rDenominator - rNumerator );
+
+const divisor = gcd(sum1, sum2);  
+// 約分を行う
+sum1 = sum1 / divisor;
+sum2 = sum2 / divisor;
+question = `$$初項が ${a}、公比が\\frac{ ${rNumerator}}{${rDenominator}} の等比数列の第 ${n} 項までの和を求めよ。$$`;
+if(sum2===1){
+ solution = `$$和の公式より、S_n = \\frac{a (1 - r^n)}{ (1 - r)} = \\frac{${a} (1 - (\\frac{${rNumerator}}{${rDenominator}})^${n})} {(1 - \\frac{${rNumerator}}
+{${rDenominator}})} = ${sum1}$$`;
+
+}else{
+ solution = `$$和の公式より、S_n = \\frac{a (1 - r^n)}{ (1 - r)} = \\frac{${a} (1 - (\\frac{${rNumerator}}{${rDenominator}})^${n})} {(1 - \\frac{${rNumerator}}{${rDenominator}})} = \\frac{${sum1}}{${sum2}}$$`;
+}
+    
+
+       
+ } else if (i === 3) {
+
+	let k=getRandomInt(1, 2);
+if (k===1){
+
+
+	 // パターン3: 等比数列の和
+        const a = getRandomInt(1, 9);
+        const r = getRandomInt(2, 5);
+  let sum= r-1;
+  let a1=a
+const divisor = gcd(sum, a1);  
+// 約分を行う
+a1 = a1 / divisor;
+sum = sum / divisor;
+
+        question= `$$初項が ${a}、公比が ${r} の等比数列の第 n 項までの和を求めよ。$$`;
+  let p = 0;
+        while (a1 % r === 0) {
+          a1 = a1 / r;
+          p++;
+        }
+if (a1===1){a1=""};
+
+let q;
+if(p===0){q="";}else{q=`+${p}`;}
+
+if(sum===1){
+if(a1===""){
+ solution = `$$和の公式より、S_n = \\frac{a ( r^n -1)}{ ( r -1)} = \\frac{${a} ( ${r}^{n}-1)} {${r}-1} = ${r}^{n${q}}-${Math.pow(r,p)}$$`;}
+
+else{ solution = `$$和の公式より、S_n = \\frac{a ( r^n -1)}{ ( r -1)}$$ 
+$$= \\frac{${a} ( ${r}^{n}-1)} {${r}-1}$$ 
+$$ = ${a1}(${r}^{n${q}}-1)$$`;}
+
+
+}else{if(a1===""){
+ solution = `$$和の公式より、S_n =  \\frac{a ( r^n -1)}{ ( r -1)} $$
+$$=  \\frac{${a} ( ${r}^{n}-1)} {${r}-1}$$
+$$= \\frac{ ${r}^{n${q}}-${Math.pow(r,p)}} {${sum}} $$`;}
+
+else{
+ solution = `$$和の公式より、S_n =  \\frac{a ( r^n -1)}{ ( r -1)} $$
+$$= \\frac{${a} ( ${r}^{n}-1)} {${r}-1} $$
+$$= \\frac{${a1} ( ${r}^{n${q}}-${Math.pow(r,p)})} {${sum}} $$`;
+}
+}
+
+}else{
+  const a = getRandomInt(1, 5); // 初項
+  const rNumerator = getRandomInt(1, 3);
+  let rDenominator ;
+do{rDenominator = getRandomInt(2, 5);}while(gcd(rNumerator,rDenominator)>1);
+
+  // 和の計算
+  let sum1,sum2;
+    	sum1=a*rDenominator;
+	sum2 = rDenominator- rNumerator;
+
+const divisor = gcd(sum1, sum2);  
+// 約分を行う
+sum1 = sum1 / divisor;
+
+sum2 = sum2 / divisor;
+question = `$$初項が ${a}、公比が\\frac{ ${rNumerator}}{${rDenominator}} の等比数列の第 n 項までの和を求めよ。$$`;
+if(sum2===1){
+ solution = `$$和の公式より、S_n = \\frac{a (1 - r^n)}{ (1 - r)} $$
+$$= \\frac{${a} (1 - (\\frac{${rNumerator}}{${rDenominator}})^{n})} {(1 - \\frac{${rNumerator}}{${rDenominator}})} $$
+$$= ${sum1}\\{1-\\left( \\frac{${rNumerator}}{${rDenominator}} \\right)^{n}\\}$$`;
+
+}else{
+ solution = `$$和の公式より、S_n = \\frac{a (1 - r^n)}{ (1 - r)} $$
+$$= \\frac{${a} (1 - (\\frac{${rNumerator}}{${rDenominator}})^{n})} {(1 - \\frac{${rNumerator}}{${rDenominator}})} $$
+$$= \\frac{${sum1}}{${sum2}}\\{1-\\left(\\frac{${rNumerator}}{${rDenominator}}\\right)^{n}\\}$$`;}
+}
+	}else if(i===4)
+{  const a = getRandomInt(1, 3)*getRandomInt(-1, 1,true);
+        const r = getRandomInt(2, 5)*getRandomInt(-1, 1,true);
+        const n = getRandomInt(2, 3);
+        const sn = a * (1 - Math.pow(r, n)) / (1 - r);
+
+
+	}
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>等比数列の和</h1>
+      <label>モード:
+        <select id="modeSelect" onchange="generateQuiz()">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+      </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()">解説</button>
+        <button onclick="generateQuiz()">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+    <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard"></canvas>
+<button onclick="clearBoard()">クリア</button>
+      
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
