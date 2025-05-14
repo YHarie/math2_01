@@ -86,8 +86,9 @@ function formatTerm(r, k) {
 
  function generateQuiz() {
 
+ let i = parseInt(document.getElementById('modeSelect').value);
+      if (i === 0) i = getRandomInt(1, 2);
 
-  const i = getRandomInt(1, 2);
   let j = getRandomInt(1, 6);
   let a1, a2, a3, a4, r0, r1, r2, r3;
   let questionText, correctAnswer;
@@ -324,6 +325,14 @@ $$ゆえに，x=\\pm${a2},\\pm \\sqrt{${a1}}i$$`;
   <div class="container">
     <div id="left-area">
       <h1>高次方程式</h1>
+  <label>モード選択:
+        <select id="modeSelect" onchange="generateQuiz()">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="0">0</option>
+        </select>
+      </label>
+
       <div id="question" class="question"></div>
       <div>
        <button onclick="showSolution()">解説</button>
