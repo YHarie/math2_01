@@ -91,8 +91,6 @@
         }
         let qstr = q === 1 ? "" : q === -1 ? "-" : `${q}\\cdot`;
         let kstr = k - 1 < 0 ? `${k - 1}` : k - 1 > 0 ? `+${k - 1}` : "";
-	      let i2=getRandomInt(1, 2);
-	      if (i2===1){
         question = `$$初項${a}，公比${r}の等比数列の一般項を求めよ$$`;
 	 if(r>0){answer=` ${qstr} ${r}^{n ${kstr} }`;
 	solution = `$$初項が${a}，公比が${r}であるから$$
@@ -100,19 +98,6 @@
 	else{answer=` a_{n}=${qstr} (${r})^{n ${kstr} } `;
 	solution = `$$初項が${a}，公比が${r}であるから$$
 	$$a_{n}=${a}\\cdot (${r})^{n-1}=${answer}$$`;}                 
-	      }else{
-		      let n = getRandomInt(3, 5);
-		      question = `$$第${n}項${a*r**(n-1)}，公比${r}の等比数列の一般項を求めよ$$`;
-		       if(r>0){answer=` ${qstr} ${r}^{n ${kstr} }`;
-	solution = `$$この数列の初項をaとすると，${n}項が${a*r**(n-1)}，公比が${r}であるから$$
- 		$$a\\cdot ${r}^{${n-1}}=${a*r**(n-1)}$$
-   		$$ゆえに，a=${a}$$
-	$$よって，a_{n}=${a}\\cdot ${r}^{n-1}=${answer}$$`;}
-	else{answer=` a_{n}=${qstr} (${r})^{n ${kstr} } `;
-	solution = `$$この数列の初項をaとすると，${n}項が${a*r**(n-1)}，公比が${r}であるから$$
- 		$$a\\cdot (${r})^{${n-1}}=${a*r**(n-1)}$$
-   		$$ゆえに，a=${a}$$
-	$$よって，a_{n}=${a}\\cdot (${r})^{n-1}=${answer}$$`;}}
         
       } else if (i === 2) {
 	let rstr = r > 0 ? `\\frac{1}{${r}}` : `-\\frac{1}{${-r}}`;
@@ -159,14 +144,13 @@
         answer = r > 0 ?
           `a_{n}=${qstr}${r}^{n${kstr}}` :
           `a_{n}=${qstr}(${r})^{n${kstr}}`;
-        let [n1, n2] = [getRandomInt(3, 7), getRandomInt(2, 6)];
-        if (n1 === n2) n2 = n1 +2 ;
-        if (n1 > n2) [n1, n2] = [n2, n1];
+        let n1getRandomInt(2, 3);
+        let  n2 = n1 +getRandomInt(2, 4) ;
         let an1 = a * r ** (n1 - 1);
         let an2 = a * r ** (n2 - 1);
-	let p= n2-n1 === 1 ? "1" : n2-n1;
+	let p= n2-n1 === 1 ? "" : n2-n1;
 	question=`$$第${n1}項が ${an1}，第${n2}項が ${an2} である$$ $$等比数列\\{a_{n}\\}の一般項を求めよ。$$`;
-	if(p%2===0){let a2=an1/((-r)**(n1-1));
+	if(p===2){let a2=an1/((-r)**(n1-1));
 	 let k2 = 0, q2 = a2;
         while (q2 % -r === 0) {
           q2 = q2 / -r;
