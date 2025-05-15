@@ -89,7 +89,7 @@ if ( i === 0) i = getRandomInt(1, 1);
 
   if (i === 1 && j === 1) {
     // 定数項のみ
-    const b = getRandomInt(-5, 5);
+    const b = getRandomInt(-5, 5, true );
     question = `$$ \\sum_{k=1}^{${n}} ${b}$$`;
     answer = b * n;
     solution = `$$ \\sum_{k=1}^{n} b = b \\times n$$	
