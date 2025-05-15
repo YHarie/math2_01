@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>和の記号Σ</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 50vh;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+
+function generateQuiz() {
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+  let j = parseInt(document.getElementById('modeSelect').value);
+
+  const n = getRandomInt(4, 7); // k = 1 ～ n
+if ( i === 0) i = getRandomInt(1, 1);
+  if (j === 0 && i === 1) j = getRandomInt(1, 4);
+
+  let question = '', answer = 0, solution = '';
+
+  if (i === 1 && j === 1) {
+    // 定数項のみ
+    const b = getRandomInt(-5, 5);
+    question = `$$ \\sum_{k=1}^{${n}} ${b}$$`;
+    answer = b * n;
+    solution = `$$ \\sum_{k=1}^{n} b = b \\times n$$	
+	$$したがって、\\sum_{k=1}^{${n}} ${b} = ${b} \\times ${n} = ${answer}$$`;
+  }
+
+  else if (i === 1 && j === 2) {
+    // 累乗和：r^k
+    const base = getRandomInt(2, 3);
+    const sign = getRandomInt(0, 1) === 0 ? 1 : -1;
+    const r = base * sign;
+    const rStr = r < 0 ? `(${r})` : `${r}`;
+    question = `$$ \\sum_{k=1}^{${n}} ${rStr}^k$$`;
+
+    for (let k = 1; k <= n; k++) {
+      answer += Math.pow(r, k);
+    }
+    solution = `$$これは公比 ${r} の等比数列の和です。$$
+$$初項： r^1 = ${r}  ，公比 ${r}，項数${n}の等比数列の和であるから$$
+$$ \\sum_{k=1}^{${n}} ${rStr}^k = \\frac{${r} \\cdot ${r}^{${n} - 1}}{${r} -1}= ${answer}$$`;
+  }
+
+  else if (i === 1 && j === 3) {
+    // 一次式: ak + b
+    const a = getRandomInt(-2, 2, true);
+    const b = getRandomInt(-5, 5, true);
+    const astr = (a === 1) ? '' : (a === -1) ? '-' : `${a}`;
+    const bstr = (b > 0 ? `+${b}` : `${b}`);
+    question = `$$ \\sum_{k=1}^{${n}} (${astr}k ${bstr})$$`;
+    for (let k = 1; k <= n; k++) {
+      answer += a * k + b;
+    }
+    solution = `$$ \\sum_{k=1}^{${n}} (${astr}k ${bstr})$$
+
+$$= ${a} \\cdot \\frac{${n}(${n}+1)}{2} + ${b} \\cdot n$$
+$$ = ${answer}$$`;
+  }
+
+  else if (i === 1 && j === 4) {
+    // 二次式の平方: (p1*k + p2)^2
+    let p1, p2;
+    while (true) {
+      p1 = getRandomInt(1, 2);
+      p2 = getRandomInt(-3, 3);
+      if (p2 !== 0 && p1 % p2 !== 0) break;
+    }
+
+    const a = p1 * p1;
+    const b = 2 * p1 * p2;
+    const c = p2 * p2;
+
+    const p1str = (p1 === 1) ? '' : `${p1}`;
+    const p2str = (p2 > 0 ? `+${p2}` : `${p2}`);
+    const bstr = (b > 0 ? `+${b}` : `${b}`);
+    const cstr = (c > 0 ? `+${c}` : `${c}`);
+    question = `$$ \\sum_{k=1}^{${n}} (${p1str}k${p2str})^2$$`;
+
+    for (let k = 1; k <= n; k++) {
+      answer += a * k * k + b * k + c;
+    }
+    solution = `$$ (${p1str}k${p2str})^2 を展開して，$$
+
+$$(${p1str}k${p2str})^2= ${a} k^2  ${bstr} k  ${cstr}$$
+$$\\sum_{k=1}^{${n}} (${p1str}k${p2str})^2=  
+\\sum_{k=1}^{${n}} ( ${a} k^2  ${bstr} k  ${cstr})$$
+$$=\\frac{${a}}{6}\\cdot${n}(${n}+1)(2\\cdot${n}+1)${bstr} \\cdot \\frac{${n}(${n}+1)}{2}  ${cstr} \\cdot ${n}$$
+$$=${answer}$$`;
+  }
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>和の記号Σ</h1>
+      <label>モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>数値計算</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        <select id="modeSelect" onchange="generateQuiz()">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+      </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()">解説</button>
+        <button onclick="generateQuiz()">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+    <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard"></canvas>
+<button onclick="clearBoard()">クリア</button>
+      
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
