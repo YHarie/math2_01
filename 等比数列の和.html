@@ -63,6 +63,13 @@
       max-height: 75vh;
       touch-action: none;
     }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
 
   </style>
   <script>
@@ -269,8 +276,8 @@ $$= \\frac{${sum1}}{${sum2}}\\{1-\\left(\\frac{${rNumerator}}{${rDenominator}}\\
       </label>
       <div id="question" class="question"></div>
        <div>
-        <button onclick="showSolution()">解説</button>
-        <button onclick="generateQuiz()">再出題</button>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">>解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">>再出題</button>
       </div>
       <div id="feedback" class="feedback"></div>
       <div id="solution" class="solution"></div>
