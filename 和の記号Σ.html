@@ -232,7 +232,7 @@ else{let d= gcd(a,a+2*b);
 	if(a<0){d=-d;}
 	let dstr = (d === 1) ? "" : (d===-1) ? "-":`${d}`;
 	let a1 =keisu(a/d);
-		let s =moji((a+2*b)/d);
+		let s =teisu((a+2*b)/d);
         solution = `$$\\sum_{k=1}^{n} (${expr}) = ${a !== 0 ? `${a}\\sum_{k=1}^{n}k` : ""}${(a && b) ? " + " : ""}${b !== 0 ? `${b}\\sum_{k=1}^{n}1` : ""} $$
 	$$= ${a !== 0 ? `${a} \\cdot \\frac{n(n+1)}{2}` : ""}${( b>0) ? " + " : ""}${b !== 0 ? `${b} \\cdot n` : ""} $$
 	$$=\\frac{${dstr}n(${a1}n${s})}{2}$$
