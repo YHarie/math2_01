@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>高2メニュー</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    nav {
+      background-color: #0077cc;
+      padding: 1em;
+      position: relative;
+    }
+
+    .menu {
+      display: flex;
+      gap: 2em;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .dropdown-content, .sub-dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f1f1f1;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      color: #0077cc;
+      padding: 1em;
+      display: block;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #e0f7fa;
+    }
+
+    .sub-dropdown {
+      position: relative;
+    }
+
+    .sub-dropdown-content {
+      top: 0;
+      left: 100%;
+    }
+
+    .sub-dropdown:hover .sub-dropdown-content {
+      display: block;
+    }
+
+    .sub-dropdown > a::after {
+      content: " ▸";
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="menu">
+      <div class="dropdown">
+        <a href="#">問題一覧 ▾</a>
+        <div class="dropdown-content">
+          <div class="sub-dropdown">
+            <a href="#">数学Ⅱ</a>
+            <div class="sub-dropdown-content">
+              <a href="二項定理計算練習.html">２項定理</a>
+              <a href="複素数計算練習.html">複素数計算練習</a>
+              <a href="2次方程式の問題.html">2次方程式</a>
+              <a href="解と係数の関係.html">２次方程式の解と係数の関係</a>
+              <a href="分数式の乗法.html">分数式の乗法</a>
+              <a href="分数式の加法・減法.html">分数式の加法・減法</a>
+              <a href="jouyo.html">剰余の定理</a>
+              <a href="高次因数分解.html">3次以上の因数分解</a>
+              <a href="高次方程式.html">高次方程式</a>
+
+            </div>
+          </div>
+          <div class="sub-dropdown">
+            <a href="#">数学B</a>
+            <div class="sub-dropdown-content">
+              <a href="等差数列の一般項.html">等差数列の一般項</a>
+              <a href="等差数列の和.html">等差数列の和</a>
+              <a href="等比数列の一般項.html">等比数列の一般項</a>
+              <a href="等比数列の和.html">等比数列の和</a>
+              <a href="和の記号Σ.html">和の記号Σ</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main style="padding: 2em;">
+    <h1>無限に遊べる数学コンテンツ</h1>
+    <p>上のメニューから学習したい単元を選んでください。</p>
+  </main>
+</body>
+</html>
