@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>高2メニュー</title>
+  <title>ドロップダウンメニュー + iframe</title>
   <style>
     body {
       margin: 0;
@@ -13,6 +13,7 @@
       background-color: #0077cc;
       padding: 1em;
       position: relative;
+      color: white;
     }
 
     .menu {
@@ -68,14 +69,39 @@
       content: " ▸";
       font-size: 0.9em;
     }
+
+    #toggleMenu {
+      background: #005fa3;
+      color: white;
+      padding: 0.5em 1em;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      margin-bottom: 1em;
+    }
+
+    #menuContainer {
+      display: block;
+    }
+
+    iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+    }
   </style>
 </head>
 <body>
   <nav>
-    <div class="menu">
-      <div class="dropdown">
-        <a href="#">問題一覧 ▾</a>
-        <div class="dropdown-content">
+    <button id="toggleMenu">メニューを隠す</button>
+    <div id="menuContainer">
+      <div class="menu">
+        <div class="dropdown">
+          <a href="#">問題一覧 ▾</a>
+          <div class="dropdown-content">
+            <div class="sub-dropdown">
+              <a href="#">数学Ⅱ</a>
+              <div class="sub-dropdown-content">
           <div class="sub-dropdown">
             <a href="#">数学Ⅱ</a>
             <div class="sub-dropdown-content">
@@ -110,5 +136,20 @@
     <h1>無限に遊べる数学コンテンツ</h1>
     <p>上のメニューから学習したい単元を選んでください。</p>
   </main>
+<script>
+    function loadPage(page) {
+      document.getElementById('content-frame').src = page;
+    }
+
+    const toggleBtn = document.getElementById('toggleMenu');
+    const menuContainer = document.getElementById('menuContainer');
+    let visible = true;
+
+    toggleBtn.addEventListener('click', () => {
+      visible = !visible;
+      menuContainer.style.display = visible ? 'block' : 'none';
+      toggleBtn.textContent = visible ? 'メニューを隠す' : 'メニューを表示';
+    });
+  </script>
 </body>
 </html>
