@@ -1,102 +1,86 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>複素数の四則演算問題</title>
+  <meta charset="UTF-8" />
+  <title>複素数の計算問題</title>
   <style>
-   body {
-  font-family: sans-serif;
-  padding: 4vw;
-  font-size: 4vw;
-  text-align: left;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-.question {
-  margin-bottom: 4vw;
-}
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
 
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
 input {
-  width: 20vw;
-  height: 8vw;
+  width: 50px;
+  height: 30px;
   padding: 1vw;
-  font-size: 4vw;
   margin-left: 2vw;
 }
 
-button {
-  width: 40vw;
-  height: 10vw;
-  font-size: 4vw;
-  padding: 2vw;
-  margin-right: 2vw;
-}
+    .correct { color: green; }
+    .incorrect { color: red; }
 
-.correct {
-  color: green;
-}
-
-.incorrect {
-  color: red;
-}
-
-.mj-tex {
-  text-align: left;
-  display: block;
-}
-
-/* PC向けのスタイル調整 */
-@media (min-width: 768px) {
-  body {
-    padding: 20px;
-    font-size: 18px;
-  }
-
-  .question {
-    margin-bottom: 20px;
-  }
-
-  input {
-    width: 100px;
-    height: 40px;
-    padding: 5px;
-    font-size: 16px;
-  }
-
-  button {
-    width: 200px;
-    height: 40px;
-    font-size: 16px;
-    padding: 10px;
-  }
-}
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 75vh;
+      touch-action: none;
+    }
 
   </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-  </script>
-</head>
-<body>
-
-<h1>複素数の四則演算</h1>
-<div id="score"></div>
-<div id="quiz"></div>
-<button onclick="checkAnswers()">答え合わせ</button>
-<button onclick="generateProblems()">再出題</button>
-
-<script>
-const quizContainer = document.getElementById("quiz");
-const scoreDisplay = document.getElementById("score");
-let problems = [];
-
-function getRandomInt(min, max, excludeZero = false) {
-  let value;
-  do {
-    value = Math.floor(Math.random() * (max - min + 1)) + min;
-  } while (excludeZero && value === 0);
-  return value;
-}
-
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
 function formatComplex(a, b) {
   const re = a !== 0 ? a.toString() : "";
   let im = "";
@@ -117,79 +101,212 @@ function toTexComplex(a, b) {
   return `(${re}${im})` || "(0)";
 }
 
-function generateProblems() {
-  quizContainer.innerHTML = "";
-  scoreDisplay.textContent = "";
-  problems = [];
+function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+ function moji(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {
+      if (b === 0) return "";
+     return `${b > 0 ? "" : ""}${b}${variable}`;
+    }
+
+    function generateQuiz() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('solution').textContent = '';
+      let i = parseInt(document.getElementById('modeSelect').value);
+      if (i === 0) i = getRandomInt(1, 4);
+        let question = '', answer = '', solution = '';
   const operations = ["+", "-", "*", "*", "/"];
 
-  for (let i = 0; i < 5; i++) {
     const a = getRandomInt(-5, 5, true);
     const b = getRandomInt(-5, 5, true);
     const c = getRandomInt(-5, 5, true);
     const d = getRandomInt(-5, 5, true);
-    const op = operations[i];
-    let question, answer;
-
-    if (op === "+") {
-      question = `${toTexComplex(a,b)} + ${toTexComplex(c,d)}`;
-      answer = `${a + c} + ${(b + d)}i`;
-    } else if (op === "-") {
-      question = `${toTexComplex(a,b)} - ${toTexComplex(c,d)}`;
-      answer = `${a - c} + ${(b - d)}i`;
-    } else if (op === "*") {
+if (i === 1) {
+      question = `$$${toTexComplex(a,b)} + ${toTexComplex(c,d)}$$`;
+      answer = `$$${teisu(a + c)}  ${moji(b + d,`i`)}$$`;
+    } else if (i === 2) {
+      question = `$$${toTexComplex(a,b)} - ${toTexComplex(c,d)}$$`;
+      answer = `$$${teisu(a - c)}  ${moji(b - d,`i`)}$$`;
+    } else if (i === 3) {
       const real = a * c - b * d;
       const imag = a * d + b * c;
-      question = `${toTexComplex(a,b)} \\times ${toTexComplex(c,d)}`;
-      answer = `${real} + ${imag}i`;
-    } else if (op === "/") {
-      const denom = c * c + d * d;
-      const real = (a * c + b * d) / denom;
-      const imag = (b * c - a * d) / denom;
-      question = `\\dfrac{${toTexComplex(a,b)}}{${toTexComplex(c,d)}}`;
-      answer = `${Math.round(real)} + ${Math.round(imag)}i`;
+      question = `$$${toTexComplex(a,b)} \\times ${toTexComplex(c,d)}$$`;
+      answer = `$$${teisu(real)}  ${moji(imag,`i`)}$$`;
+    } else if (i === 4) {
+      let denom = c * c + d * d;
+      let real = (a * c + b * d) ;
+      let imag = (b * c - a * d) ;
+	let d1=gcd(real,denom);
+	let d2=gcd(imag,denom);
+	if(d1===0 || d2===0){
+	let d=gcd(d1,d2);
+	denom=denom/d; 	real=real/denom;	imag=imag/d;}else if(real===0){
+	imag=imag/d2;	denom=denom/d2;}else{
+	real=real/d1;	denom=denom/d1;}
+      question = `$$\\dfrac{${toTexComplex(a,b)}}{${toTexComplex(c,d)}}~~\\cdots　※　入力しないで計算しよう。$$`;
+	if(denom===1){      answer = `$$${teisu(Math.round(real))}  ${moji(Math.round(imag),`i`)}$$`;}else{
+      answer = `$$\\frac{${teisu(Math.round(real))}  ${moji(Math.round(imag),`i`)}}{${denom}}$$`;}
     }
 
-    problems.push({ question, answer });
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
 
-    const div = document.createElement("div");
-    div.className = "question";
-    div.innerHTML = `
-      <div><strong>問${i + 1}.</strong> <span class="mj-tex">\\( ${question} \\)</span></div>
-      <div>
-        実部: <input type="number" id="realInput${i}" placeholder="実部を入力">
-        虚部: <input type="number" id="imagInput${i}" placeholder="虚部を入力">
+  function checkAnswer() {
+  const real = parseFloat(document.getElementById('realInput').value);
+  const imag = parseFloat(document.getElementById('imagInput').value);
+  const user = `${real}+${imag}i`.replace(/\s+/g, '');
+  const correct = window.correctAnswer.replace(/\$/g, '').trim().replace(/\s+/g, '');
+  const feedback = document.getElementById('feedback');
+  feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${window.correctAnswer} です。`;
+MathJax.typeset();
+
+}
+
+
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+     <h2>複素数の計算問題</h2>
+<div id="complex-container"></div>
+<div id="score"></div>
+
+      <label>モード:
+        <select id="modeSelect" onchange="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">
+          <option value="1" selected>加法</option>
+          <option value="2">減法</option>
+          <option value="3">乗法</option>
+          <option value="4">除法</option>
+          <option value="0">ランダム</option>
+        </select>
+      </label>
+      <div id="question" class="question"></div>
+       <div>
+<div>
+実部: <input type="number" id="realInput" placeholder="実部を入力" style="padding: 1em 2em; font-size: 1.2rem;">
+虚部: <input type="number" id="imagInput" placeholder="虚部を入力" style="padding: 1em 2em; font-size: 1.2rem;">
       </div>
-      <span id="result${i}"></span>
-    `;
-    quizContainer.appendChild(div);
+        <button onclick="checkAnswer()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+ <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()">クリア</button>
+<button onclick="toggleEraser()">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+  function toggleEraser() {
+    isErasing = !isErasing;
+    // メッセージ表示はなし
   }
-  MathJax.typeset();
-}
 
-function checkAnswers() {
-  let correct = 0;
-  problems.forEach((p, i) => {
-    const realInput = parseInt(document.getElementById(`realInput${i}`).value);
-    const imagInput = parseInt(document.getElementById(`imagInput${i}`).value);
-    const result = document.getElementById(`result${i}`);
-    const correctAns = p.answer.replace(/\s+/g, "").toLowerCase();
-    
-    const answerParts = p.answer.split("+");
-    const correctReal = parseInt(answerParts[0]);
-    const correctImag = parseInt(answerParts[1]);
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
 
-    if (realInput === correctReal && imagInput === correctImag) {
-      result.innerHTML = `<span class="correct">← 正解！</span>`;
-      correct++;
-    } else {
-      result.innerHTML = `<span class="incorrect">← 不正解（正: ${p.answer}）</span>`;
-    }
+  function getLineWidth() {
+    return isErasing ? 15 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
   });
-  scoreDisplay.textContent = `スコア：${correct} / ${problems.length} 正解`;
-}
 
-generateProblems();
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 </script>
 
 </body>
