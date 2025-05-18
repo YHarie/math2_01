@@ -1,185 +1,276 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>整式の割り算のあまりを求める問題</title>
+  <meta charset="UTF-8" />
+  <title>剰余の定理</title>
   <style>
-  body {
-  font-family: sans-serif;
-  padding: 4vw;
-  font-size: 4vw;
-  text-align: left;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-.question {
-  margin-bottom: 4vw;
-}
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
 
-input {
-  width: 20vw;
-  height: 8vw;
-  padding: 1vw;
-  font-size: 4vw;
-  margin-left: 2vw;
-}
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
 
-button {
-  width: 40vw;
-  height: 10vw;
-  font-size: 4vw;
-  padding: 2vw;
-  margin-right: 2vw;
-}
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+    }
 
-.correct {
-  color: green;
-}
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
 
-.incorrect {
-  color: red;
-}
+    body {
+      font-size: 1.3em;
+    }
 
-.mj-tex {
-  text-align: left;
-  display: block;
-}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
 
-/* PC向けのスタイル調整 */
-@media (min-width: 768px) {
-  body {
-    padding: 20px;
-    font-size: 18px;
-  }
+      #left-area, #right-area {
+        height: 50vh;
+      }
 
-  .question {
-    margin-bottom: 20px;
-  }
+      body {
+        font-size: 2em;
+      }
 
-  input {
-    width: 100px;
-    height: 40px;
-    padding: 5px;
-    font-size: 16px;
-  }
+      input, select, button {
+        font-size: 1.5em;
+      }
+    }
 
-  button {
-    width: 200px;
-    height: 40px;
-    font-size: 16px;
-    padding: 10px;
-  }
-}
+    input {
+      width: 100px;
+      height: 40px;
+      font-size: 1em;
+      padding: 1vw;
+      margin-right: 2vw;
+    }
 
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
   </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
-<body>
-
-<h1>整式の割り算のあまりを求める問題</h1>
-<div id="score"></div>
-<form id="quizForm"></form>
-<button type="button" onclick="checkAnswers()">答え合わせ</button>
-<button type="button" onclick="generateProblems()">再出題</button>
 
   <script>
-MathJax = { chtml: { displayAlign: "left", }
-};
-</script>
-  
-<script>
-const quizForm = document.getElementById("quizForm");
-const scoreDisplay = document.getElementById("score");
-let problems = [];
-
-function getRandomInt(min, max, excludeZero = false) {
-  let v;
-  do { v = Math.floor(Math.random() * (max - min + 1)) + min; }
-  while (excludeZero && v === 0);
-  return v;
-}
-
-function formatPoly(coefs) {
-  const terms = [];
-  const n = coefs.length - 1;
-  coefs.forEach((c, i) => {
-    if (c === 0) return;
-    const exp = n - i;
-    const sign = c < 0 ? '-' : (terms.length ? '+' : '');
-    const absVal = Math.abs(c);
-    let term = '';
-    if (exp === 0) {
-      term = absVal.toString();
-    } else if (exp === 1) {
-      term = (absVal === 1 ? '' : absVal) + 'x';
-    } else {
-      term = (absVal === 1 ? '' : absVal) + `x^{${exp}}`;
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
     }
-    terms.push(sign + term);
-  });
-  return terms.join('');
-}
 
-function generateProblems() {
-  quizForm.innerHTML = '';
-  scoreDisplay.textContent = '';
-  problems = [];
-
-  // 問題1: ax^2+bx+c を x+r で割った余り
-  {
-    const a = getRandomInt(1, 3);
-    const b = getRandomInt(-3, 3, true);
-    const c = getRandomInt(-3, 3, true);
-    const r = getRandomInt(-2, 2, true);
-    const poly = formatPoly([a, b, c]);
-    const rem = a * r * r - b * r + c;
-    problems.push({ poly, r, answer: rem });
-  }
-
-  // 問題2: ax^3+bx^2+cx+d を x+r で割った余り
-  {
-    const a = getRandomInt(1, 3);
-    const b = getRandomInt(-3, 3, true);
-    const c = getRandomInt(-3, 3, true);
-    const d = getRandomInt(-3, 3, true);
-    const r = getRandomInt(-2, 2, true);
-    const poly = formatPoly([a, b, c, d]);
-    const rem = -a * r * r * r + b * r * r - c * r + d;
-    problems.push({ poly, r, answer: rem });
-  }
-
-  problems.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.className = 'question';
-    div.innerHTML = `
-      <div><strong>問${i + 1}.</strong> \\(${p.poly}\\) を \\(x${p.r >= 0 ? '+' : ''}${p.r}\\) で割った余りを求めなさい。</div>
-      <input type="number" id="input${i}" placeholder="あまり">
-      <span id="result${i}"></span>
-    `;
-    quizForm.appendChild(div);
-  });
-
-  MathJax.typeset();
-}
-
-function checkAnswers() {
-  let correct = 0;
-  problems.forEach((p, i) => {
-    const val = parseInt(document.getElementById(`input${i}`).value);
-    const res = document.getElementById(`result${i}`);
-    if (val === p.answer) {
-      res.innerHTML = `<span class='correct'>← 正解！</span>`;
-      correct++;
-    } else {
-      res.innerHTML = `<span class='incorrect'>← 不正解（正: ${p.answer}）</span>`;
+    function formatPoly(coefs) {
+      const terms = [];
+      const n = coefs.length - 1;
+      coefs.forEach((c, i) => {
+        if (c === 0) return;
+        const exp = n - i;
+        const sign = c < 0 ? '-' : (terms.length ? '+' : '');
+        const absVal = Math.abs(c);
+        let term = '';
+        if (exp === 0) {
+          term = absVal.toString();
+        } else if (exp === 1) {
+          term = (absVal === 1 ? '' : absVal) + 'x';
+        } else {
+          term = (absVal === 1 ? '' : absVal) + `x^{${exp}}`;
+        }
+        terms.push(sign + term);
+      });
+      return terms.join('');
     }
-  });
-  scoreDisplay.textContent = `スコア：${correct} / ${problems.length} 正解`;
-}
 
-generateProblems();
-</script>
+    function generateQuiz() {
+      const question = document.getElementById('question');
+      question.innerHTML = '';
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      problems = [];
 
+      // 問題1: ax^2+bx+c を x+r で割った余り
+      {
+        const a = getRandomInt(1, 3);
+        const b = getRandomInt(-3, 3, true);
+        const c = getRandomInt(-3, 3, true);
+        const r = getRandomInt(-2, 2, true);
+        const poly = formatPoly([a, b, c]);
+        const rem = a * (-r) * (-r) + b * (-r) + c;
+        problems.push({ poly, r, answer: rem });
+      }
+
+      // 問題2: ax^3+bx^2+cx+d を x+r で割った余り
+      {
+        const a = getRandomInt(1, 3);
+        const b = getRandomInt(-3, 3, true);
+        const c = getRandomInt(-3, 3, true);
+        const d = getRandomInt(-3, 3, true);
+        const r = getRandomInt(-2, 2, true);
+        const poly = formatPoly([a, b, c, d]);
+        const rem = a * (-r) * (-r) * (-r) + b * r * r + c * (-r) + d;
+        problems.push({ poly, r, answer: rem });
+      }
+
+      problems.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `
+          <div><strong>問${i + 1}.</strong> \\(${p.poly}\\) を \\(x${p.r >= 0 ? '+' : ''}${p.r}\\) で割った余りを求めなさい。</div>
+          <input type="number" id="input${i}" placeholder="あまり">
+          <button onclick="checkAnswer(${i})"style="padding: 1rem 1rem; font-size: 1rem">答え合わせ</button>
+          <span id="result${i}"></span>
+        `;
+        question.appendChild(div);
+      });
+
+      MathJax.typeset();
+    }
+
+    function checkAnswer(i) {
+      const input = document.getElementById(`input${i}`);
+      const feedback = document.getElementById(`result${i}`);
+      const user = parseFloat(input.value);
+      const correct = window.problems[i].answer;
+
+        feedback.textContent = (user === correct)
+          ? '正解！'
+          : `不正解。正解は ${correct} です。`;
+
+    }
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      chtml: { displayAlign: "left" }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>剰余の定理</h1>
+      <div id="question" class="question"></div>
+      <div>
+        <button onclick="generateQuiz()" style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+
+    <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700" height="700"></canvas>
+      <button onclick="clearBoard()">クリア</button>
+      <button onclick="toggleEraser()">消しゴム切替</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blackboard');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let isErasing = false;
+
+    function toggleEraser() {
+      isErasing = !isErasing;
+    }
+
+    function getStrokeStyle() {
+      return isErasing ? "#222" : "white";
+    }
+
+    function getLineWidth() {
+      return isErasing ? 20 : 2;
+    }
+
+    function drawLine(x, y) {
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = getStrokeStyle();
+      ctx.lineWidth = getLineWidth();
+      ctx.stroke();
+    }
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (drawing) drawLine(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+    });
+
+    canvas.addEventListener('touchend', () => drawing = false);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
 </body>
 </html>
