@@ -99,29 +99,29 @@
         <div class="dropdown">
           <a href="#">問題一覧 ▾</a>
           <div class="dropdown-content">
-          <div class="sub-dropdown">
-            <a href="#">数学Ⅱ</a>
-            <div class="sub-dropdown-content">
-              <a href="二項定理計算練習.html">２項定理</a>
-              <a href="複素数計算練習.html">複素数計算練習</a>
-              <a href="2次方程式の問題.html">2次方程式</a>
-              <a href="解と係数の関係.html">２次方程式の解と係数の関係</a>
-              <a href="分数式の乗法.html">分数式の乗法</a>
-              <a href="分数式の加法・減法.html">分数式の加法・減法</a>
-              <a href="jouyo.html">剰余の定理</a>
-              <a href="高次因数分解.html">3次以上の因数分解</a>
-              <a href="高次方程式.html">高次方程式</a>
-
+            <div class="sub-dropdown">
+              <a href="#">数学Ⅱ</a>
+              <div class="sub-dropdown-content">
+                <a href="二項定理計算練習.html" target="content-frame">２項定理</a>
+                <a href="複素数計算練習.html" target="content-frame">複素数計算練習</a>
+                <a href="2次方程式の問題.html" target="content-frame">2次方程式</a>
+                <a href="解と係数の関係.html" target="content-frame">２次方程式の解と係数の関係</a>
+                <a href="分数式の乗法.html" target="content-frame">分数式の乗法</a>
+                <a href="分数式の加法・減法.html" target="content-frame">分数式の加法・減法</a>
+                <a href="jouyo.html" target="content-frame">剰余の定理</a>
+                <a href="高次因数分解.html" target="content-frame">3次以上の因数分解</a>
+                <a href="高次方程式.html" target="content-frame">高次方程式</a>
+              </div>
             </div>
-          </div>
-          <div class="sub-dropdown">
-            <a href="#">数学B</a>
-            <div class="sub-dropdown-content">
-              <a href="等差数列の一般項.html">等差数列の一般項</a>
-              <a href="等差数列の和.html">等差数列の和</a>
-              <a href="等比数列の一般項.html">等比数列の一般項</a>
-              <a href="等比数列の和.html">等比数列の和</a>
-              <a href="和の記号Σ.html">和の記号Σ</a>
+            <div class="sub-dropdown">
+              <a href="#">数学B</a>
+              <div class="sub-dropdown-content">
+                <a href="等差数列の一般項.html" target="content-frame">等差数列の一般項</a>
+                <a href="等差数列の和.html" target="content-frame">等差数列の和</a>
+                <a href="等比数列の一般項.html" target="content-frame">等比数列の一般項</a>
+                <a href="等比数列の和.html" target="content-frame">等比数列の和</a>
+                <a href="和の記号Σ.html" target="content-frame">和の記号Σ</a>
+              </div>
             </div>
           </div>
         </div>
@@ -129,15 +129,11 @@
     </div>
   </nav>
 
-  <main style="padding: 2em;">
-    <h1>無限に遊べる数学コンテンツ</h1>
-    <p>上のメニューから学習したい単元を選んでください。</p>
+  <main>
+    <iframe name="content-frame" src="二項定理計算練習.html" id="content-frame"></iframe>
   </main>
-<script>
-    function loadPage(page) {
-      document.getElementById('content-frame').src = page;
-    }
 
+  <script>
     const toggleBtn = document.getElementById('toggleMenu');
     const menuContainer = document.getElementById('menuContainer');
     let visible = true;
