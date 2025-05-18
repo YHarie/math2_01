@@ -147,14 +147,14 @@
     </div>
   </nav>
 
-  <main>
-    <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
-    <script>
-  function loadPage(url) {
-    document.getElementById("mainFrame").src = url;
-  }
-</script>
-  </main>
+<main>
+  <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
+  <script>
+    function loadPage(url) {
+      document.getElementById("content-frame").src = url;
+    }
+  </script>
+</main>
 
   <script>
     const toggleBtn = document.getElementById('toggleMenu');
