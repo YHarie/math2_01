@@ -1,107 +1,80 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>分数式の乗法クイズ</title>
-  <style>
- body {
-  font-family: sans-serif;
-  padding: 4vw;
-  font-size: 4vw;
-  text-align: left;
-}
+  <meta charset="UTF-8" />
+  <title>分数式の乗法</title>
+ <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-.question {
-  margin-bottom: 4vw;
-}
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
 
-input {
-  width: 20vw;
-  height: 8vw;
-  padding: 1vw;
-  font-size: 4vw;
-  margin-left: 2vw;
-}
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
 
-button {
-  width: 40vw;
-  height: 10vw;
-  font-size: 4vw;
-  padding: 2vw;
-  margin-right: 2vw;
-}
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
 
-.correct {
-  color: green;
-}
+    }
 
-.incorrect {
-  color: red;
-}
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+@media (orientation: portrait) {
+  .container {
+    flex-direction: column;
+  }
 
-.mj-tex {
-  text-align: left;
-  display: block;
-}
+  #left-area, #right-area {
+    height: 50vh;
+  }
 
-/* PC向けのスタイル調整 */
-@media (min-width: 768px) {
   body {
-    padding: 20px;
-    font-size: 18px;
+    font-size: 2em;
   }
 
-  .question {
-    margin-bottom: 20px;
-  }
-
-  input {
-    width: 100px;
-    height: 40px;
-    padding: 5px;
-    font-size: 16px;
-  }
-
-  button {
-    width: 200px;
-    height: 40px;
-    font-size: 16px;
-    padding: 10px;
+  select, button {
+    font-size: 1.5em;
   }
 }
+input {
+      width: 50px;
+      height: 30px;
+    }
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: auto;
+      height: auto;
+      touch-action: none;
+    }
 
   </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
-<body>
-<h1>分数式の乗法</h1>
-<div class="question" id="question"></div>
-<form id="quizForm">
-  <label>簡約した分子:
-    <input type="text" id="numerator" placeholder="例: x+1" /></label>
-  <label>簡約した分母:
-    <input type="text" id="denominator" placeholder="例: x-2" /></label>
-  <button type="button" onclick="checkAnswers()">答え合わせ</button>
-  <button type="button" onclick="generateQuestion()">再生成</button>
-</form>
-<div id="feedback"></div>
-<script>
-MathJax = { chtml: { displayAlign: "left", }
-};
-</script>
-<script>
-MathJax = { chtml: { displayAlign: "left", }
-};
-</script>  
-<script>
+ <script>
 function getRandomInt(min, max, exclude = []) {
-  let val;
+  let value;
   do {
-    val = Math.floor(Math.random() * (max - min + 1)) + min;
-  } while (exclude.includes(val));
-  return val;
+    value = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while (exclude.includes(value));
+  return value;
 }
 
 function formatTerm(coef, variable = "x") {
@@ -153,32 +126,128 @@ function generateQuestion() {
     denominator: simplifiedDen.replace(/\+\-/g, "-").replace(/\(\-([0-9]+)\)/g, "-$1")
   };
 
-  MathJax.typeset();
+  MathJax.typesetPromise();
 }
 
-function normalize(str) {
-  return str.replace(/\s+/g, "").replace(/^\+/, "");
-}
 
-function checkAnswers() {
-  const numInput = normalize(document.getElementById("numerator").value);
-  const denInput = normalize(document.getElementById("denominator").value);
+function checkAnswer(event) {
+  if (event) event.preventDefault(); // ← これが重要！
 
-  const correctNum = normalize(window.correctAnswer.numerator);
-  const correctDen = normalize(window.correctAnswer.denominator);
+  const numeratorInput = document.getElementById("numerator").value.trim().replace(/\s/g, "");
+  const denominatorInput = document.getElementById("denominator").value.trim().replace(/\s/g, "");
+
+  const correctNum = window.correctAnswer.numerator.replace(/\s/g, "");
+  const correctDen = window.correctAnswer.denominator.replace(/\s/g, "");
 
   const feedback = document.getElementById("feedback");
-
-  if (numInput === correctNum && denInput === correctDen) {
-    feedback.innerHTML = '<div class="correct">すべて正解です！</div>';
+  if (numeratorInput === correctNum && denominatorInput === correctDen) {
+    feedback.innerHTML = "<span style='color: green;'>正解です！</span>";
   } else {
-    feedback.innerHTML = `<div class="incorrect">不正解です。<br>正解: 分子 = ${correctNum}, 分母 = ${correctDen}</div>`;
+    feedback.innerHTML = `<span style='color: red;'>不正解です。正しくは<br>分子: ${correctNum}, 分母: ${correctDen} です。</span>`;
   }
-
-  MathJax.typeset();
 }
 
-generateQuestion();
+
+  </script>
+<script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+  window.onload = () => generateQuestion();
 </script>
+
+</head>
+<body>
+<div class="container">
+  <div id="left-area">
+    <h2>分数式の乗法</h2>
+    <div id="score" style="padding: 1em 2em; font-size: 1.2rem;"></div>
+    
+    <!-- ★ ここが問題文の表示エリア -->
+    <div id="question" style="margin: 1em 0;"></div>
+
+    <form id="quizForm" onsubmit="checkAnswers(); return false;" style="padding: 1em 2em; background: #f0f0f0; border-radius: 8px;">
+      <label>分子: <input id="numerator" type="text"style="padding: 0.5em 1em; font-size: 1rem;"></label><br><br>
+      <label>分母: <input id="denominator" type="text"style="padding: 0.5em 1em; font-size: 1rem;"></label><br><br>
+      <button onclick="checkAnswer(event)"style="padding: 1em 2em; font-size: 1.2rem;">答え合わせ</button>
+
+    </form>
+
+    <div id="feedback" style="margin-top: 1em;"></div>
+    <button onclick="generateQuestion()"style="padding: 1em 2em; font-size: 1.2rem;">次の問題</button>
+  </div>
+
+  <div id="right-area">  
+   <p>ここにメモを書いたり、図形を描いたりできます。</p>
+    <canvas id="blackboard" width="550" height="550"></canvas>
+    <button onclick="clearBoard()"style="padding: 1rem 1rem; font-size: 1rem;">クリア</button>
+    <button onclick="toggleEraser()"style="padding: 1rem 1rem; font-size: 1rem;">消しゴム切替</button>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+  function toggleEraser() {
+    isErasing = !isErasing;
+    // メッセージ表示はなし
+  }
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 15 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
 </body>
 </html>
