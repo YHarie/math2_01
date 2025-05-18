@@ -1,38 +1,96 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>2次方程式の問題</title>
+  <meta charset="UTF-8" />
+  <title>因数分解</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; text-align: left; }
-    .question, #feedback { margin-bottom: 10px; font-size: 18px; text-align: left; }
-    button { padding: 10px 20px; font-size: 16px; margin-right: 20px; }
-  </style>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
-<body>
-<h1>2次方程式の問題</h1>
-<div class="question" id="question"></div>
-<div style="margin-top: 20px;">
-  <button type="button" onclick="showAnswer()">答え</button>
-  <button type="button" onclick="generateQuestion()">再出題</button>
-</div>
-<div id="feedback" style="margin-top: 20px;"></div>
-<script>
-MathJax = { chtml: { displayAlign: "left", }
-};
-</script>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-<script>
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+  input, select, button {
+    font-size: 1.5em;
+  }
 }
 
-function generateQuestion() {
-  const i = getRandomInt(1, 7);
+select {
+  width: 200px;
+  height: 50px;
+  font-size: 1em;
+  padding: 1vw;
+  margin-right: 2vw;
+}
+
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+
+ function generateQuiz() {
+let j = parseInt(document.getElementById('modeSelect').value);
   let a = 0, b = 0, a1 = 0, a2 = 0;
   let A = '', B = '', questionText = '', answerText = '';
+let i;
+if(j===0){i=getRandomInt(1, 7);}
+if(j===1){i=getRandomInt(1, 3);}else{i=getRandomInt(4, 7);}
 
   if (i === 1) {
   do {
@@ -99,16 +157,135 @@ function generateQuestion() {
 
   document.getElementById("question").innerHTML = questionText;
   document.getElementById("feedback").innerHTML = '';
-  window.answerText = answerText;
+  document.getElementById("solution").innerHTML = '';
+  window.correctAnswer = null;  // 入力式ではないので不要
+  window.solutionText = answerText;
   MathJax.typeset();
 }
 
-function showAnswer() {
-  document.getElementById("feedback").innerHTML = window.answerText;
-  MathJax.typeset();
-}
 
-generateQuestion();
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+    function showSolution() {
+      document.getElementById('solution').innerHTML = window.solutionText;
+      MathJax.typeset();
+    }
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>２次方程式</h1>
+<label >モード:
+        <select id="modeSelect" onchange="generateQuiz()">
+          <option value="1" selected>因数分解</option>
+          <option value="2">解の公式</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+
+      <div id="question" class="question"></div>
+      <div>
+       <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+	<button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()">クリア</button>
+<button onclick="toggleEraser()">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+  function toggleEraser() {
+    isErasing = !isErasing;
+    // メッセージ表示はなし
+  }
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 20 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 </script>
 </body>
 </html>
