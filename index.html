@@ -111,6 +111,7 @@
 </head>
 <body>
   <nav>
+    
     <button id="toggleMenu">メニューを隠す</button>
     <div id="menuContainer">
       <div class="menu">
@@ -146,6 +147,17 @@
       </div>
     </div>
   </nav>
+<script>
+  const toggleBtn = document.getElementById('toggleMenu');
+  const menu = document.getElementById('menu');
+  let isMenuVisible = true;
+
+  toggleBtn.addEventListener('click', () => {
+    isMenuVisible = !isMenuVisible;
+    menu.style.display = isMenuVisible ? 'block' : 'none';
+    toggleBtn.textContent = isMenuVisible ? 'メニューを隠す' : 'メニューを表示';
+  });
+</script>
 
 <main>
   <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
