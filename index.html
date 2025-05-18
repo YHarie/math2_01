@@ -149,6 +149,11 @@
 
   <main>
     <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
+    <script>
+  function loadPage(url) {
+    document.getElementById("mainFrame").src = url;
+  }
+</script>
   </main>
 
   <script>
