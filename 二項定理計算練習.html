@@ -221,6 +221,17 @@ function moji(b, variable = "") {
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
+    canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  drawing = true;
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  ctx.beginPath();
+  ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+  ctx.strokeStyle = isErasing ? 'black' : 'white';
+  ctx.lineWidth = isErasing ? 15 : 2;
+});
+    
     canvas.addEventListener('mousedown', e => {
       drawing = true;
       ctx.beginPath();
