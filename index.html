@@ -9,41 +9,17 @@
       font-family: sans-serif;
     }
 
-nav {
-  background-color: #0077cc;
-  padding: 1em;
-  position: relative;
-  color: white;
-  transition: padding 0.3s ease, max-height 0.3s ease;
-  max-height: 100vh;
-  overflow: hidden;
-}
+    nav {
+      background-color: #0077cc;
+      padding: 1em;
+      position: relative;
+      color: white;
+    }
 
-nav.hidden {
-  padding: 0.1em 0.5em;
-  max-height: 2.5em; /* ボタン1つ分の高さに絞る */
-}
-
-#toggleMenu {
-  background: #005fa3;
-  color: white;
-  padding: 0.5em 1em;
-  border: none;
-  cursor: pointer;
-  font-size: 1em;
-  margin-bottom: 0;
-  display: block;
-}
-
-.menu {
-  display: flex;
-  gap: 2em;
-  transition: opacity 0.3s ease;
-}
-
-.menu.hidden {
-  display: none;
-}
+    .menu {
+      display: flex;
+      gap: 2em;
+    }
 
     .menu a {
       color: white;
@@ -135,8 +111,7 @@ nav.hidden {
 </head>
 <body>
   <nav>
-    
-      <button id="toggleMenu">メニューを隠す</button>
+    <button id="toggleMenu">メニューを隠す</button>
     <div id="menuContainer">
       <div class="menu">
         <div class="dropdown">
@@ -171,18 +146,8 @@ nav.hidden {
       </div>
     </div>
   </nav>
-<script>
-    const toggleBtn = document.getElementById('toggleMenu');
-    const menuContainer = document.getElementById('menuContainer');
-    let visible = true;
 
-    toggleBtn.addEventListener('click', () => {
-      visible = !visible;
-      menuContainer.style.display = visible ? 'block' : 'none';
-      toggleBtn.textContent = visible ? 'メニューを隠す' : 'メニューを表示';
-    });
-  </script>
-<main>
+  <main>
   <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
   <script>
     function loadPage(url) {
@@ -190,6 +155,7 @@ nav.hidden {
     }
   </script>
 </main>
+
 
   <script>
     const toggleBtn = document.getElementById('toggleMenu');
