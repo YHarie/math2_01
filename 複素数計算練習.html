@@ -156,14 +156,14 @@ if (i === 1) {
       let imag = (b * c - a * d) ;
 	let d1=gcd(real,denom);
 	let d2=gcd(imag,denom);
-	if(d1===0 || d2===0){
+	if(d1!==0 || d2!==0){
 	let d=gcd(d1,d2);
 	denom=denom/d; 	real=real/d;	imag=imag/d;}else if(real===0){
 	imag=imag/d2;	denom=denom/d2;}else{
 	real=real/d1;	denom=denom/d1;}
       question = `$$\\dfrac{${toTexComplex(a,b)}}{${toTexComplex(c,d)}}~~\\cdots　※　入力しないで計算しよう。$$`;
 	if(denom===1){      answer = `$$${teisu(Math.round(real))}  ${moji(Math.round(imag),`i`)}$$`;}else{
-      answer = `$$\\frac{${teisu(Math.round(real))}  ${moji(Math.round(imag),`i`)}}{${denom}}$$`;}
+      answer = `$$\\frac{${teisu(real)}  ${moji(imag,`i`)}}{${denom}}$$`;}
     }
 
       document.getElementById('question').innerHTML = question;
