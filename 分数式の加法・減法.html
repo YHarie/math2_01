@@ -115,11 +115,11 @@ function generateQuestion() {
   let num2 = `${ax}${bStr}`;
   const den2 = formatPolynomial(r1 + r2, r1 * r2);
 if (a === 0) {
-  i = b > 0 ? "1" : "-1";
+  i = b > 0 ? `${i}` : `${-i}`;
   num2 = b < 0 ? `${-b}` : `${b}`;
 }
 if (b === 0) {
-  i = a > 0 ? "1" : "-1";
+  i = a > 0 ? `${i}` : `${-i}`;
   a = a < 0 ? `${-a}` : `${a}`;
  num2=`${a}x`;
 }
