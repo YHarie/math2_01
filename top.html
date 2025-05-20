@@ -52,6 +52,23 @@
     .recommendation a:hover, .recommendation button:hover {
       background: #00796b;
     }
+      @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+      body {
+        font-size: 2em;
+      }
+
+      input, select, button {
+        font-size: 1.5em;
+      }
+    }
   </style>
 </head>
 <body>
