@@ -200,7 +200,7 @@ $$= ${a1} + \\sum_{k=1}^{n-1} (${b1}\\cdot ${r}^{k-1})$$
 $$= ${a1} + ${b1} \\cdot \\frac{${r}^{n-1}-1}{${r}-1} $$
 $$= ${answer}$$`;
 
-}if(i===3){//2乗和型
+}else if(i===3){//2乗和型
   let b1 = 1;
   let b2 = 4;
   let b3 = 9;
@@ -224,7 +224,128 @@ $$よって、n≧2 のとき$$
 $$a_n = a_1 + \\sum_{k=1}^{n-1} b_k$$
 $$= ${a1} + \\sum_{k=1}^{n-1} k^2$$
 $$= ${a1} + \\frac{1}{6}n(n-1)(2n-1)$$
-$$= ${answer}$$`;}
+$$= ${answer}$$`
+
+;}else if(i===4){let j=getRandomInt(1,3);
+let a,b,c;
+a=getRandomInt(1,3);
+b=getRandomInt(-3,3,true);
+c=getRandomInt(-3,3,true);
+let A=keisu(a,`n^2`);
+let B=moji(b,`n`);
+if(j===1){c=0;
+question=`$$初項か第n項までの和~S_{n}~がS_{n}=${A}${B}${teisu(c)}$$
+$$で表される数列\\{a_{n}\\}の一般項を求めよ。$$`;
+answer=`${2*a}n${teisu(b-a)}`;
+solution=`$$初項a_1 は$$
+$$ a_1=S_1=${a}\\cdot 1^2 ${teisu(b)}\\cdot 1${teisu(c)}=${a+b+c}$$
+$$n≧2のときは$$
+$$a_n =S_{n}-S_{n-1}$$
+$$=(${A}${B}${teisu(c)})-\\{${a}(n-1)^{2}${moji(b)}(n-1)${teisu(c)}\\}$$
+$$よって，a_{n}=${answer}~\\cdots\\cdots~①$$
+$$①でn=1とすると，a_{1}=${a+b+c}が得られるから，$$
+$$①はn=1のときも成り立つ。$$
+$$したがって，一般項はa_n=${answer}$$`;
+}else if(j===2){
+question=`$$初項か第n項までの和~S_{n}~がS_{n}=${A}${B}${teisu(c)}$$
+$$で表される数列\\{a_{n}\\}の一般項を求めよ。$$`;
+answer=`${2*a}n${teisu(b-a)}`;
+solution=`$$初項a_1 は$$
+$$ a_1=S_1=${a}\\cdot 1^2 ${teisu(b)}\\cdot 1${teisu(c)}=${a+b+c}$$
+$$n≧2のときは$$
+$$a_n =S_{n}-S_{n-1}$$
+$$=(${A}${B}${teisu(c)})-\\{${a}(n-1)^{2}${moji(b)}(n-1)${teisu(c)}\\}$$
+$$よって，a_{n}=${answer}~\\cdots\\cdots~①$$
+$$①でn=1とすると，a_{1}=${a+b}となり，$$
+$$①はa=1のときは成り立たない。$$
+$$したがって，一般項はa_1 =${a+b+c}，n≧2のとき，a_n=${answer}$$`
+;}else if(j===3){
+let r=getRandomInt(2,5);
+let p=getRandomInt(-1,1,true);
+question=`$$初項か第n項までの和~S_{n}~がS_{n}=${r}^{n}${teisu(p)}$$
+$$で表される数列\\{a_{n}\\}の一般項を求めよ。$$`;
+answer=`${keisu(r-1,`\\cdot`)}${r}^{n-1}`;
+
+if(p===-1){solution=`$$初項a_1 は$$
+$$ a_1=S_1=${r}^{1}${teisu(p)}=${r+p}$$
+$$n≧2のときは$$
+$$a_n =S_{n}-S_{n-1}$$
+$$=(${r}^{n}${teisu(p)})-(${r}^{n-1}${teisu(p)})$$
+$$よって，a_{n}=${answer}~\\cdots\\cdots~①$$
+$$①でn=1とすると，a_{1}=${r+p}が得られるから，$$
+$$①はn=1のときも成り立つ。$$
+$$したがって，一般項はa_n=${answer}$$`
+;}else{
+solution=`$$初項a_1 は$$
+$$ a_1=S_1=${r}^{1}${teisu(p)}=${r+p}$$
+$$n≧2のときは$$
+$$a_n =S_{n}-S_{n-1}$$
+$$=(${r}^{n}${teisu(p)})-(${r}^{n-1}${teisu(p)})$$
+$$よって，a_{n}=${answer}~\\cdots\\cdots~①$$
+$$①でn=1とすると，a_{1}=${r+p}となり，$$
+$$①はa=1のときは成り立たない。$$
+$$したがって，一般項はa_1 =${r+p}，n≧2のとき，a_{n}=${answer}$$`
+;}
+}
+}
+else if(i===5){//いろいろな数列の和
+let j=getRandomInt(1,2);
+if(j===1){//部分分数分解
+let d=getRandomInt(1,3);
+let a1,a2,a3,a4;
+a1=getRandomInt(1,3);
+a2=a1+d;
+a3=a2+d;
+a4=a3+d;
+let n= d===a1?`${keisu(d)}n`:`(${keisu(d)}n${teisu(a1-d)})`;
+let n1=`(${keisu(d)}n${teisu(a1)})`;
+let n2=d===1?"":`\\frac{1}{${d}}`
+question=`$$次の和を求めよ。$$
+$$S=\\frac{1}{${a1}\\cdot${a2}}+\\frac{1}{${a2}\\cdot${a3}}+\\frac{1}{${a3}\\cdot${a4}}+\\cdots
+\\cdots \\frac{1}{${n}${n1}}$$`;
+let d3=gcd(d,a1)
+answer= a1===1? `\\frac{n}{${keisu(d)}n${teisu(a1)}}`:`\\frac{n}{${a1*d3}(${keisu(d/d3)}n${teisu(a1/d3)})}`;
+
+solution=`$$S=\\frac{1}{${a1}\\cdot${a2}}+\\frac{1}{${a2}\\cdot${a3}}+\\frac{1}{${a3}\\cdot${a4}}+\\cdots
+\\cdots \\frac{1}{${n}${n1}}$$
+$$=${n2}\\left(\\frac{1}{${a1}}-\\frac{1}{${a2}}\\right)+\\left(\\frac{1}{${a2}}-\\frac{1}{${a3}}\\right)+\\left(\\frac{1}{${a3}}-\\frac{1}{${a4}}\\right)+\\cdots \\cdots
+\\left(\\frac{1}{${n}}-\\frac{1}{${n1}}\\right)$$
+$$=${n2}\\left(\\frac{1}{${a1}}-\\frac{1}{${n1}}\\right)=${answer}$$`;}
+else if(j===2){
+let d=getRandomInt(1,3);
+let a1,a2,a3,a4;
+a1=getRandomInt(1,3);
+a2=a1+d;
+a3=a2+d;
+a4=a3+d;
+let n= d===a1?`${keisu(d)}n`:`${keisu(d)}n${teisu(a1-d)}`;
+let n1=`${keisu(d)}n${teisu(a1)}`;
+let n2=d===1?"":`\\frac{1}{${d}}`
+let k=d===a1?`${keisu(d)}k`:`${keisu(d)}k${teisu(a1-d)}`;
+let k1=`${keisu(d)}k${teisu(a1)}`;
+let S= d===1 ? `(\\sqrt{${a2}}-\\sqrt{${a1}})+
+(\\sqrt{${a3}}-\\sqrt{${a2}})+(\\sqrt{${a4}}-\\sqrt{${a3}})+\\cdots \\cdots +(\\sqrt{${n1}}-\\sqrt{${n}})`:
+`\\frac{1}{${d}}{(\\sqrt{${a2}}-\\sqrt{${a1}})+
+(\\sqrt{${a3}}-\\sqrt{${a2}})+(\\sqrt{${a4}}-\\sqrt{${a3}})+\\cdots \\cdots +(\\sqrt{${n1}}-\\sqrt{${n}})}`
+
+let Sk=d===1?`\\sqrt{${k1}}-\\sqrt{${k}}`:`\\frac{1}{${d}}(\\sqrt{${k1}}-\\sqrt{${k}})`;
+
+question=`$$次の和を求めよ。$$
+$$S=\\frac{1}{\\sqrt{${a1}}+\\sqrt{${a2}}}+\\frac{1}{\\sqrt{${a2}}+\\sqrt{${a3}}}+\\frac{1}{\\sqrt{${a3}}+\\sqrt{${a4}}}+\\cdots
+\\cdots \\frac{1}{\\sqrt{${n}}+\\sqrt{${n1}}}$$`;
+let a= a1===1? `1`:`\\sqrt{${a1}}`;
+answer= d===1? `\\sqrt{${n1}}-${a}`:`\\frac{1}{${d}}(\\sqrt{${n1}}-${a})`;
+
+solution=`$$\\frac{1}{\\sqrt{${k}}+\\sqrt{${k1}}}$$
+$$=\\frac{\\sqrt{${k1}}-\\sqrt{${k}}}{(\\sqrt{${k1}}+\\sqrt{${k}})(\\sqrt{${k1}}-\\sqrt{${k}})}$$
+$$=\\frac{\\sqrt{${k1}}-\\sqrt{${k}}}{(${k1})-${d === a1 ? k : `(${k})`}}$$
+$$=${Sk}$$
+$$であるから，求める和は$$
+$$S=${S}$$
+$$=${answer}$$`;
+}
+
+}
 
 
 
@@ -275,10 +396,13 @@ $$= ${answer}$$`;}
     <div id="left-area">
       <h1>階差数列+いろいろな数列の和</h1>
       <label >モード:
-        <select id="modeSelect1" onchange="generateQuiz()">
+        <select id="modeSelect1" onchange="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">
           <option value="1" selected>等差型</option>
           <option value="2">等比型</option>
           <option value="0">階差数列(ランダム)</option>
+          <option value="4">和から一般項</option>
+          <option value="5">和の求め方の工夫</option>
+
         </select>
 
       </label>
