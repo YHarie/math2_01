@@ -3,100 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <title>二次方程式の解と係数の関係</title>
-  <style>
-body {
-  font-family: sans-serif;
-  padding: 4vw;
-  text-align: left;
-  font-size: 4vw;
-}
+ <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: sans-serif;
+  }
 
-.question, #feedback {
-  margin-bottom: 2vw;
-  font-size: 4vw;
-}
+  .container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+  }
 
-button {
-  padding: 2vw 4vw;
-  font-size: 4vw;
-  margin-right: 3vw;
-}
-@media (min-width: 768px) {
+  #left-area, #right-area {
+    padding: 1em;
+    box-sizing: border-box;
+    overflow: auto;
+  }
+
+  #left-area {
+    flex: 1;
+    background-color: #f9f9f9;
+    font-size: 1em;
+  }
+
+  #right-area {
+    flex: 1;
+    background-color: #222;
+    color: white;
+  }
+
   body {
-    font-size: 18px;
-    padding: 20px;
+    font-size: 1.3em;
   }
-  .question, #feedback {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  button {
-    font-size: 16px;
-    padding: 10px 20px;
-    margin-right: 20px;
-  }
-}
 
-input {
-    width: 80px;  /* 幅の調整 */
-    height: 40px;  /* 高さの調整 */
+  select, button {
+    font-size: 1.5em;
+  }
+
+  @media (orientation: portrait) {
+    .container {
+      flex-direction: column;
+    }
+
+    #left-area, #right-area {
+      height: 50vh;
+    }
+  }
+
+  .correct { color: green; }
+  .incorrect { color: red; }
+
+  #blackboard {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    touch-action: none;
+  }
+
+  input {
+    width: 80px;
+    height: 40px;
     padding: 5px;
   }
-  
-  </style>
+
+  canvas {
+    background-color: #222;
+    border: 1px solid #888;
+    margin-top: 1rem;
+    display: block;
+  }
+</style>
+
 </head>
 <body>
-<h1>二次方程式の解と係数の関係</h1>
-<div id="quiz"></div>
-<button type="button" onclick="checkAnswer()">答え合わせ</button>
-<button type="button" onclick="generateQuiz()">再出題</button>
-<div id="feedback"></div>
+<div id="container">
+  <div id="left-area">
+    <h1>二次方程式の解と係数の関係</h1>
+    <div id="quiz"></div>
+    <button type="button" onclick="checkAnswer()">答え合わせ</button>
+    <button type="button" onclick="generateQuiz()">再出題</button>
+    <div id="feedback"></div>
+  </div>
 
+  <div id="right-area">
+
+
+    <!-- ここからお絵かきメモ機能の追加部分 -->
+    <p>ここにメモを書いたり、図形を描いたりできます。</p>
+    <canvas id="blackboard" width="550" height="550"></canvas>
+    <button onclick="clearBoard()" style="padding: 1rem 1rem; font-size: 1rem;">クリア</button>
+    <button onclick="toggleEraser()" style="padding: 1rem 1rem; font-size: 1rem;">消しゴム切替</button>
+  </div>
+</div>
+
+<!-- MathJax設定 -->
 <script>
-MathJax = { chtml: { displayAlign: "left", }
+MathJax = {
+  chtml: { displayAlign: "left" }
 };
 </script>
-  
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<!-- クイズロジック -->
 <script>
 function getRandomInt(min, max, excludeZero=false) {
   let v;
-  do { v = Math.floor(Math.random()*(max-min+1)) + min; }
-  while ((excludeZero && v===0));
+  do { v = Math.floor(Math.random() * (max - min + 1)) + min; }
+  while (excludeZero && v === 0);
   return v;
-}
-
-function formatNumber(n) {
-  return n === 1 ? '' : (n === -1 ? '-' : n);
 }
 
 function generateEquationString(a, b) {
   let equation = 'x^2';
+  if (a === 1) equation += `+x`;
+  else if (a === -1) equation += `-x`;
+  else if (a > 0) equation += `+${a}x`;
+  else equation += `${a}x`;
 
-  // xの項（a, bの符号に応じて表示）
-  if (a === 1) {
-    equation += `+x`;
-  } else if (a === -1) {
-    equation += `-x`;
-  } else if (a > 0) {
-    equation += `+${a}x`;
-  } else if (a < 0) {
-    equation += `${a}x`;
-  }
+  if (b > 0) equation += ` + ${b}`;
+  else if (b < 0) equation += ` ${b}`;
 
-  // 定数項（bの符号に応じて表示）
-  if (b > 0) {
-    equation += ` + ${b}`;
-  } else if (b < 0) {
-    equation += ` ${b}`;
-  }
-
-  equation += ` = 0`;
-
-  // 重複した + と - の修正
-  equation = equation.replace(/\+\-/g, "-").replace(/\-\+/g, "-").replace(/\+\+/g, "+");
-
-  return equation;
+  return equation + ' = 0';
 }
 
 function generateQuiz() {
@@ -105,41 +135,22 @@ function generateQuiz() {
   do {
     a = getRandomInt(-6, 6, true);
     b = getRandomInt(-6, 6, true);
-  } while (a === 0 || b === 0 || a*a - 4*b === 0);
+  } while (a * a - 4 * b === 0);
 
-  const quizDiv = document.getElementById('quiz');
   const eq = generateEquationString(a, b);
-  quizDiv.innerHTML = `
-    <div class="question">次の二次方程式 \\(${eq}\\) の解 \\( \\alpha \\)、\\( \\beta \\)  について、次の値を求めよ。</div>
-    <div>
-      \\(α + β = \\)
-      <input type="text" id="sum" placeholder="答えを入力">
-    </div><br>
-    <div>
-      \\(αβ = \\)
-      <input type="text" id="product" placeholder="答えを入力">
-    </div><br>
-    <div>
-      \\(α^2 + β^2 = \\)
-      <input type="text" id="squareSum" placeholder="答えを入力">
-    </div><br>
+  document.getElementById('quiz').innerHTML = `
+    <div class="question">次の二次方程式 \\(${eq}\\) の解 \\( \\alpha \\)、\\( \\beta \\) について、次の値を求めよ。</div>
+    <div>\\(α + β = \\) <input type="text" id="sum" placeholder="答えを入力"></div><br>
+    <div>\\(αβ = \\) <input type="text" id="product" placeholder="答えを入力"></div><br>
+    <div>\\(α^2 + β^2 = \\) <input type="text" id="squareSum" placeholder="答えを入力"></div><br>
   `;
 
-  const alphaBetaSum = -a; // α + β = -a
-  const alphaBetaProd = b; // αβ = b
-  const alphaBetaSquareSum = a*a - 2*b; // α² + β² = a² - 2b
-
-  // 正解を保存
-  const correctAnswers = {
-    sum: alphaBetaSum,
-    product: alphaBetaProd,
-    squareSum: alphaBetaSquareSum
+  window.correctAnswers = {
+    sum: -a,
+    product: b,
+    squareSum: a * a - 2 * b
   };
 
-  // グローバル変数に正解を保存
-  window.correctAnswers = correctAnswers;
-
-  // MathJaxを利用して数式を表示
   MathJax.typeset();
 }
 
@@ -148,25 +159,86 @@ function checkAnswer() {
   const product = parseFloat(document.getElementById('product').value);
   const squareSum = parseFloat(document.getElementById('squareSum').value);
 
-  const feedback = document.getElementById('feedback');
-  
-  let correctCount = 0;
+  let correct = 0;
+  if (sum === window.correctAnswers.sum) correct++;
+  if (product === window.correctAnswers.product) correct++;
+  if (squareSum === window.correctAnswers.squareSum) correct++;
 
-  if (sum === window.correctAnswers.sum) correctCount++;
-  if (product === window.correctAnswers.product) correctCount++;
-  if (squareSum === window.correctAnswers.squareSum) correctCount++;
-
-  if (correctCount === 3) {
-    feedback.innerHTML = `<span class="correct">すべて正解！</span>`;
+  const fb = document.getElementById('feedback');
+  if (correct === 3) {
+    fb.innerHTML = `<span class="correct">すべて正解！</span>`;
   } else {
-    feedback.innerHTML = `
+    fb.innerHTML = `
       <span class="incorrect">不正解！もう一度確認してください。</span><br>
       正解: α + β = ${window.correctAnswers.sum}, αβ = ${window.correctAnswers.product}, α² + β² = ${window.correctAnswers.squareSum}
     `;
   }
 }
 
-generateQuiz();
+// MathJax 完了後にクイズ生成
+MathJax.startup.promise.then(() => {
+  generateQuiz();
+});
 </script>
+
+<!-- お絵かき用スクリプト -->
+<script>
+const canvas = document.getElementById('blackboard');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let isErasing = false;
+
+function toggleEraser() {
+  isErasing = !isErasing;
+}
+
+function getStrokeStyle() {
+  return isErasing ? "#222" : "white";
+}
+
+function getLineWidth() {
+  return isErasing ? 15 : 2;
+}
+
+function drawLine(x, y) {
+  ctx.lineTo(x, y);
+  ctx.strokeStyle = getStrokeStyle();
+  ctx.lineWidth = getLineWidth();
+  ctx.stroke();
+}
+
+canvas.addEventListener('mousedown', e => {
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+});
+canvas.addEventListener('mousemove', e => {
+  if (drawing) drawLine(e.offsetX, e.offsetY);
+});
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  ctx.beginPath();
+  ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+  drawing = true;
+});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+canvas.addEventListener('touchend', () => drawing = false);
+
+function clearBoard() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+</script>
+
 </body>
 </html>
