@@ -229,8 +229,8 @@ $$初項から第何項までの和が${m}となるか。その和を求めよ�
    <div id="right-area">
       <p>ここにメモを書いたり、図形を描いたりできます。</p>
       <canvas id="blackboard" width="700"height="700"></canvas>
-<button onclick="clearBoard()">クリア</button>
-<button onclick="toggleEraser()">消しゴム切替</button>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
       
     </div>
   </div>
@@ -242,16 +242,28 @@ $$初項から第何項までの和が${m}となるか。その和を求めよ�
   let isErasing = false; // 消しゴムモードのフラグ
 
   function toggleEraser() {
-    isErasing = !isErasing;
-    // メッセージ表示はなし
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
   }
+}
+
 
   function getStrokeStyle() {
     return isErasing ? "#222" : "white"; // 黒板色 or 白
   }
 
   function getLineWidth() {
-    return isErasing ? 12 : 2; // 消しゴムは太め
+    return isErasing ? 25: 2; // 消しゴムは太め
   }
 
   function drawLine(x, y) {
