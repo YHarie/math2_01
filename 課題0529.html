@@ -164,6 +164,15 @@ ansBtn.classList.remove("hidden"); // ボタン表示
       return val;
     }
 
+function startQuiz() {
+  I = 1;
+  startTime = new Date();
+  document.getElementById("startButton").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
  function generateQuestion() {
   let question = "";
 	let solution="";
@@ -171,6 +180,28 @@ ansBtn.classList.remove("hidden"); // ボタン表示
   document.getElementById("nextButton").classList.add("hidden");
   const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
+ const questionDiv = document.getElementById("question");
+  const solutionDiv = document.getElementById("solution");
+  const feedbackDiv = document.getElementById("feedback");
+
+
+if (I === 0) {
+    questionDiv.innerHTML = `<p>【課題の取り組み方】</p>
+  <p>ベネッセ模試に向けて、課題を作りました。</p>
+  <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で11問です。終わったらリザルト画面になります。</p>
+  <p>リザルト画面にある記録ボタンを押し，ダウンロードした画像をロイロで提出してください。</p>
+  <p>本日中に２回繰り返し，２回の記録を提出箱に提出をしてください。</p>
+  <button class="button" onclick="startTask()">開始</button>
+`;
+
+    document.getElementById("ansButton").classList.add("hidden");
+    document.getElementById("soluButton").classList.add("hidden");
+	
+
+    return;
+  }
 
   if (I === 1) {
     let j = getRandomInt(1, 2);
@@ -816,24 +847,24 @@ showSolution();
         <p>終了時刻: ${endTime.toLocaleTimeString()}</p>
         <p>かかった時間: ${minutes}分${seconds}秒（評価: ${timeRank}）</p>
         <p>間違えた回数: ${mistakeCount}回（評価: ${mistakeRank}）</p>
-        <button onclick="copyScreenshot()">記録</button>
-        <button onclick="resetChallenge()">最初から</button>
+        <button class="button" onclick="copyScreenshot()">記録</button>
       `;
     }
 
 function copyScreenshot() {
-  const target = document.querySelector('.container'); // スクショ対象（全体）
+ const target = document.querySelector('.container'); // スクショ対象の要素
 
   html2canvas(target).then(canvas => {
-    canvas.toBlob(blob => {
-      navigator.clipboard.write([
-        new ClipboardItem({ "image/png": blob })
-      ]).then(() => {
-        alert("スクリーンショットをクリップボードにコピーしました！");
-      }).catch(err => {
-        alert("クリップボードへのコピーに失敗しました：" + err);
-      });
-    });
+    // 画像データURLを取得
+    const imageData = canvas.toDataURL("image/png");
+
+    // ダウンロードリンクを作成してクリック
+    const link = document.createElement("a");
+    link.href = imageData;
+    link.download = "screenshot.png"; // 保存時のファイル名
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
     }
 
@@ -846,9 +877,10 @@ function copyScreenshot() {
 ansBtn.classList.remove("hidden"); // ボタン表示
 
 	soluBtn.classList.add("hidden")
-      document.getElementById("status").textContent = `現在${I}問目`;
-      generateQuestion();
-    }
+ document.getElementById("soluButton").classList.add("hidden");
+  document.getElementById("ansButton").classList.remove("hidden");
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();    }
 
 window.onload = function () {
   if (I === 0) {
@@ -863,6 +895,7 @@ document.getElementById("soluButton").style.backgroundColor = "orange";
 
   <!-- MathJax読み込み -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
   <script id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
@@ -878,6 +911,7 @@ document.getElementById("soluButton").style.backgroundColor = "orange";
     MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -902,6 +936,7 @@ document.getElementById("soluButton").style.backgroundColor = "orange";
     <div id="Bquestion"></div>
     <div id="question"></div>
     <div id="inputs"></div>
+
     <button class="button hidden" id="ansButton" onclick="checkAnswer()"class="color1">答え合わせ</button>
  <button class="button hidden" id="soluButton" onclick="showSolution()">解説</button>
 <button class="button" onclick="regenerateQuestion()">この問題をもう一度</button>
