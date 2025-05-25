@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>5/29 数学ⅡB課題《ベネッセ模試に向けて》</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+  #top {
+      height: 10vh;
+      background: #f0f0f0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.5em;
+    }
+    #bottom {
+      height: 90vh;
+      padding: 20px;
+      overflow-y: auto;
+    }
+#soluButton {
+  background-color: orange;
+}
+#nextButton{
+  background-color: cyan;
+}
+    .input-box {
+      width: 70px;
+      height: 50px;
+      font-size: 1.5em;
+      margin: 5px;
+    }
+    .button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+
+    .hidden {
+      display: none;
+    }
+.color0 { background-color: gray; color: white; }
+.color1 { background-color: blue; color: white; }
+.color2 { background-color: green; color: white; }
+.color3 { background-color: red; color: white; }
+
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: auto;
+      height: auto;
+      max-height: 100vh;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+let I = 0;
+let mistakeCount = 0;
+let startTime = null;
+let endTime = null;
+
+let N,an1,an2,bn1,bn2,bn3;
+N=0
+	let kaisu=1;
+    let correctAnswers = [];
+
+function startTask() {
+   const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  const now = new Date();
+  startTime = now;
+  I = 1;
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+ function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+
+    function moji(num, str) {
+      if (num === 0) return "";
+      if (num === 1) return `+${str}`;
+      if (num === -1) return `-${str}`;
+      return num > 0 ? `+${num}${str}` : `${num}${str}`;
+    }
+
+    function teisu(num) {
+      if (num === 0) return "";
+      return num > 0 ? `+${num}` : `${num}`;
+    }
+
+    function getRandomInt(min, max, excludeZero = false) {
+      let val;
+      do {
+        val = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && val === 0);
+      return val;
+    }
+
+ function generateQuestion() {
+  let question = "";
+	let solution="";
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextButton").classList.add("hidden");
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+  if (I === 1) {
+    let j = getRandomInt(1, 2);
+
+    if (j === 1) {
+      let a = getRandomInt(2, 3);
+      let p = getRandomInt(-8, 8, true);
+      while (gcd(a, p) !== 1) {
+        p = getRandomInt(-8, 8, true);
+      }
+      let q = p;
+      while (q === p) {
+        q = getRandomInt(-4, 4, true);
+      }
+      let b = a * q + p;
+      let c = p * q;
+      let f1 = p > 0 ? "+" : "-";
+      let f2 = q > 0 ? "+" : "-";
+
+      question = `$$${a}x^2${moji(b, "x")}${teisu(c)}を因数分解した式は$$<br>
+      $$(\\fbox{1}x${f1}\\fbox{2})(x${f2}\\fbox{3})である。$$<br>
+      $$\\fbox{1}～\\fbox{3}に当てはまる数を入力せよ。（完答）$$`;
+
+      correctAnswers = [a, Math.abs(p), Math.abs(q)];
+      for (let i = 0; i < 3; i++) {
+        let input = document.createElement("input");
+        input.className = "input-box";
+        input.type = "number";
+        input.id = `input${i}`;
+        inputsDiv.appendChild(input);
+	solution=`たすき掛け頑張ってね。`;
+      }
+
+    } else {
+      let a = getRandomInt(1, 15);
+      let b = a;
+      while (a === b) {
+        b = getRandomInt(1, 15);
+      }
+      if ([1, 4, 9].includes(a) && [1, 4, 9].includes(b)) {
+        b = 7;
+      }
+      if (a < b) [a, b] = [b, a];
+      let c = getRandomInt(-3, 3, true);
+      let A = a === 1 ? `1` : a === 4 ? `2` : a === 8 ? `2\\sqrt{2}` : a === 9 ? `3` : `\\sqrt{${a}}`;
+      let B = b === 1 ? `1` : b === 4 ? `2` : b === 8 ? `2\\sqrt{2}` : b === 9 ? `3` : `\\sqrt{${b}}`;
+
+      question = `$$a=${A}+${B}, \\quad b=${A}-${B}とするとき，$$
+      $$a^2+b^2${moji(c, "ab")}の値を求めよ。$$`;
+	solution=`$$(a+b)^2${moji(b-2,`ab`)}$$`;
+      let ans = 4 * a + (c - 2) * (a - b);
+      correctAnswers = [Math.round(ans)];
+
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input0`;
+      inputsDiv.appendChild(input);
+
+    }
+
+    document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+if (I === 2) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+  let f = getRandomInt(1, 2);
+  let F = f === 1 ? `>` : `<`;
+  let b = getRandomInt(1, 8, true);
+  let c;
+  do {
+    c = getRandomInt(-8, 8, true);
+  } while ((b - c) % 2 !== 0);
+
+  let roots = [(-b - c) / 2, (b - c) / 2].sort((a, b) => a - b);
+  let x1 = roots[0], x2 = roots[1];
+
+  question = `$$方程式\\ |2x${teisu(c)}|=${b}\\ の解は$$
+  $$x=\\fbox{ 1 },\\fbox{ 2 }\\ であるから，$$
+  $$不等式\\ |2x${teisu(c)}|${F}${b}\\ の解は\\ \\fbox{ 3 }\\ である。$$
+  $$ただし，\\fbox{ 1 }<\\fbox{ 2 } とし，\\fbox{ 3 } は選択肢1，2から選べ。$$
+  $$選択肢$$
+  $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } < x \\quad \\quad 2 \\quad \\fbox{ 1 } < x < \\fbox{ 2 }$$`;
+
+  correctAnswers = [x1, x2, f];
+solution=`$$ 朝テストでも出てくるから余裕だよね？$$`;
+
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}
+ if (I === 3) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+  let f = getRandomInt(1, 2);
+  let F = f === 1 ? `>` : `<`;
+
+  let b = getRandomInt(-8, 8);
+  let c;
+  do {
+    c = getRandomInt(-8, 8);
+  } while (b === c);
+
+  if (b > c) [b, c] = [c, b];
+
+  let x1 = b;
+  let x2 = c;
+  let x0 = b * c;
+
+  question = `$$2次方程式x^2${moji(-(x1 + x2),`x`)}${teisu(x0)}=0の解は$$
+  $$x=\\fbox{ 1 },\\fbox{ 2 } であるから，$$
+  $$不等式x^2${moji(-(x1 + x2),`x`)}${teisu(x0)}${F}0 の解は\\ \\fbox{ 3 }\\ である。$$
+  $$ただし，\\fbox{ 1 }<\\fbox{ 2 } とし，\\fbox{ 3 } は選択肢1，2から選べ。$$
+  $$選択肢$$
+  $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } < x \\quad \\quad 2 \\quad \\fbox{ 1 } < x < \\fbox{ 2 }$$`;
+
+  correctAnswers = [x1, x2, f];
+
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+
+  }
+ document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}
+if (I === 4) {
+  let p1, p2, q, A;
+  p1 = getRandomInt(1, 5);
+  p2 = -p1;
+  A = getRandomInt(1, 4); // ← 修正: A== ではなく A = に
+
+  let P, Q,kai;
+  let j = getRandomInt(1, 2);
+
+ if (A === 1) {
+    P = `|x| \\gt ${p1}`;
+    q = j === 1 ? getRandomInt(p1, 7) : getRandomInt(-6, p2);
+    Q = j === 1 ? ` ${q} \\lt x` : ` x \\lt ${q} `;
+	kai=`x\\lt${p2}，${p1}\\lt x`;
+  }
+
+  if (A === 2) {
+    P = `|x| \\lt ${p1}`;
+    q = j === 1 ? getRandomInt(p1, 7) : getRandomInt(-6, p2);
+    Q = j === 1 ? `x \\lt ${q}` : `${q} \\lt x`;
+	kai=`$\\lt x \\lt${p1}`;
+  }
+
+  if (A === 3) {
+    P = j === 1 ? `| x | \\lt${p1}` : `| x |\\gt ${p1}`;
+	kai= j===1 ?`$\\lt x \\lt${p1}` :`x\\lt${p2}，${p1}\\lt x`;
+    Q = j === 1 ? `${p2}　\\lt　x　かつ　x \\lt ${p1}` : `${p2} \\lt x　または　x \\lt ${p1}`;
+  }
+
+  if (A === 4) {
+    P = j === 1 ? `| x | \\gt ${p1}` : `| x | \\lt ${p1}`; 
+	kai= j===2 ?`$\\lt x \\lt${p1}` :`x\\lt${p2}，${p1}\\lt x`;
+
+    Q = j === 1 ? `${p2-1} \\lt x　` : `${p2} \\lt x　または　x \\lt ${p1}`;
+  }
+
+  question = `$$xは実数とする。${P}は，${Q}であるための$$
+$$\\fbox{(ｱ)}である。\\fbox{(ｱ)}に当てはまるものを$$
+$$次の1～4のうちから一つ選べ。$$
+$$1~~~必要条件ではあるが，十分条件ではない。$$
+$$2~~~十分条件ではあるが，必要条件ではない。$$
+$$3~~~必要十分条件である。$$
+$$4~~~必要条件も十分条件でもない。$$`;
+
+  correctAnswers = [A];
+solution=`${P}の解くと$$
+$$ ${kai}$$
+$$ 解説はここまで。あとは調べてみてください。$$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 4問目終わり
+  if (I === 5) {
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+    let b,c,p,q;
+	p=getRandomInt(-7, 7,true);
+	do{q=getRandomInt(-7, 7);}while(p===q)
+	b=p+q;c=-p*q;
+	if(p>q){[p,q]=[q,p];}
+
+  question = `$$2次関数f(x)=x^2-2ax${moji(b,`a`)}${teisu(c)}がある。(aは定数)$$
+$$y=f(x)のグラフがx軸と共有点をもつようなaの値の範囲は$$
+$$a \\leqq \\fbox{ 1 }，\\fbox{ 2 } \\leqq である。$$
+`;
+
+  correctAnswers = [p, q];
+
+
+  for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+	solution=`$$f(x)=0の判別式をDとすると，$$
+$$y=f(x)のグラフがx軸と共有点をもつのはD\\geqq 0 のときである。$$
+$$\\frac{D}{4}=(-a)^2-1\\cdot(${moji(b,`a`)}${teisu(c)})$$
+$$=a^2${moji(-b,`a`)}${teisu(-c)}$$
+$$a^2${moji(-b,`a`)}${teisu(-c)}\\gt 0 より$$
+$$(a${teisu(p)})(a${teisu(q)})$$
+$$よって，a\\leqq${p}，${q}\\leqq a$$
+`;
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 5問目終わり
+
+if (I === 6) {
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+    let a,b,c;
+	a=getRandomInt(4, 6,true);
+	b=getRandomInt(4, 6);
+	c=b+a;
+
+  question = `$$大人${a}人，子ども${b}人から3人を選ぶとき，$$
+$$選んだ3人がすべて大人となる選び方は全部で\\fbox{ 1 }通りある。$$
+$$また，選んだ3人に大人も子どもも含まれる選び方は全部で\\fbox{ 2 }通りある。$$
+`;
+let a1=a*(a-1)*(a-2)/6;
+let a2=c*(c-1)*(c-2)/6-a1-b*(b-1)*(b-2)/6;
+  correctAnswers = [a1, a2];
+
+
+  for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+	solution=`$$大人は全員で${a}人いるから，$$
+$$3人とも大人を選ぶ場合の数は$$
+$$_{${a}}C_{3}=${a1}$$
+$$また，大人も子どもも含まれる選び方は，$$
+$$3人とも大人，3人とも子どもを選ぶ以外の場合である。$$
+$$よって，_{${c}}C_{3}-(_{${a}}C_{3}+_{${b}}C_{3})=${a2}$$
+`;
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 6問目終わり
+
+if (I === 7) {
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+    
+	N=getRandomInt(4, 6);
+	an1=getRandomInt(1, 3);
+	an2=N-an1;
+	bn1=getRandomInt(1, 2);
+	bn2=getRandomInt(1, N-bn1 -1);
+	bn3=N-bn1-bn2;
+let A=`\\boxed{1}，`.repeat(an1)+`\\boxed{2}，`.repeat(an2 -1)+`\\boxed{2}`;
+let B=`\\boxed{1}，`.repeat(bn1)+`\\boxed{2}，`.repeat(bn2)+`\\boxed{3}，`.repeat(bn3 -1)+`\\boxed{3}`;
+	let Q=`$$2つの袋A，Bがあり，袋Aの中には$$
+$$${A}の${N}枚のカード，$$
+$$袋Bの中には$$
+$$${B}の${N}枚のカードが入っている。$$
+$$袋A,Bの中からカードを1枚ずつ取り出し，$$
+$$袋Aから取り出したカードの数をa$$
+$$袋Bから取り出したカードの数をbとする。$$
+`;
+  question = `$$(1)~~~a+b=2となる確率は\\frac{\\fbox{ 1 }}{\\fbox{ 2 }}である。$$
+`;
+let a1,a2;
+a2=N*N;
+a1=an1*bn1;
+let d=gcd(a1,a2);
+a1=a1/d;a2=a2/d;
+
+
+correctAnswers = [a1, a2];
+
+
+
+  for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+	solution=`$$a+b=2となるのは，袋A，Bからともに$$
+$$\\boxed{ 1 }のカードを取り出す場合であるから，$$
+$$\\frac{${an1}}{${N}}\\times\\frac{${bn1}}{${N}}=\\frac{${a1}}{${a2}}$$
+`;
+ document.getElementById("Bquestion").innerHTML = Q;
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 7問目終わり
+
+
+if (I === 8) {
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+  question = `$$(2)~~~a+b=3となる確率は\\frac{\\fbox{ 1 }}{\\fbox{ 2 }}である。$$
+`;
+let a1,a2;
+a2=N*N;
+a1=an1*bn2+an2*bn1;
+let d=gcd(a1,a2);
+a1=a1/d;a2=a2/d;
+
+
+correctAnswers = [a1, a2];
+
+
+
+  for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+	solution=`$$a+b=3となるのは，袋Aから\\boxed{1}，Bから\\boxed{2}を取り出す，$$
+$$または，袋Aから\\boxed{2}，Bから\\boxed{1}を取り出す場合であるから$$
+
+$$\\frac{${an1}}{${N}}\\times\\frac{${bn2}}{${N}}+\\frac{${an2}}{${N}}\\times\\frac{${bn1}}{${N}}=\\frac{${a1}}{${a2}}$$
+`;
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 8問目終わり
+
+if (I === 9) {
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+  question = `$$(3)~~~a+bの期待値は\\frac{\\fbox{ 1 }}{\\fbox{ 2 }}である。$$
+$$答えが整数，例えば3になったときは\\frac{3}{1}のように答えよ。$$
+`;
+let a1,a2;
+a2=N*N;
+a1=(an1*bn1)*2 + (an1*bn2 + an2*bn1)*3 + (an1*bn3 + an2*bn2)*4 + (an2*bn3)*5;
+let d=gcd(a1,a2);
+a1=a1/d;a2=a2/d;
+
+correctAnswers = [a1, a2];
+
+  for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+let a11,a12;
+a12=N*N;
+a11=an1*bn1;
+let d1=gcd(a11,a12);
+a11=a11/d1;a12=a12/d1;
+
+let a21,a22;
+a22=N*N;
+a21=an1*bn2+an2*bn1;
+let d2=gcd(a21,a22);
+a21=a21/d2;a22=a22/d2;
+
+	solution=`$$a+b=4となるのは，袋Aから\\boxed{1}，Bから\\boxed{3}を取り出す，$$
+$$または，袋Aから\\boxed{2}，Bから\\boxed{2}を取り出す場合であるから$$
+
+$$\\frac{${an1}}{${N}}\\times\\frac{${bn3}}{${N}}+\\frac{${an2}}{${N}}\\times\\frac{${bn2}}{${N}}$$
+$$=\\frac{${an1*bn3+an2*bn2}}{${N*N}}$$
+
+$$a+b=5となるのは，袋Aから\\boxed{2}，Bから\\boxed{3}を取り出す場合であるから$$
+
+$$\\frac{${an2}}{${N}}\\times\\frac{${bn3}}{${N}}$$
+$$=\\frac{${an2*bn3}}{${N*N}}$$
+$$よって，a+bの期待値は$$
+$$2\\times\\frac{${a11}}{${a12}}+3\\times\\frac{${a21}}{${a22}}+4\\times\\frac{${an1*bn3+an2*bn2}}{${N*N}}+5\\times\\frac{${an2*bn3}}{${N*N}}$$
+$$\\frac{${a1}}{${a2}}$$
+
+`;
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 9問目終わり
+
+if (I === 10) {//次はここから。
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+document.getElementById("Bquestion").innerHTML = "";
+
+	an1=getRandomInt(-3, 3,true);
+	do{an2=getRandomInt(-2, 2,true);}while(an1===an2)
+	do{N=getRandomInt(-6, 6,true);}while(4*N%(an2*an2)!==0 || N===0)
+	bn1=getRandomInt(-5, 5,true);
+	do{bn2=getRandomInt(-4,4,true);}while(an1+bn2===0)
+	bn3=N-bn1-bn2;
+	let x2= an2>0?`+(${keisu(an2,`a`)}${teisu(-an1)})x^2`:`-(${keisu(-an2,`a`)}${teisu(an1)})x^2`;
+	let x1b=(N-an1*an2)<0? `-(${keisu(-N+an1*an2,`a`)}-b${teisu(bn1)})x`:(N-an1*an2)>0?`+(${keisu(N-an1*an2,`a`)}+b${teisu(-bn1)})x`:`+(b${teisu(-bn1)})x`;
+	let x1= moji(N-an1*an2,`ax`);
+	
+
+	let Pxo=`x^3${x2}${x1b}${moji(-an1*N,`a`)}${moji(bn2,`b`)}${teisu(-bn1*bn2)}`
+let Q=`$$ xの多項式P(x)=${Pxo}があり，$$
+$$P(${an1})=0である。$$
+$$ただし，a,b,は実数の定数とする。$$`;
+
+  question = `$$ (1)~~~bの値を求めよ。$$`;
+
+let a1=bn1;
+correctAnswers =[ a1 ];
+
+  for (let i = 0; i < 1; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+
+	solution=`$$P(${an1})=${keisu(an1+bn2,`b`)}${teisu(-(bn1*an1 + bn1*bn2))}
+$$
+$$P(${an1})=0より$$
+$$${keisu(an1+bn2,`b`)}${teisu(-bn1*an1-bn1*bn2)}=0$$
+$$これを解いて，b=${bn1}$$
+`;
+  document.getElementById("question").innerHTML = question;
+document.getElementById("Bquestion").innerHTML = Q;
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 10問目終わり
+
+if (I === 11) {//次はここから。
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+if(N===0){
+	an1=getRandomInt(-3, 3,true);
+	do{an2=getRandomInt(-3, 3,true);}while(an1===an2)
+	do{N=getRandomInt(-6, 6,true);}while(4*N%(an2*an2)!==0 || N===0)
+	bn1=getRandomInt(-5, 5,true);
+	bn2=getRandomInt(1, N-bn1 -1);
+	bn3=N-bn1-bn2;
+}
+	let x2= an2>0?`+(${keisu(an2,`a`)}${teisu(-an1)})x^2`:`-(${keisu(-an2,`a`)}${teisu(an1)})x^2`;
+let x1b=(N-an1*an2)<0? `-(${keisu(-N+an1*an2,`a`)}+b${teisu(-bn1)})x`:`+(${keisu(N-an1*an2,`a`)}+b${teisu(-bn1)})x`;
+	let x1= moji(N-an1*an2,`ax`);
+	
+
+	let Px=`x^3${x2}${x1}${moji(-an1*N,`a`)}${moji(bn2,`b`)}${teisu(-bn1*bn2)}`
+let Pxo=`x^3${x2}${x1b}${moji(-an1*N,`a`)}${moji(bn2,`b`)}${teisu(-bn1*bn2)}`
+
+let Q=`$$ xの多項式P(x)=${Pxo}があり，$$
+$$P(${an1})=0である。$$
+$$ただし，a,b,は実数の定数とする。$$
+$$(1)の解答~~~b=${bn1}$$<br>`;
+document.getElementById("Bquestion").innerHTML = Q;
+
+  question = `$$ (2)~~~P(x)を因数分解すると，$$
+$$(x${an1<0?`+`:`-`}\\fbox{ 1 })(x^2${an2>0?`+`:`-`}\\fbox{ 2 }ax${N>0?`+`:`-`}\\fbox{ 3 }a)$$
+$$また，方程式P(x)=0が虚数解をもつようなaの範囲は$$
+$$\\fbox{ 4 }\\lt a \\lt \\fbox{ 5 }$$
+$$である。$$
+$$ただし，+axのような場合は1を入力せよ。$$
+`;
+let a1= an1 < 0 ? -an1: an1;
+let a2= an2 < 0 ? -an2: an2;
+let a3= N < 0 ? -N: N;
+let a4=0; let a5=4*N/(an2*an2);
+if(a5<a4){[a4,a5]=[a5,a4];}
+
+correctAnswers = [a1,a2,a3,a4,a5];
+
+  for (let i = 0; i < 5; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+
+	solution = `$$(1)より，P(x)=${Px}となり，$$
+$$P(${an1})=0より，P(x)は(x${teisu(-an1)})で割り切れる。$$
+$$よって，P(x)=(x${teisu(-an1)})(x^2${moji(an2, `ax`)}${moji(N, `a`)})$$
+$$また，３次方程式P(x)=0の解は，x=${an1}と，$$
+$$2次方程式$$
+$$ x^2${moji(an2, `ax`)}${moji(N, `a`)}=0\\cdots \\cdots①$$
+$$の解である。$$
+$$この３次方程式P(x)=0が虚数解をもつのは，$$
+$$2次方程式①が虚数解をもつときであるから，$$
+$$①の判別式をDとすると，D<0である。$$
+$$D=${keisu(an2 * an2, `a^2`)}${moji(-4 * N, `a`)}$$
+$$よって，${keisu(an2 * an2, `a^2`)}${moji(-4 * N, `a`)}\\gt 0$$
+$$すなわち，${keisu(an2 * an2, `a`)}(a${teisu(-4 * N / (an2 * an2))})\\gt 0$$
+$$したがって，${a4} \\lt a \\lt ${a5}
+$$`;
+
+  document.getElementById("question").innerHTML = question;
+
+
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 11問目終わり
+if (I === 12) {//次はここから。
+document.getElementById("Bquestion").innerHTML = "";
+
+showResult();
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 12問目終わり
+
+ window.solutionText = solution;
+}
+
+ function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = '';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+
+function checkAnswer() {
+const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.add("hidden"); // ボタン非表示に戻
+  let allCorrect = true;
+  for (let i = 0; i < correctAnswers.length; i++) {
+    const input = document.getElementById(`input${i}`);
+    const val = parseInt(input.value);
+    if (val !== correctAnswers[i]) {
+      allCorrect = false;
+    }
+  }
+
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextButton");
+ const soluBtn = document.getElementById("soluButton");
+soluBtn.classList.remove("hidden"); // ボタン表示
+
+  if (allCorrect) {
+    feedback.innerHTML = "<span style='color: green;'>正解！</span>";
+    nextBtn.classList.remove("hidden"); // ボタン表示
+	setTimeout(generateQuiz, 1000);
+  } else {
+    feedback.innerHTML = `<span style='color: red;'>不正解。正解は ${correctAnswers.join(", ")} です。</span>`;
+    nextBtn.classList.add("hidden"); // ボタン非表示に戻す（連打対策）
+        mistakeCount++;
+  }
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+}
+
+function nextQuestion() {
+  I++; // カウントはここで進める
+	kaisu=1;
+ const soluBtn = document.getElementById("soluButton");
+   const ansBtn = document.getElementById("ansButton");
+document.getElementById("nextButton").classList.add("hidden"); // 再び隠す
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+	soluBtn.classList.add("hidden"); 
+window.solutionText = ``;
+ showSolution();
+  generateQuestion();
+}
+
+function regenerateQuestion() {
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden");
+	kaisu++;
+window.solutionText = `${kaisu}回目！`
+showSolution();
+  generateQuestion(); // 問番（I）はそのまま
+}
+
+ function showResult() {
+      endTime = new Date();
+      const durationSec = Math.floor((endTime - startTime) / 1000);
+      const minutes = Math.floor(durationSec / 60);
+      const seconds = durationSec % 60;
+
+      let timeRank = "D";
+      if (durationSec <= 600) timeRank = "S";
+      else if (durationSec <= 1200) timeRank = "A";
+      else if (durationSec <= 1800) timeRank = "B";
+      else if (durationSec <= 2400) timeRank = "C";
+
+      let mistakeRank = "D";
+      if (mistakeCount === 0) mistakeRank = "S";
+      else if (mistakeCount <= 5) mistakeRank = "A";
+      else if (mistakeCount <= 10) mistakeRank = "B";
+      else if (mistakeCount <= 15) mistakeRank = "C";
+
+      document.getElementById('question').innerHTML = `
+        <h2>結果</h2>
+        <p>開始時刻: ${startTime.toLocaleTimeString()}</p>
+        <p>終了時刻: ${endTime.toLocaleTimeString()}</p>
+        <p>かかった時間: ${minutes}分${seconds}秒（評価: ${timeRank}）</p>
+        <p>間違えた回数: ${mistakeCount}回（評価: ${mistakeRank}）</p>
+        <button onclick="copyScreenshot()">記録</button>
+        <button onclick="resetChallenge()">最初から</button>
+      `;
+    }
+
+function copyScreenshot() {
+  const target = document.querySelector('.container'); // スクショ対象（全体）
+
+  html2canvas(target).then(canvas => {
+    canvas.toBlob(blob => {
+      navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob })
+      ]).then(() => {
+        alert("スクリーンショットをクリップボードにコピーしました！");
+      }).catch(err => {
+        alert("クリップボードへのコピーに失敗しました：" + err);
+      });
+    });
+  });
+    }
+
+
+
+    function startOver() {
+      I = 0;
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden")
+      document.getElementById("status").textContent = `現在${I}問目`;
+      generateQuestion();
+    }
+
+window.onload = function () {
+  if (I === 0) {
+    document.getElementById("intro").style.display = "block";
+    document.getElementById("status").textContent = "準備中…";
+  } else {
+    generateQuestion();
+  }
+};
+document.getElementById("soluButton").style.backgroundColor = "orange";
+  </script>
+
+  <!-- MathJax読み込み -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+
+       function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+
+     <div id="top">
+    <div id="status">現在1問目</div>
+    <button class="button" onclick="startOver()">最初から</button>
+  </div>
+
+  <div id="bottom">
+<div id="intro" style="margin-bottom: 1em;">
+  <p>【課題の取り組み方】</p>
+  <p>ベネッセ模試に向けて、課題を作りました。</p>
+  <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で11問です。終わったらリザルト画面になります。</p>
+  <p>リザルト画面にある記録ボタンを押し，ロイロにペーストしてください。</p>
+  <p>本日中に２回繰り返し，２回の記録を提出箱に提出をしてください。</p>
+  <button class="button" onclick="startTask()">開始</button>
+</div>
+    <div id="Bquestion"></div>
+    <div id="question"></div>
+    <div id="inputs"></div>
+    <button class="button hidden" id="ansButton" onclick="checkAnswer()"class="color1">答え合わせ</button>
+ <button class="button hidden" id="soluButton" onclick="showSolution()">解説</button>
+<button class="button" onclick="regenerateQuestion()">この問題をもう一度</button>
+    <button class="button hidden" id="nextButton" onclick="nextQuestion()">次の問題へ</button>
+    <div id="feedback"></div>
+	 <div id="solution" class="solution"></div>
+  </div>
+
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button class="button"onclick="clearBoard()">クリア</button>
+<button class="button"onclick="toggleEraser()">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
