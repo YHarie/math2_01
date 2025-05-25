@@ -251,7 +251,7 @@ if (I === 0) {
 
       question = `$$a=${A}+${B}, \\quad b=${A}-${B}とするとき，$$
       $$a^2+b^2${moji(c, "ab")}の値を求めよ。$$`;
-	solution=`$$(a+b)^2${moji(b-2,`ab`)}$$`;
+	solution=`$$(a+b)^2${moji(c-2,`ab`)}$$`;
       let ans = 4 * a + (c - 2) * (a - b);
       correctAnswers = [Math.round(ans)];
 
