@@ -339,8 +339,79 @@ $$であるから，求める和は$$
 $$S=${S}$$
 $$=${answer}$$`;
 }
-
 }
+
+
+else if(i===6){ // 等差×等比
+  let d = getRandomInt(1, 3);
+  let a1 = getRandomInt(1, 4);
+  let a2 = a1 + d;
+  let a3 = a2 + d;
+  let a4 = a3 + d;
+  let an = `${keisu(d, 'n')}${teisu(-d + a1)}`;
+  let an1 = `${keisu(d, 'n')}${teisu(a1)}`;
+
+  let b1 = getRandomInt(2, 4);
+  let b2 = `${b1}`;
+  let b3 = `${b1}^{2}`;
+  let b4 = `${b1}^{3}`;
+  let bn = `${b1}^{n-1}`;
+
+  let c1 = `${a1}\\cdot1`;
+  let c2 = `${a2}\\cdot${b1}`;
+  let c3 = `${a3}\\cdot${b2}`;
+  let c4 = `${a4}\\cdot${b3}`;
+  let cn = (-d + a1 === 0) ? `${an}\\cdot${bn}` : `(${an})\\cdot${bn}`;
+let cnb = (-d + a1 === 0) ? `${an}\\cdot${b1}^{n}` : `(${an})\\cdot${b1}^{n}`;
+
+  question = `$$次の和を求めよ。$$
+$$S=${c1}+${c2}+${c3}+${c4}+\\cdots \\cdots +${cn}$$`;
+let sa = `${keisu(1 - b1)}S=${c1}+(${d}\\cdot${b2}+${d}\\cdot${b3}+\\cdots \\cdots +${d}\\cdot${bn})-(${an})\\cdot${b1}^{n}`;
+let KS=d * (b1 - 1);
+let TS=(a1 - d) * (b1 - 1)-d;
+let KI=gcd(KS,TS);
+KS=KS/KI; TS=TS/KI;
+// 答えの数式の処理（b1 が 2 のときは分数にならない）
+let num = `${keisu(KS, 'n')}${teisu(TS)}`;
+let constant = `${teisu(d - a1 * (b1 - 1))}`;
+let denominator = `${b1 - 1}`;
+
+if (b1 === 2 && TS!==0) {
+  answer = `${keisu(KI,"")}(${num})${b1}^{n}${constant}`;
+} else if(b1===2 && TS===0){
+  answer = `${num}${b1}^{n}${constant}`;}
+
+else if(TS!==0){
+  answer = `\\frac{${keisu(KI,"")}(${num})${b1}^{n}${constant}}{${denominator}}`;
+}else if(TS===0){
+  answer = `\\frac{${num}${b1}^{n}${constant}}{${denominator}}`;
+}
+
+
+let answer2;
+if (b1 === 2) {
+  answer2 = answer;
+} else {
+  answer2 = `\\frac{${keisu(KI,"")}(${num})${b1}^{n}${constant}}{${denominator*(b1 -1)}}`;
+}
+
+
+solution = `$$S=${c1}+${c2}+${c3}+${c4}+\\cdots \\cdots +${cn}$$
+$$この等式の両辺に${b1}をかけると$$
+$$${keisu(b1, 'S')}=${a1}\\cdot${b1}+${a2}\\cdot${b3}+${a3}\\cdot${b4}+\\cdots \\cdots +(${keisu(d, 'n')}${teisu(-2 * d + a1)})\\cdot${b1}^{n-1}+${cnb}$$
+$$辺々を引くと$$
+$$${sa}$$
+$$よって$$
+$$${keisu(1 - b1)}S=${c1}+\\frac{${d}\\cdot${b1}(${b1}^{n-1}-1)}{${b1}-1}-${cnb}$$
+$$${keisu(1 - b1)}S=- \\left \\{ ${answer} \\right \\}$$
+$$S=${answer2}$$
+`;
+}
+
+if(i===7){i=getRandomInt(5,6);}
+
+
+
 
 
 
@@ -397,7 +468,8 @@ $$=${answer}$$`;
           <option value="0">階差数列(ランダム)</option>
           <option value="4">和から一般項</option>
           <option value="5">和の求め方の工夫</option>
-
+          <option value="6">等差×等比</option>
+          <option value="7">和の求め方の工夫ランダム</option>
         </select>
 
       </label>
@@ -445,7 +517,7 @@ function toggleEraser() {
   }
 
   function getLineWidth() {
-    return isErasing ? 12 : 2; // 消しゴムは太め
+    return isErasing ? 25 : 2; // 消しゴムは太め
   }
 
   function drawLine(x, y) {
