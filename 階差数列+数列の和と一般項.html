@@ -304,8 +304,8 @@ answer= a1===1? `\\frac{n}{${keisu(d)}n${teisu(a1)}}`:`\\frac{n}{${a1*d3}(${keis
 
 solution=`$$S=\\frac{1}{${a1}\\cdot${a2}}+\\frac{1}{${a2}\\cdot${a3}}+\\frac{1}{${a3}\\cdot${a4}}+\\cdots
 \\cdots \\frac{1}{${n}${n1}}$$
-$$=${n2}\\left(\\frac{1}{${a1}}-\\frac{1}{${a2}}\\right)+\\left(\\frac{1}{${a2}}-\\frac{1}{${a3}}\\right)+\\left(\\frac{1}{${a3}}-\\frac{1}{${a4}}\\right)+\\cdots \\cdots
-\\left(\\frac{1}{${n}}-\\frac{1}{${n1}}\\right)$$
+$$=${n2}\\left\\{\\left(\\frac{1}{${a1}}-\\frac{1}{${a2}}\\right)+\\left(\\frac{1}{${a2}}-\\frac{1}{${a3}}\\right)+\\left(\\frac{1}{${a3}}-\\frac{1}{${a4}}\\right)+\\cdots \\cdots
+\\left(\\frac{1}{${n}}-\\frac{1}{${n1}}\\right)\\right\\}$$
 $$=${n2}\\left(\\frac{1}{${a1}}-\\frac{1}{${n1}}\\right)=${answer}$$`;}
 else if(j===2){
 let d=getRandomInt(1,3);
@@ -321,8 +321,8 @@ let k=d===a1?`${keisu(d)}k`:`${keisu(d)}k${teisu(a1-d)}`;
 let k1=`${keisu(d)}k${teisu(a1)}`;
 let S= d===1 ? `(\\sqrt{${a2}}-\\sqrt{${a1}})+
 (\\sqrt{${a3}}-\\sqrt{${a2}})+(\\sqrt{${a4}}-\\sqrt{${a3}})+\\cdots \\cdots +(\\sqrt{${n1}}-\\sqrt{${n}})`:
-`\\frac{1}{${d}}{(\\sqrt{${a2}}-\\sqrt{${a1}})+
-(\\sqrt{${a3}}-\\sqrt{${a2}})+(\\sqrt{${a4}}-\\sqrt{${a3}})+\\cdots \\cdots +(\\sqrt{${n1}}-\\sqrt{${n}})}`
+`\\frac{1}{${d}}\\left\\{{(\\sqrt{${a2}}-\\sqrt{${a1}})+
+(\\sqrt{${a3}}-\\sqrt{${a2}})+(\\sqrt{${a4}}-\\sqrt{${a3}})+\\cdots \\cdots +(\\sqrt{${n1}}-\\sqrt{${n}})}\\right\\}`
 
 let Sk=d===1?`\\sqrt{${k1}}-\\sqrt{${k}}`:`\\frac{1}{${d}}(\\sqrt{${k1}}-\\sqrt{${k}})`;
 
