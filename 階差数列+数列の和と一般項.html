@@ -120,6 +120,7 @@ function generateQuiz() {
  let a1 = getRandomInt(-4, 4,true);
 let question, answer, solution;
 if(i===0){i=getRandomInt(1,3);}
+if(i===7){i=getRandomInt(5,6);}
 if (i === 1) { // 等差型
   let d = getRandomInt(2, 5);
   let b1 = getRandomInt(1, 5);
@@ -408,7 +409,6 @@ $$S=${answer2}$$
 `;
 }
 
-if(i===7){i=getRandomInt(5,6);}
 
 
 
@@ -484,8 +484,8 @@ if(i===7){i=getRandomInt(5,6);}
    <div id="right-area">
       <p>ここにメモを書いたり、図形を描いたりできます。</p>
       <canvas id="blackboard" width="700"height="700"></canvas>
-<button onclick="clearBoard()">クリア</button>
-<button onclick="toggleEraser()">消しゴム切替</button>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()" style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
       
     </div>
   </div>
