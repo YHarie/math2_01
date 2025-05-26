@@ -374,7 +374,7 @@ let KI=gcd(KS,TS);
 KS=KS/KI; TS=TS/KI;
 // 答えの数式の処理（b1 が 2 のときは分数にならない）
 let num = `${keisu(KS, 'n')}${teisu(TS)}`;
-let constant = `${teisu(d - a1 * (b1 - 1))}`;
+let constant = `${teisu(d*b1 - a1 * (b1 - 1))}`;
 let denominator = `${b1 - 1}`;
 
 if (b1 === 2 && TS!==0) {
@@ -387,13 +387,17 @@ else if(TS!==0){
 }else if(TS===0){
   answer = `\\frac{${num}${b1}^{n}${constant}}{${denominator}}`;
 }
-
+let bunbo=(b1-1)*(b1-1);
+let yaku=gcd(KI,bunbo);
+bunbo=bunbo/yaku; KI=KI/yaku;
 
 let answer2;
 if (b1 === 2) {
   answer2 = answer;
+} else if (bunbo !== 1) {
+  answer2 = `\\frac{${keisu(KI, "")}(${num})${b1}^{n}${constant}}{${bunbo}}`;
 } else {
-  answer2 = `\\frac{${keisu(KI,"")}(${num})${b1}^{n}${constant}}{${denominator*(b1 -1)}}`;
+  answer2 = `${keisu(KI, "")}(${num})${b1}^{n}${constant}`;
 }
 
 
