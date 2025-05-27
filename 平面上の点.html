@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title></title>平面上の点
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+function insu(a, b, c) {
+  for (let l = -6; l <= 6; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n) {
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+return `${outside}\\sqrt{${inside}}`;
+}
+
+function bunsu(s, b) {
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+function generateQuiz() {
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 1);
+  let question = '', answer = 0, solution = '';
+
+let x1,x2,x3,y1,y2,y3;
+x1=getRandomInt(-9,9);
+y1=getRandomInt(-9,9);
+do{
+x2=getRandomInt(-9,9);
+y2=getRandomInt(-9,9);
+}while(x1===x2 && y1===y2)
+
+ if(i===1){
+question=`$$2点\\rm{A}(${x1},${y1})，\\rm{B}(${x2}，${y2})間の距離を求めよ。$$`;
+let answersq=(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
+ answer= kanyaku(answersq);
+let dx = x2 < 0 ? `\\left\\{ ${x1} - (${x2}) \\right\\}^{2}` : `(${x1} - ${x2})^{2}`;
+let dy = y2 < 0 ? `\\left\\{ ${y1} - (${y2}) \\right\\}^{2}` : `(${y1} - ${y2})^{2}`;
+
+ solution=`$$\\rm{AB}=\\sqrt{${dx}+${dy}}=${answer}$$`;
+}
+if(i===2){j=getRandomInt(1,3);
+	if(j===1){//直角三角形であることを見つける。
+	x3=x2+y1;
+	y3=y2-x1;
+	let x=x2+x1;
+	let y=y1+y2;
+	let dx1 = x2 < 0 ? `\\left\\{ ${x} - (${x2}) \\right\\}^{2}` : `(${x} - ${x2})^{2}`;
+	let dy1 = y2 < 0 ? `\\left\\{ ${y} - (${y2}) \\right\\}^{2}` : `(${y} - ${y2})^{2}`;
+	let dx2 = x3 < 0 ? `\\left\\{ ${x2} - (${x3}) \\right\\}^{2}` : `(${x2} - ${x3})^{2}`;
+	let dy2 = y3 < 0 ? `\\left\\{ ${y2} - (${y3}) \\right\\}^{2}` : `(${y2} - ${y3})^{2}`;
+	let dx3 = x < 0 ? `\\left\\{ ${x3} - (${x}) \\right\\}^{2}` : `(${x3} - ${x})^{2}`;
+	let dy3 = y < 0 ? `\\left\\{ ${y3} - (${y}) \\right\\}^{2}` : `(${y3} - ${y})^{2}`;
+	let ab=x1**2+y1**2;
+	let bc=x1**2+y1**2;
+	let ca=(x-x3)**2+(y-y3)**2;
+	question=`$$2点\\rm{A}(${x},${y}),\\rm{B}(${x2},${y2}),\\rm{C}(${x3},${y3})を頂点とする$$
+$$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
+	answer=`直角二等辺三角形`;
+	solution=`$$\\rm{AB^{2}}=${dx1}+${dy1}=${ab}$$
+	$$\\rm{BC^{2}}=${dx2}+${dy2}=${bc}$$
+	$$\\rm{CA^{2}}=${dx3}+${dy3}=${ca}$$
+	$$よって，\\rm{AB=BC}かつ\\rm{AB^2 +BC^2 =CA^2}であるから$$
+	$$\\triangle \\rm{ABC}は\\rm{AB=BC}の${answer}である。$$
+	`;
+	}if(j===2){//直角三角形であることを見つける。
+	x1=getRandomInt(-3,3,true);
+	do{y1=getRandomInt(-3,3);}while(x1===0 && y1===0)
+	let a=getRandomInt(-3,3,true);
+	let b; do{b=getRandomInt(-3,3,true);}while(a%b===0)
+	x3=x2+y1*a;
+	y3=y2-x1*a;
+	let x=x2+x1*b;
+	let y=y1*b+y2;
+	let dx1 = x2 < 0 ? `\\left\\{ ${x} - (${x2}) \\right\\}^{2}` : `(${x} - ${x2})^{2}`;
+	let dy1 = y2 < 0 ? `\\left\\{ ${y} - (${y2}) \\right\\}^{2}` : `(${y} - ${y2})^{2}`;
+	let dx2 = x3 < 0 ? `\\left\\{ ${x2} - (${x3}) \\right\\}^{2}` : `(${x2} - ${x3})^{2}`;
+	let dy2 = y3 < 0 ? `\\left\\{ ${y2} - (${y3}) \\right\\}^{2}` : `(${y2} - ${y3})^{2}`;
+	let dx3 = x < 0 ? `\\left\\{ ${x3} - (${x}) \\right\\}^{2}` : `(${x3} - ${x})^{2}`;
+	let dy3 = y < 0 ? `\\left\\{ ${y3} - (${y}) \\right\\}^{2}` : `(${y3} - ${y})^{2}`;
+	let ab=(b*x1)**2+(b*y1)**2;
+	let bc=(a*x1)**2+(a*y1)**2;
+	let ca=(x-x3)**2+(y-y3)**2;
+	question=`$$2点\\rm{A}(${x},${y}),\\rm{B}(${x2},${y2}),\\rm{C}(${x3},${y3})を頂点とする$$
+$$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
+	answer=`直角三角形`;
+	solution=`$$\\rm{AB^{2}}=${dx1}+${dy1}=${ab}$$
+	$$\\rm{BC^{2}}=${dx2}+${dy2}=${bc}$$
+	$$\\rm{CA^{2}}=${dx3}+${dy3}=${ca}$$
+	$$よって，\\rm{AB^2 +BC^2 =CA^2}であるから$$
+	$$\\triangle \\rm{ABC}は\\rm{CA}を斜辺とする${answer}である。$$
+	`;
+	}if(j===3){//二等辺三角形であることを見つける。
+	x1=getRandomInt(-8,8,true);
+	do{y1=getRandomInt(-8,8,true);}while(x1===0 && y1===0)
+	let k=getRandomInt(1,2,true);
+	x3= k===1?x2+x1:x2-x1;
+	y3=k===1?y2-y1:y2+y1;
+	let x=x2+x1;
+	let y=y1+y2;
+	let dx1 = x2 < 0 ? `\\left\\{ ${x} - (${x2}) \\right\\}^{2}` : `(${x} - ${x2})^{2}`;
+	let dy1 = y2 < 0 ? `\\left\\{ ${y} - (${y2}) \\right\\}^{2}` : `(${y} - ${y2})^{2}`;
+	let dx2 = x3 < 0 ? `\\left\\{ ${x2} - (${x3}) \\right\\}^{2}` : `(${x2} - ${x3})^{2}`;
+	let dy2 = y3 < 0 ? `\\left\\{ ${y2} - (${y3}) \\right\\}^{2}` : `(${y2} - ${y3})^{2}`;
+	let dx3 = x < 0 ? `\\left\\{ ${x3} - (${x}) \\right\\}^{2}` : `(${x3} - ${x})^{2}`;
+	let dy3 = y < 0 ? `\\left\\{ ${y3} - (${y}) \\right\\}^{2}` : `(${y3} - ${y})^{2}`;
+	let ab=(b*x1)**2+(b*y1)**2;
+	let bc=(a*x1)**2+(a*y1)**2;
+	let ca=(x-x3)**2+(y-y3)**2;
+	question=`$$2点\\rm{A}(${x},${y}),\\rm{B}(${x2},${y2}),\\rm{C}(${x3},${y3})を頂点とする$$
+$$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
+	answer=`\\rm{AB=BC}の二等辺三角形`;
+	solution=`$$\\rm{AB^{2}}=${dx1}+${dy1}=${ab}$$
+	$$\\rm{BC^{2}}=${dx2}+${dy2}=${bc}$$
+	$$\\rm{CA^{2}}=${dx3}+${dy3}=${ca}$$
+	$$よって，\\rm{AB^2 +BC^2 =CA^2}であるから$$
+	$$\\triangle \\rm{ABC}は${answer}である。$$
+	`;
+	}	
+}//(2)終わり
+
+if(i===3){
+let j=getRandomInt(1,5);
+if(j===1){
+let xs = x1 + x2;
+    let ys = y1 + y2;
+    let d1 = gcd(xs, 2);
+    let d2 = gcd(ys, 2);
+    let xss = xs / d1, yss = ys / d2;
+    let xb = 2 / d1, yb = 2 / d2;
+    if (xb < 0) { xss = -xss; xb = -xb; }
+    if (yb < 0) { yss = -yss; yb = -yb; }
+    let x = xb === 1 ? xss : bunsu(xss, xb);
+    let y = yb === 1 ? yss : bunsu(yss, yb);
+    answer = `(${x}，${y})`;
+    question = `$$2点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2})を結ぶ線分\\rm{AB}について，$$
+$$線分\\rm{AB}の中点\\rm{M}の座標を求めよ。$$`;
+    solution = `$$点{\\rm{M}}の座標を(x,y)とすると$$
+$$x=\\frac{${x1}+${kakko(x2)}}{2}=${x}$$
+$$y=\\frac{${y1}+${kakko(y2)}}{2}=${y}$$
+$$よって，求める座標は${answer}$$`;
+  } else{//中点以外のパターン
+let m=getRandomInt(1,7);
+let n;
+do{n=getRandomInt(1,7);}while(gcd(m,n)!==1 || m===n)
+let k=getRandomInt(1,2);
+let divine=k===1?`内分`:`外分`;
+let xs = k === 1 ? (n * x1 + m * x2) : (-n * x1 + m * x2);
+let ys = k === 1 ? (n * y1 + m * y2) : (-n * y1 + m * y2);
+let xb= k===1 ? m+n:m-n;
+let yb= k===1 ? m+n:m-n;
+let d1= k===1 ? gcd(xs,m+n):gcd(xs,m-n);
+let d2= k===1 ? gcd(ys,m+n):gcd(ys,m-n);
+let xss=xs/d1;let yss=ys/d2;
+xb=xb/d1;yb=yb/d2;
+if(xb<0){xss=-xss;xb=-xb;}
+if(yb<0){yss=-yss;yb=-yb;}
+let x = xb === 1 ? xss : bunsu(xss,xb);
+let y = yb === 1 ? yss : bunsu(yss,yb);
+let xshiki=k===1?`\\frac{${n}\\cdot${kakko(x1)}+${m}\\cdot${kakko(x2)}}{${m}+${n}}`:`\\frac{${-n}\\cdot${kakko(x1)}+${m}\\cdot${kakko(x2)}}{${m}-${n}}`;
+let yshiki=k===1?`\\frac{${n}\\cdot${kakko(y1)}+${m}\\cdot${kakko(y2)}}{${m}+${n}}`:`\\frac{${-n}\\cdot${kakko(y1)}+${m}\\cdot${kakko(y2)}}{${m}-${n}}`;
+answer=`(${x}，${y})`;
+question=`$$2点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2})を結ぶ線分\\rm{AB}について，$$
+$$${m}：${n}に${divine}する点\\rm{P}の座標を求めよ。$$`;
+solution=`$$点{\\rm{P}}の座標を(x,y)とすると$$
+$$x=${xshiki}=${x}$$
+$$y=${yshiki}=${y}$$
+$$よって，求める座標は${answer}$$
+`;
+}
+}//(3)
+if(i === 4){ // 重心
+  do { x3 = getRandomInt(-9, 9); } while (x3 === x1 || x3 === x2);
+  do { y3 = getRandomInt(-9, 9); } while (y3 === y1 || y3 === y2);
+
+  question = `$$3点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2}),\\rm{C}(${x3},${y3})を頂点とする$$
+  $$\\triangle \\rm{ABC}の重心の座標を答えよ。$$`;
+
+  let xa = x1 + x2 + x3;
+  let ya = y1 + y2 + y3;
+
+  let X = xa % 3 === 0 ? xa / 3 : bunsu(xa, 3);
+  let Y = ya % 3 === 0 ? ya / 3 : bunsu(ya, 3);
+
+  answer = `\\left(${X}，${Y}\\right)`;
+  solution = `$$求める重心の座標を(x,y)とすると$$
+  $$x=\\frac{${x1}+${kakko(x2)}+${kakko(x3)}}{3}=${X}$$
+  $$y=\\frac{${y1}+${kakko(y2)}+${kakko(y3)}}{3}=${Y}$$
+  $$よって，求める座標は$$
+  $$${answer}$$`;
+}
+if(i===5){//対称な点
+x3=2*x1-x2;
+y3=2*y1-y2;
+ question = `$$点\\rm{A}(${x1},${y1})に関して，点\\rm{P}(${x2},${y2})と$$
+$$対称な点\\rm{Q}の座標を求めよ。$$`;
+ answer = `\\left(${x3}，${y3}\\right)`;
+  solution = `$$点{\\rm{Q}}の座標を(x,y)とすると，$$
+　$$点\\rm{A}は線分\\rm{PQ}の中点であるから$$
+  $$${x1}=\\frac{${x2}+x}{2}，${y1}=\\frac{${y2}+x}{2}$$
+  $$これを解いて,x=${x3}，y=${y3}$$
+  $$よって，求める座標は${answer}$$`;
+}
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>平面上の点</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.2点間の距離</option>
+          <option value="2">2.三角形の判別</option>
+          <option value="3">3.内分点・外分点</option>
+          <option value="4">4.重心</option>
+          <option value="5">5.点に関して対称な点</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
