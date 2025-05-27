@@ -288,8 +288,15 @@ if (I === 2) {
   $$選択肢$$
   $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } < x \\quad \\quad 2 \\quad \\fbox{ 1 } < x < \\fbox{ 2 }$$`;
 
+answer= f===1 ? `x\\lt ${x1}，${x2}\\lt x`:`${x1}\\lt x \\lt ${x2}`;
+
   correctAnswers = [x1, x2, f];
-solution=`$$ 朝テストでも出てくるから余裕だよね？$$`;
+solution=`$$ 朝テストでも出てくるから余裕だよね？$$
+$$|2x${teisu(c)}|=${b}より，$$
+$$2x${teisu(c)}=\\pm${b}であるから$$
+$$x=${x1},${x2}$$
+$$よって，不等式の解は${answer}である$$
+`;
 
   for (let i = 0; i < 3; i++) {
     let input = document.createElement("input");
@@ -327,9 +334,18 @@ solution=`$$ 朝テストでも出てくるから余裕だよね？$$`;
   $$不等式x^2${moji(-(x1 + x2),`x`)}${teisu(x0)}${F}0 の解は\\ \\fbox{ 3 }\\ である。$$
   $$ただし，\\fbox{ 1 }<\\fbox{ 2 } とし，\\fbox{ 3 } は選択肢1，2から選べ。$$
   $$選択肢$$
-  $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } < x \\quad \\quad 2 \\quad \\fbox{ 1 } < x < \\fbox{ 2 }$$`;
+  $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } \\lt x \\quad \\quad 2 \\quad \\fbox{ 1 } \\lt x \\lt \\fbox{ 2 }$$`;
 
   correctAnswers = [x1, x2, f];
+
+answer= f===1 ? `x\\lt ${x1}，${x2}\\lt x`:`${x1}\\lt x \\lt ${x2}`;
+
+solution=`$$ 朝テストでも出てくるから余裕だよね？$$
+$$与式より$$
+$$(x${teisu(-x1)})(x${teisu(-x2)})${F}0$$
+$$よって，不等式の解は${answer}である$$
+`;
+
 
   for (let i = 0; i < 3; i++) {
     let input = document.createElement("input");
@@ -388,9 +404,13 @@ $$3~~~必要十分条件である。$$
 $$4~~~必要条件も十分条件でもない。$$`;
 
   correctAnswers = [A];
+let TF1,TF2;
+if(A===1){TF1=`偽`; TF2=`真`;} if(A===2){TF1=`真`; TF2=`偽`;} if(A===3){TF1=`真`; TF2=`真`;} if(A===4){TF1=`偽`; TF2=`偽`;}
+
 solution=`$$${P}の解くと$$
 $$ ${kai}$$
-$$ 解説はここまで。あとは調べてみてください。$$`;
+$$「${kai}」ならば「${Q}」は${TF1}，「${Q}」ならば「${kai}」は${TF2}である。$$
+$$よって，答えは${A}である。$$`;
   // input ボックスの追加
   inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
   for (let i = 0; i < 1; i++) {
@@ -435,7 +455,7 @@ $$a \\leqq \\fbox{ 1 }，\\fbox{ 2 } \\leqq である。$$
 $$y=f(x)のグラフがx軸と共有点をもつのはD\\geqq 0 のときである。$$
 $$\\frac{D}{4}=(-a)^2-1\\cdot(${moji(b,`a`)}${teisu(c)})$$
 $$=a^2${moji(-b,`a`)}${teisu(-c)}$$
-$$a^2${moji(-b,`a`)}${teisu(-c)}\\gt 0 より$$
+$$a^2${moji(-b,`a`)}${teisu(-c)}\\geqq 0 より$$
 $$(a${teisu(p)})(a${teisu(q)})$$
 $$よって，a\\leqq${p}，${q}\\leqq a$$
 `;
@@ -729,10 +749,10 @@ $$ x^2${moji(an2, `ax`)}${moji(N, `a`)}=0\\cdots \\cdots①$$
 $$の解である。$$
 $$この３次方程式P(x)=0が虚数解をもつのは，$$
 $$2次方程式①が虚数解をもつときであるから，$$
-$$①の判別式をDとすると，D<0である。$$
+$$①の判別式をDとすると，D\\lt0である。$$
 $$D=${keisu(an2 * an2, `a^2`)}${moji(-4 * N, `a`)}$$
-$$よって，${keisu(an2 * an2, `a^2`)}${moji(-4 * N, `a`)}\\gt 0$$
-$$すなわち，${keisu(an2 * an2, `a`)}(a${teisu(-4 * N / (an2 * an2))})\\gt 0$$
+$$よって，${keisu(an2 * an2, `a^2`)}${moji(-4 * N, `a`)}\\lt 0$$
+$$すなわち，${keisu(an2 * an2, `a`)}(a${teisu(-4 * N / (an2 * an2))})\\lt 0$$
 $$したがって，${a4} \\lt a \\lt ${a5}
 $$`;
 
