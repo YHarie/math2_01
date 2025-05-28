@@ -367,7 +367,7 @@ let cnb = (-d + a1 === 0) ? `${an}\\cdot${b1}^{n}` : `(${an})\\cdot${b1}^{n}`;
 
   question = `$$次の和を求めよ。$$
 $$S=${c1}+${c2}+${c3}+${c4}+\\cdots \\cdots +${cn}$$`;
-let sa = `${keisu(1 - b1)}S=${c1}+(${d}\\cdot${b2}+${d}\\cdot${b3}+\\cdots \\cdots +${d}\\cdot${bn})-(${an})\\cdot${b1}^{n}`;
+let sa = `${keisu(1 - b1)}S=${c1}+(${d}\\cdot${b1}+${d}\\cdot${b2}+\\cdots \\cdots +${d}\\cdot${bn})-(${an})\\cdot${b1}^{n}`;
 let KS=d * (b1 - 1);
 let TS=(a1 - d) * (b1 - 1)-d;
 let KI=gcd(KS,TS);
