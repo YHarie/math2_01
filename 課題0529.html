@@ -502,7 +502,7 @@ $$よって，_{${c}}C_{3}-(_{${a}}C_{3}+_{${b}}C_{3})=${a2}$$
   MathJax.typeset();
 }// 6問目終わり
 
-if (I === 7) {
+if (I === 8) {
  const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
 
@@ -555,7 +555,7 @@ $$\\frac{${an1}}{${N}}\\times\\frac{${bn1}}{${N}}=\\frac{${a1}}{${a2}}$$
 }// 7問目終わり
 
 
-if (I === 8) {
+if (I === 9) {
  const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
   question = `$$(2)~~~a+b=3となる確率は\\frac{\\fbox{ 1 }}{\\fbox{ 2 }}である。$$
@@ -589,7 +589,7 @@ $$\\frac{${an1}}{${N}}\\times\\frac{${bn2}}{${N}}+\\frac{${an2}}{${N}}\\times\\f
   MathJax.typeset();
 }// 8問目終わり
 
-if (I === 9) {
+if (I === 10) {
  const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
   question = `$$(3)~~~a+bの期待値は\\frac{\\fbox{ 1 }}{\\fbox{ 2 }}である。$$
@@ -643,7 +643,7 @@ $$\\frac{${a1}}{${a2}}$$
   MathJax.typeset();
 }// 9問目終わり
 
-if (I === 10) {//次はここから。
+if (I === 11) {//次はここから。
  const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
 document.getElementById("Bquestion").innerHTML = "";
@@ -691,7 +691,7 @@ document.getElementById("Bquestion").innerHTML = Q;
   MathJax.typeset();
 }// 10問目終わり
 
-if (I === 11) {//次はここから。
+if (I === 12) {//次はここから。
  const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
 if(N===0){
@@ -763,7 +763,201 @@ $$`;
   MathJax.typesetClear();
   MathJax.typeset();
 }// 11問目終わり
-if (I === 12) {//次はここから。
+if (I === 13) {//次はここから。
+const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+document.getElementById("Bquestion").innerHTML = "";
+
+
+let d=getRandomInt(4,7);
+let a;
+do{a=getRandomInt(5,8);}while(a===d)
+let n=getRandomInt(5,9);
+let an=a+(n-1)*d;
+let a1,a2;
+a1=d;
+a2=a-d;
+let f= a2<0 ? `-`:`+`;
+let a3=a2>0 ? a2:-a2;
+question=`$$公差が${d}で，a_{${n}}=${an}の$$
+$$等比数列\\{a_{n}\\}の一般項a_{n}=\\fbox{ 1 }n${f}\\fbox{ 2 }である。$$
+$$解答欄に1・2の順に入力せよ。$$`;
+correctAnswers = [a1,a3];
+
+ for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+
+	solution = `$$初項をaとすると$$
+$$a_{${n}}=${an}より，${n-1}\\cdot${d}+a=${an}$$
+$$これを解いて，a=${a}$$
+$$よって，一般項は$$
+$$a_{n}=${a}+(n-1)${d}=${a1}n${teisu(a2)}$$`;
+document.getElementById("question").innerHTML = question;
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 12問目終わり
+
+if (I === 14) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+  document.getElementById("Bquestion").innerHTML = "";
+
+  let d = getRandomInt(4, 7);
+  let a;
+  do {
+    a = getRandomInt(-8, 8, true);
+  } while (d === a);
+
+  let n1 = getRandomInt(2, 4);
+  let n2 = getRandomInt(5, 9);
+  let n3;
+  do {
+    n3 = getRandomInt(5, 9);
+  } while (n2 === n3);
+
+  if (n2 > n3) [n2, n3] = [n3, n2];
+
+  let an1 = a + (n1 - 1) * d;
+  let an2 = 2 * a + (n2 + n3 - 2) * d;
+  let a1 = d;
+  let a2 = a - d;
+  let f = a2 < 0 ? `-` : `+`;
+  let a3 = Math.abs(a2);
+
+  question = `$$等差数列\\{a_{n}\\}において$$
+$$a_{${n1}}=${an1}で，a_{${n2}}+a_{${n3}}=${an2}を満たしているとき，$$
+$$一般項a_{n}=\\fbox{ 1 }n${f}\\fbox{ 2 }である。$$
+$$解答欄に1・2の順に入力せよ。$$`;
+
+  correctAnswers = [a1, a3];
+
+  for (let i = 0; i < 2; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  solution = `$$初項をa，公差をdとすると$$
+$$a_{${n1}}=${an1}より，${n1 - 1}d+a=${an1}$$
+$$a_{${n2}}+a_{${n3}}=${an2}より，$$
+$$a_{${n2}}+a_{${n3}}=(${n2 - 1}d+a)+(${n3 - 1}d+a)であるから$$
+$$${n2 + n3 - 2}d+2a=${an2}$$
+$$これを解いて，a=${a}，d=${d}$$
+$$よって，一般項は$$
+$$a_{n}=${a}+(n-1)${d}=${a1}n${teisu(a2)}$$`;
+
+  document.getElementById("question").innerHTML = question;
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}
+// 13問目終わり
+
+if (I === 7) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+  document.getElementById("Bquestion").innerHTML = "";
+	let A=getRandomInt(-3,3,true);
+	let p=getRandomInt(-2,2,true);
+	let ab=getRandomInt(2,4)*2;
+	let d=ab/2;
+	let a=p-d; let b=p+d;
+	let q=A*(p-a)*(p-b);
+    let f1 = a > 0 ? `-` : `+`;
+    let f2 = b > 0 ? `-` : `+`;
+
+let a1= a>0 ? a:-a;
+let a2= b>0 ? b:-b;
+
+  question = `$$以下の問題について，太郎さん，花子さんの会話を読んで答えよ。$$
+$$\\boxed{ 問題 }グラフの頂点の座標が(${p}，${q})で，グラフがx軸と$$
+$$異なる2点{\\rm{A}},{\\rm{B}}で交わり，\\rm AB=${ab}を満たす2次関数を求めよ。$$
+$$$$
+$$太郎：点(${p}，0)から2点\\rm A，Bは等距離にあることから$$
+$$点{\\rm{A}}，{\\rm{B}}のx座標がわかるね。$$
+$$$$
+$$花子：aは0でない定数として，求める関数は$$
+$$y=a(x${f1}\\fbox{ 1 })(x${f2}\\fbox{ 2 })とおけるね。$$
+$$太郎：このグラフが点(${p},${q})を通ることから，a=\\fbox{ 3 }となるね。$$
+$$$$
+$$\\fbox{ 1 }～\\fbox{ 3 }に当てはまる数を答えよ。
+$$`;
+
+  correctAnswers = [a1, a2 , A];
+
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  solution = `$$グラフの頂点の座標が(${p}，${q})，$$
+$$グラフが軸に関して対称であること，AB=${ab}より，$$
+$$A,Bの座標は(${a},0)，(${b}，0)である。$$
+$$よって，y=a(x${teisu(-a)})(x${teisu(-b)})$$
+$$さらにこのグラフの頂点は(${p}，${q})であるから，$$
+$$${q}=a(${p}${teisu(-a)})(${p}${teisu(-b)})$$
+$$よって，a=${A}$$`;
+
+  document.getElementById("question").innerHTML = question;
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}
+// 14問目終わり
+if (I === 15) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+  document.getElementById("Bquestion").innerHTML = "";
+
+ 
+  question = `$$等差数列\\{a_{n}\\}において$$
+$$a_{1}からa_{${n}}までの和が${sum1}で，$$
+$$a_{${n+1}}からa_{${n*2}}までの和が${sum2}であるとき，$$
+$$一般項a_{n}=\\fbox{ 1 }n${f}\\fbox{ 2 }である。$$
+$$解答欄に1・2の順に入力せよ。$$`;
+
+  correctAnswers = [a1, a3];
+
+  for (let i = 0; i < 2; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  solution = `$$初項をa，公差をdとすると$$
+$$a_{${n}}=a+${n-1}dと表せる。$$
+$$よって，初項から第${n}項までの和は$$
+$$\\frac{1}{2}\\cdot${n}\\{a+(a+${n-1}d)\\}=${n}a+${n*(n-1)/2}d$$
+$$同様に，a_{${n+1}}=a+${n}d，a_{${n*2}}=a+${n*2-1}dと表せる。$$
+$$よって，a_{${n+1}}からa_{${n*2}}までの和は$$
+$$\\frac{1}{2}\\cdot${n}\\{(a+${n}d)+(a+${n*2-1}d)\\}=${n}a+${n*(3*n-1)/2}d$$
+$$したがって，${n}a+${n*(n-1)/2}d=${sum1}，${n}a+${n*(3*n-1)/2}d=${sum2}$$
+$$これを解いて，a=${a}，d=${d}$$
+$$よって，一般項は$$
+$$a_{n}=${a}+(n-1)${d}=${a1}n${teisu(a2)}$$`;
+
+  document.getElementById("question").innerHTML = question;
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}
+// 15問目終わり
+
+if (I === 16) {//次はここから。これで最後。
 document.getElementById("Bquestion").innerHTML = "";
 
 showResult();
@@ -947,7 +1141,7 @@ document.getElementById("soluButton").style.backgroundColor = "orange";
   <p>ベネッセ模試に向けて、課題を作りました。</p>
   <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
   <p>準備ができたら「開始」ボタンを押してください。</p>
-  <p>全部で11問です。終わったらリザルト画面になります。</p>
+  <p>全部で15問です。終わったらリザルト画面になります。</p>
   <p>リザルト画面にある記録ボタンを押し，ロイロにペーストしてください。</p>
   <p>本日中に２回繰り返し，２回の記録を提出箱に提出をしてください。</p>
   <button class="button" onclick="startTask()">開始</button>
