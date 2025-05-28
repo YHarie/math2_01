@@ -868,7 +868,8 @@ if (I === 7) {
   document.getElementById("Bquestion").innerHTML = "";
 	let A=getRandomInt(-3,3,true);
 	let p=getRandomInt(-2,2,true);
-	let ab=getRandomInt(2,4)*2;
+	let ab;
+	do{ab=getRandomInt(2,5)*2;}while(2*p-ab===0 || 2*p+ab===0)
 	let d=ab/2;
 	let a=p-d; let b=p+d;
 	let q=A*(p-a)*(p-b);
