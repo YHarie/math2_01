@@ -921,7 +921,24 @@ if (I === 15) {
   const inputsDiv = document.getElementById("inputs");
   inputsDiv.innerHTML = "";
   document.getElementById("Bquestion").innerHTML = "";
+let d = getRandomInt(4, 7);
+  let a;
+  do {
+    a = getRandomInt(-8, 8, true);
+  } while (d === a);
 
+  let n = getRandomInt(4, 6);
+  
+  
+
+  let an1 = a + (n - 1) * d;
+  let an2 =  a + (n*2  -1) * d;
+	let sum1=(a+an1)*n/2;
+	let sum2=(an1+d+an2)*n/2;
+  let a1 = d;
+  let a2 = a - d;
+  let f = a2 < 0 ? `-` : `+`;
+  let a3 = Math.abs(a2);
  
   question = `$$等差数列\\{a_{n}\\}において$$
 $$a_{1}からa_{${n}}までの和が${sum1}で，$$
