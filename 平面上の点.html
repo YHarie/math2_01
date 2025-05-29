@@ -170,7 +170,7 @@ let dy = y2 < 0 ? `\\left\\{ ${y1} - (${y2}) \\right\\}^{2}` : `(${y1} - ${y2})^
 
  solution=`$$\\rm{AB}=\\sqrt{${dx}+${dy}}=${answer}$$`;
 }
-if(i===2){j=getRandomInt(1,3);
+if(i===2){let j=getRandomInt(1,3);
 	if(j===1){//直角三角形であることを見つける。
 	x3=x2+y1;
 	y3=y2-x1;
@@ -235,10 +235,10 @@ $$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
 	let dy2 = y3 < 0 ? `\\left\\{ ${y2} - (${y3}) \\right\\}^{2}` : `(${y2} - ${y3})^{2}`;
 	let dx3 = x < 0 ? `\\left\\{ ${x3} - (${x}) \\right\\}^{2}` : `(${x3} - ${x})^{2}`;
 	let dy3 = y < 0 ? `\\left\\{ ${y3} - (${y}) \\right\\}^{2}` : `(${y3} - ${y})^{2}`;
-	let ab=(b*x1)**2+(b*y1)**2;
-	let bc=(a*x1)**2+(a*y1)**2;
+	let ab=(x1)**2+(y1)**2;
+	let bc=(x1)**2+(y1)**2;
 	let ca=(x-x3)**2+(y-y3)**2;
-	question=`$$2点\\rm{A}(${x},${y}),\\rm{B}(${x2},${y2}),\\rm{C}(${x3},${y3})を頂点とする$$
+	question=`$$3点\\rm{A}(${x},${y}),\\rm{B}(${x2},${y2}),\\rm{C}(${x3},${y3})を頂点とする$$
 $$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
 	answer=`\\rm{AB=BC}の二等辺三角形`;
 	solution=`$$\\rm{AB^{2}}=${dx1}+${dy1}=${ab}$$
