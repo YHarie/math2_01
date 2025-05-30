@@ -223,7 +223,7 @@ $$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
 	`;
 	}if(j===3){//二等辺三角形であることを見つける。
 	x1=getRandomInt(-8,8,true);
-	do{y1=getRandomInt(-8,8,true);}while(x1===0 && y1===0)
+	do{y1=getRandomInt(-8,8,true);}while(x1===y1)
 	let k=getRandomInt(1,2,true);
 	x3= k===1?x2-y1:x2+y1;
 	y3=k===1?y2-x1:y2+x1;
