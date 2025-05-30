@@ -225,8 +225,8 @@ $$\\triangle \\rm{ABC}は，どのような三角形か答えよ。$$`;
 	x1=getRandomInt(-8,8,true);
 	do{y1=getRandomInt(-8,8,true);}while(x1===0 && y1===0)
 	let k=getRandomInt(1,2,true);
-	x3= k===1?x2+x1:x2-x1;
-	y3=k===1?y2-y1:y2+y1;
+	x3= k===1?x2-y1:x2+y1;
+	y3=k===1?y2-x1:y2+x1;
 	let x=x2+x1;
 	let y=y1+y2;
 	let dx1 = x2 < 0 ? `\\left\\{ ${x} - (${x2}) \\right\\}^{2}` : `(${x} - ${x2})^{2}`;
