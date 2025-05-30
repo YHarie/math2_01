@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>直線の方程式</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+let a,b,c,m,n,p,q,r;
+a=getRandomInt(1,6);
+b=getRandomInt(-6,6,true);
+c=getRandomInt(-9,9);
+
+let d=gcd(a,b);
+let D=gcd(d,c);
+
+let x,y;
+do{
+x=getRandomInt(-9,9,true);
+y=getRandomInt(-9,9,true);}while(a*x+b*y+c===0)
+let line='';
+a/=D;b/=D;c/=D;
+
+if(i===1){
+let j=getRandomInt(1,22);
+if(j===1){
+do{c=getRandomInt(-9,9);}while(y-c===0)
+line=`y=${c}`;
+solution=`$$与えられた直線${line}はx軸に平行な直線である。$$
+$$よって，点(${x},${y})を通り，${line}と平行な直線は$$
+$$y=${y}，垂直な直線はx=${x}である。$$
+`;}
+if(j===2){
+do{c=getRandomInt(-9,9);}while(x-c===0)
+line=`x=${c}`;
+solution=`$$与えられた直線${line}はy軸に平行な直線である。$$
+$$よって，点(${x},${y})を通り，${line}と平行な直線は$$
+$$x=${x}，垂直な直線はy=${y}である。$$
+`;}
+else if(j<13){line=`${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}=0`;
+let c1=-a*x-b*y;
+let c2=-b*x+a*y;
+d=gcd(a,b);
+let D1=gcd(d,c1);
+let D2=gcd(d,c2);
+let a1,a2,a3;
+a1=b/D2;a2=-a/D2;a3=c2/D2
+if(a1<0){[a1,a2,a3]=[-a1,-a2,-a3];}
+let answer1=`${keisu(a/D1,`x`)}${moji(b/D1,`y`)}${teisu(c1/D1)}=0`;
+let answer2=`${keisu(a1,`x`)}${moji(a2,`y`)}${teisu(a3)}=0`;
+solution=`$$点(${x},${y})を通り，直線${line}と平行な直線の方程式は$$
+$$${keisu(a)}(x${teisu(-x)})${moji(b)}(y${teisu(-y)})=0である。$$
+$$すなわち，${answer1}$$
+$$また，点(${x},${y})を通り，直線${line}と垂直な直線の方程式は$$
+$$${keisu(b)}(x${teisu(-x)})${moji(-a)}(y${teisu(-y)})=0である。$$
+$$すなわち，${answer2}$$
+`;
+} else if(j<23){if(b % a !== 0){
+[b,a]=yakubun(b,a);
+m=bunsu(b,a);
+line=`y=${m}x${teisu(c)}`;
+let c1=a*y-b*x;
+let a1=a;
+let f1= a*c1>0 ? `+`:``;
+[c1,a1]=yakubun(c1,a1);
+c1=bunsu(c1,a1);
+[a,b]=yakubun(a,b);
+n=bunsu(-a,b);
+let c2=a*x+b*y;
+let b1=b;
+[c2,b1]=yakubun(c2,b1);
+
+let f2=b1*c2>0 ? `+`: ``;
+c2= c2===0 ? ``: bunsu(c2,b1);
+solution=`$$直線${line}の傾きは${m}である。$$
+$$よって，直線\\ell の方程式は$$
+$$y=${m}(x${teisu(-x)})${teisu(y)}$$
+$$すなわち，y=${m}x${f1}${c1}$$
+$$また，直線\\ell 'の傾きをmとすると$$
+$$${m}\\cdot m=-1~~からm=${n}$$
+$$よって，\\ell 'の方程式は$$
+$$y=${n}(x${teisu(-x)})${teisu(y)}$$
+$$すなわち，y=${n}x${f2}${c2}$$
+`;}
+else{
+do{m=getRandomInt(-6,6,true);}while(m*x+c===y)
+line=`y=${keisu(m,`x`)}${teisu(c)}`;
+let m1,n1;
+[n1,m1]=yakubun(-1,m);
+n=bunsu(n1,m1);
+let c1=-m*x+y;
+let c2=x+m*y;
+let b1=m;
+[c2,b1]=yakubun(c2,b1);
+let f2=b1*c2>0 ? `+`:``;
+let d2=bunsu(c2,b1);
+solution=`$$直線${line}の傾きは${m}である。$$
+$$よって，直線\\ell の方程式は$$
+$$y=${keisu(m)}(x${teisu(-x)})${teisu(y)}$$
+$$すなわち，y=${keisu(m,`x`)}${teisu(c1)}$$
+$$また，直線\\ell 'の傾きをmとすると$$
+$$${m}\\cdot m=-1~~からm=${n}$$
+$$よって，\\ell 'の方程式は$$
+$$y=${n}(x${teisu(-x)})${teisu(y)}$$
+$$すなわち，y=${keisu(n)}x${f2}${d2}$$
+`;}
+
+}
+
+question=`$$点(${x}，${y})を通り，直線${line}と平行な直線\\ell ,$$
+$$垂直な直線\\ell 'の方程式をそれぞれ求めよ。$$`;
+}
+if(i===2){//2直線の交点を通る直線
+do{p=getRandomInt(1,2);
+q=getRandomInt(-4,4,true);}while(p*b===a*q)
+do{r=getRandomInt(-4,4);}while(p*x+q*y+r===0)
+d=gcd(gcd(p,q),r);
+p/=d;q/=d;r/=d;
+let line1=`${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}`;
+let line2=`${keisu(p,`x`)}${moji(q,`y`)}${teisu(r)}`;
+question=`$$2直線${line1}=0，${line2}=0の交点と$$
+$$点(${x}，${y})を通る直線の方程式を求めよ。$$`;
+m=a*x+b*y+c;//line1の係数
+n=p*x+q*y+r;//line2の係数
+let a1,a2,a3,k;
+[n,m]=yakubun(n,m);
+k=bunsu(-n,m);
+a1=-n*a+p*m; a2=-n*b+m*q; a3=-n*c+m*r;
+d=gcd(gcd(a1,a2),a3);
+a1/=d;a2/=d;a3/=d;
+if(a1<0){a1=-a1;a2=-a2;a3=-a3;}
+answer=`${keisu(a1,`x`)}${moji(a2,`y`)}${teisu(a3)}=0`;
+solution=`$$kを定数として$$
+$$k(${line1})+(${line2})=0~~\\cdots①$$
+$$とすると，①は2直線の交点を通る直線を表す。$$
+$$この直線が点(${x}，${y})を通るとすると，$$
+$$①にx=${x},y=${y}を代入して，k=${k}$$
+$$これを①に代入して整理すると$$
+$$${answer}$$`;
+
+}//i===2終わり
+if(i===3){//直線と対称な点
+do{y=getRandomInt(-6,6,true);
+x=getRandomInt(-6,6,true);
+c=getRandomInt(-9,9)}while(a*x+b*y+c!==0)
+let x1,y1,x2,y2;
+[p,q]=yakubun(a,b);
+r=getRandomInt(-3,3,true);
+p=p*r; q=q*r;
+[x1,y1]=[x+p,y+q];//点A
+[x2,y2]=[x-p,y-q];//点B
+question=`$$直線${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}=0に関して$$
+$$点{\\rm{A}}(${x1},${y1})と対称な点{\\rm{B}}の座標を求めよ。$$`;
+let a1,b1;
+[a1,b1]=yakubun(-a,b);
+m=bunsu(a1,b1);//エルの傾き
+
+solution=`$$直線${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}=0を\\ell とし，$$
+$$点{\\rm{B}}の座標を(p,q)とする。$$
+$$直線\\ell の傾きは${m}であり，直線{\\rm{AB}}は\\ell に垂直であるから$$
+$$${m}\\cdot\\frac{q${teisu(-y1)}}{p${teisu(-x1)}}=-1$$
+$$ゆえに，${keisu(b1,`p`)}${moji(a1,`q`)}${teisu(-b1*x1-a1*y1)}=0\\cdots\\cdots①$$
+$$線分{\\rm{AB}}の中点(\\frac{p${teisu(x1)}}{2}，\\frac{q${teisu(y1)}}{2})は直線\\ell上にあるから$$
+$$${a}\\cdot\\frac{p${teisu(x1)}}{2}${teisu(b)}\\cdot \\frac{q${teisu(y1)}}{2}${teisu(c)}=0$$
+
+$$ゆえに，${keisu(a,`p`)}${moji(b,`q`)}${teisu(a*x1+b*y1+2*c)}=0\\cdots \\cdots ②$$
+
+
+$$方程式①，②を連立して解くと$$
+$$p=${x2},q=${y2}$$
+
+$$したがって，{\\rm{B}}の座標は(${x2}，${y2})$$`;
+}//i===3終わり
+if(i===4){//点と直線の距離
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+question=`$$点(${x}，${y})と直線${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}=0との距離を求めよ。$$`;
+solution=`$$求める距離は$$
+$$\\frac{|${a}\\cdot${kakko(x)}${teisu(b)}\\cdot${kakko(y)}${teisu(c)}|}{\\sqrt{${kakko(a)}^{2}+${kakko(b)}^{2}}}=${answer}$$`;
+}//i=4終わり
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>直線の方程式</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　2直線の平行・垂直</option>
+          <option value="2">2.　2直線の交点を通る直線</option>
+          <option value="3">3. 直線と対称な点</option>
+          <option value="4">4.　点と直線の距離</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
