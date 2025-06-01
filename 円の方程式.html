@@ -313,6 +313,10 @@ m=-2*a; n=-2*b;
 let l=a*a+b*b-r;
 let j2=getRandomInt(1,4);//円の方程式か，外心を求める問題か（3:1)くらいの比率で。
 if(j2===1){//外心
+let xs,ys;
+xs = a === 0 ? `x^2` : `(x${teisu(-a)})^{2}`;
+ys = b === 0 ? `y^2` : `(y${teisu(-b)})^{2}`;
+
 question=`$$点A(${x1}，${y1})，B(${x2}，${y2})，C(${x3}，${y3})$$
 $$を頂点とする\\triangle ABCの外心の座標を求めよ。$$`;
 
@@ -323,7 +327,7 @@ $$${Cb}\\cdots\\cdots ②$$
 $$${Cc}\\cdots\\cdots ③$$
 $$これを解いて，m=${m}，n=${n}，l=${l}$$
 $$よって，${Cmake(a,b,r)}$$
-$$すなわち，(x${teisu(-a)})^{2}+(y${teisu(-b)})^{2}=${r}$$
+$$すなわち，${xs}+${ys}=${r}$$
 $$よって，求める座標は(${a}，${b})$$
 `;
 
@@ -393,7 +397,7 @@ $$よって，${Cmake(a,b,r)}$$`;
           <option value="2">2.　円の方程式《基本問題》</option>
           <option value="3">3.　標準形の表す図形</option>
           <option value="4">4.　３点を通る円</option>
-          <option value="0">0 (ランダム)</option>
+          <option value="0">ランダム</option>
         </select>
 
         </label>
