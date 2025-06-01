@@ -283,6 +283,65 @@ $$(x^2${moji(-2 * a, 'x')}+${a * a})+(y^2${moji(-2 * b, 'y')}+${b * b})=${rhs}+$
 $$すなわち，${completed}$$
 $$${A}$$`;
   }//i===3
+if(i===4){//3点を通る円
+let k=getRandomInt(1,2);//k=1のときは直径ともう1点，k=2のときは半径5のパターン
+let x1,x2,x3,y1,y2,y3;//A,B,Cの座標成分
+if(k===1){
+do{
+x=getRandomInt(-4,4,true);
+y=getRandomInt(-4,4,true);}while(Math.abs(x)===Math.abs(y))//|x|!=|y|を満たすベクトル
+[x1,y1]=[a+x,b+y];//点A
+[x2,y2]=[a-x,b-y];//点B
+[x3,y3]=[a+y,b+x];
+r=x*x+y*y;
+}//k=1終わり
+if(k===2){//半径が５の倍数
+p=getRandomInt(-2,2,true);//成分の倍数
+q=getRandomInt(1,2);//(3,4)か(4,3)かの判定
+x= q===1 ? 3*p:4*p;
+y= q===1 ? 4*p:3*p;
+r=x*x+y*y;
+[x1,y1]=[a+x,b+y];
+[x2,y2]=[a-y,b-x];
+[x3,y3]=[a+5*p,b];
+}//k=2終わり
+let C=`x^2 + y^2 +mx +ny +l=0`;
+let Ca=`${keisu(x1,`m`)}${moji(y1,`n`)}+l=${-x1*x1-y1*y1}`;
+let Cb=`${keisu(x2,`m`)}${moji(y2,`n`)}+l=${-x2*x2-y2*y2}`;
+let Cc=`${keisu(x3,`m`)}${moji(y3,`n`)}+l=${-x3*x3-y3*y3}`;
+m=-2*a; n=-2*b;
+let l=a*a+b*b-r;
+let j2=getRandomInt(1,4);//円の方程式か，外心を求める問題か（3:1)くらいの比率で。
+if(j2===1){//外心
+question=`$$点A(${x1}，${y1})，B(${x2}，${y2})，C(${x3}，${y3})$$
+$$を頂点とする\\triangle ABCの外心の座標を求めよ。$$`;
+
+solution=`$$\\triangle ABC の外接円の方程式を$$
+$$${C}とすると,3点A,B,Cを通るので$$
+$$${Ca}\\cdots\\cdots ①$$
+$$${Cb}\\cdots\\cdots ②$$
+$$${Cc}\\cdots\\cdots ③$$
+$$これを解いて，m=${m}，n=${n}，l=${l}$$
+$$よって，${Cmake(a,b,r)}$$
+$$すなわち，(x${teisu(-a)})^{2}+(y${teisu(-b)})^{2}=${r}$$
+$$よって，求める座標は(${a}，${b})$$
+`;
+
+}//j2=1
+if (j2>1){
+question=`$$点A(${x1}，${y1})，B(${x2}，${y2})，C(${x3}，${y3})$$
+$$を通る円の方程式を求めよ。$$`;
+
+solution=`$$求める方程式を${C}とすると$$
+$$3点A,B,Cを通るので$$
+$$${Ca}\\cdots\\cdots ①$$
+$$${Cb}\\cdots\\cdots ②$$
+$$${Cc}\\cdots\\cdots ③$$
+$$これを解いて，m=${m}，n=${n}，l=${l}$$
+$$よって，${Cmake(a,b,r)}$$`;
+}//j2>1
+
+}//i=4終わり
     document.getElementById('question').innerHTML = question;
       window.correctAnswer = answer;
       window.solutionText = solution;
@@ -332,7 +391,7 @@ $$${A}$$`;
         <select id="modeSelect1" onchange="generateQuiz()">
           <option value="1" selected>1.　円の方程式《基礎》</option>
           <option value="2">2.　円の方程式《基本問題》</option>
-          <option value="3">3. 標準形の表す図形</option>
+          <option value="3">3.　標準形の表す図形</option>
           <option value="4">4.　３点を通る円</option>
           <option value="0">0 (ランダム)</option>
         </select>
