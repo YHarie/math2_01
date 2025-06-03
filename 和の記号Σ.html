@@ -117,6 +117,9 @@ function insu(a, b, c) {
       if (b === 0) return "";
      return `${b > 0 ? "+" : ""}${b}${variable}`;
     }
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
 
 
 function generateQuiz() {
@@ -153,7 +156,7 @@ if ( i === 0) i = getRandomInt(1, 2);
     }
     solution = `$$これは公比 ${r} の等比数列の和です。$$
 $$初項： r^1 = ${r}  ，公比 ${r}，項数${n}の等比数列の和であるから$$
-$$ \\sum_{k=1}^{${n}} ${rStr}^k = \\frac{${r} \\cdot ${r}^{${n} - 1}}{${r} -1}= ${answer}$$`;
+$$ \\sum_{k=1}^{${n}} ${rStr}^k = \\frac{${r} \\left\\{ ${kakko(r)}^${n} - 1\\right\\}}{${r} -1}= ${answer}$$`;
   }
 
   else if (i === 1 && j === 3) {
@@ -168,7 +171,7 @@ $$ \\sum_{k=1}^{${n}} ${rStr}^k = \\frac{${r} \\cdot ${r}^{${n} - 1}}{${r} -1}= 
     }
     solution = `$$ \\sum_{k=1}^{${n}} (${astr}k ${bstr})$$
 
-$$= ${a} \\cdot \\frac{${n}(${n}+1)}{2} + ${b} \\cdot ${n}$$
+$$= ${a} \\cdot \\frac{${n}(${n}+1)}{2} + ${kakko(b)} \\cdot ${n}$$
 $$ = ${answer}$$`;
   }
 
