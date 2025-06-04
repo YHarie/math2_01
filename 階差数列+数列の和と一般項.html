@@ -396,7 +396,10 @@ if (b1 === 2) {
   answer2 = answer;
 } else if (bunbo !== 1) {
   answer2 = `\\frac{${keisu(KI, "")}(${num})${b1}^{n}${constant}}{${bunbo}}`;
-} else {
+} else  if(KS===0){
+  answer2 = `${keisu(KI, "")}${num}${b1}^{n}${constant}`;
+}
+else {
   answer2 = `${keisu(KI, "")}(${num})${b1}^{n}${constant}`;
 }
 
