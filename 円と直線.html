@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>円と直線</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+
+let a,b,r,m,n;
+do{a=getRandomInt(-4,4,true);
+b=getRandomInt(-4,4,true);}while(Math.abs(a)===Math.abs(b));
+r=a*a+b*b;
+let Y;
+if(i===1){//円と直線の共有点の座標。
+let j=getRandomInt(1,3);//座標の取り方のパターン
+let k=getRandomInt(1,2);//直線の式の表示の仕方。
+let line;
+let x1,y1,x2,y2;
+[x1,y1]=[a,b];
+let hosoku;
+if(j===1){
+[x2,y2]=[b,a];
+line= k===1 ? `y=-x${teisu(a+b)}`:`x+y${teisu(-a-b)}=0`;
+hosoku= k===1 ? ``:`${line}から，y=-x${teisu(a+b)}\\cdots \\cdots ③`;
+Y=`x=${x1}のとき，y=${y1}，x=${x2}のとき，y=${y2}`;
+answer=`(${x1}，${y1})，(${x2}，${y2})`;
+
+}
+if(j===2){
+[x2,y2]=[-b,-a];
+line= k===1 ? `y=x${teisu(-a+b)}`:`x-y${teisu(-a+b)}=0`;
+hosoku= k===1 ? ``:`${line}から，y=x${teisu(-a+b)}\\cdots \\cdots ③`;
+Y=`x=${x1}のとき，y=${y1}，x=${x2}のとき，y=${y2}`;
+answer=`(${x1}，${y1})，(${x2}，${y2})`;
+}
+if(j===3){
+if(a<0){[a,b]=[-a,-b];}
+[m,n]=yakubun(-a,b);
+[x2,y2]=[x1,y1];
+let p,q;
+[p,q]=yakubun(r,b);
+let C=bunsu(p,q);
+line= k===1 ? `y=${bunsu(m,n)}x${p>0 ? `+${C}`:C}`:`${keisu(a,`x`)}${moji(b,`y`)}${teisu(-r)}=0`;
+hosoku=k===1 ? ``:`${line}から，y=${bunsu(m,n)}x${p>0 ? `+${C}`:C}\\cdots \\cdots ③`;
+Y=`x=${x1}のとき，y=${y1}`;
+answer=`(${x1}，${y1})`;
+
+}
+question=`$$円x^{2}+y^{2}=${r}と直線${line}の共有点の座標を求めよ。$$`;
+solution=`$$\\begin{eqnarray}  \\left\\{
+    \\begin{array}{l}  x^{2}+y^{2}=${r}\\cdots \\cdots ① \\\\
+      ${line}\\cdots \\cdots ②
+    \\end{array}
+  \\right.
+\\end{eqnarray}$$
+$$ ${hosoku}$$
+$$ ${k===1 ? `②`:`③`}を①に代入して整理すると$$
+$$x^{2}${moji(-x1 -x2,`x`)}${teisu(x1*x2)}=0$$
+$$これを解いてx=${x1}${j===3 ? ``:`，${x2}`}$$
+$${k===1 ? `②`:`③`}に代入して$$
+$$${Y}$$
+$$よって，共有点の座標は${answer} $`;
+
+
+}//i=1終わり
+if(i===2){//円と直線の共有点の個数。共有点をもつとき，もたないとき。不等式。
+let a,b,c,p,q,r;
+r=getRandomInt(1,9);//円の半径の2乗。半径は1～3に設定。
+p=getRandomInt(-3,3,true);//直線の傾きを決定。y=px+k(kは定数)
+[a,b,c]=tenkai(p,1);//
+a=a+1;
+let shiki=`${a}x^{2}${moji(b,`kx`)}+k^{2}-${r}=0`;
+let D=`\\frac{D}{4}=${keisu(b*b/4,`k^{2}`)}-${a}(k^{2}-${r})\\\\=-k^{2}+${a*r}`;
+let m,n;
+[m,n]=[-p,1];
+if(m<0){[m,n]=[-m,-n];}
+let line=`${keisu(m,`x`)}${moji(n,`y`)}${moji(-n,`k`)}=0`;
+let j2=getRandomInt(1,2);
+let str= j2===1 ? `共有点をもつ`:`共有点をもたない`;
+let A= j2===2 ? `k \\lt - ${kanyaku(a*r,1)}，${kanyaku(a*r,1)}\\lt k`:
+`- ${kanyaku(a*r,1)}\\leqq k \\leqq ${kanyaku(a*r,1)}`;
+let P=`\\frac{|k|}{${kanyaku(m*m+n*n,1)}}`;
+
+
+question=`$$円x^{2}+y^{2}=${r}と直線y=${keisu(p,`x`)}+kが${str}とき，$$
+$$定数kのとりうる範囲を求めよ。$$`;
+solution=`$$連立方程式$$
+$$\\begin{eqnarray}  \\left\\{
+    \\begin{array}{l}  x^{2}+y^{2}=${r}\\cdots \\cdots ① \\\\
+      y=${keisu(p,`x`)}+k\\cdots \\cdots ②
+    \\end{array}
+  \\right.
+\\end{eqnarray}$$
+$$において，②を①に代入して整理すると$$
+$$${shiki}$$
+$$この二次方程式の判別式をDとすると$$
+$$${D}$$
+$$円と直線が${str}ための必要十分条件は$$
+$$${j2===1 ? `D\\geqq 0`:`D\\lt 0`}であるから$$
+$$${j2===1 ? `-k^{2}+${a*r}\\geqq 0`:`-k^{2}+${a*r}\\lt 0`}$$
+$$よって， ${A} $$
+$$《別解》（おすすめ）$$
+$$直線の方程式を変形すると$$
+$$${line}$$
+$$円と直線が${str}ための必要十分条件は$$
+$$原点と直線${line}との距離dが円の半径${kanyaku(r,1)}${j2===1 ? `以下であることである。`:`より大きいことである。`} $$
+$$d=\\frac{|${m}\\cdot 0 ${teisu(n)}\\cdot 0 ${moji(-n,`k`)}|}{\\sqrt{${m}^2 +${kakko(n)}^2}}$$
+$$=${P}　$$
+$$よって，${P}${j2===1 ? `\\leqq ${kanyaku(r,1)}`:`\\gt${kanyaku(r,1)}`}$$
+$$ゆえに${A}$$
+`;
+
+}//i=2終わり
+if(i === 3) { // 弦の長さ
+  m = getRandomInt(1, 3, true); // x の係数
+  n = getRandomInt(-1, 1, true); // y の係数
+
+  let c;
+  while(true){
+    c = getRandomInt(-4, 4, true);
+    if (c * c <= r * r * (m * m + n * n)) break;
+  }
+
+  let j = getRandomInt(1, 2); // 方程式の表示形式
+  let line = j === 1
+    ? `${keisu(m, "x")}${moji(n, "y")}${teisu(c)}=0`
+    : n === 1
+      ? `y=${keisu(-m, "x")}${teisu(-c)}`
+      : `y=${keisu(m, "x")}${teisu(c)}`;
+
+  question = `$$直線${line}と円 x^2 + y^2 = ${r} の$$
+$$2つの交点を結ぶ線分の長さ l を求めよ。$$`;
+
+  let line2 = j === 2 ? `$$${line}を変形して,${keisu(m, "x")}${moji(n, "y")}${teisu(c)}=0$$` : '';
+  line = `${keisu(m, "x")}${moji(n, "y")}${teisu(c)}=0`;
+
+  let M = Math.abs(c)**2;
+  let N = m * m + n * n;
+
+  let [outside, inside] = kanyaku(N * (r *  N -  M), 2);
+  [M, N] = yakubun(2 * outside, N);
+
+  let answer;
+  if (inside === 1) {
+    answer = bunsu(M, N);
+  } else if (N === 1) {
+    answer = `${keisu(M)}\\sqrt{${inside}}`;
+  } else {
+    answer = `\\frac{${keisu(M)}\\sqrt{${inside}}}{${N}}`;
+  }
+
+  let d = distance(m, n, c, 0, 0);
+  solution = `${line2}
+$$円の中心 (0, 0) と直線 ${line} の距離 d は$$
+$$d = \\frac{|${c}|}{\\sqrt{${kakko(m)}^2 + ${kakko(n)}^2}} = ${d}$$
+$$また，円の半径 r は r = ${kanyaku(r,1)}$$
+$$よって，三平方の定理より$$
+$$l = 2\\sqrt{r^2 - d^2} = 2\\sqrt{${r} - ${bunsu(c*c,m*m + n*n)}} =
+${answer}$$`;
+}//i=3終わり
+if(i===4){//円の接線
+let j=getRandomInt(1,2);
+if(j===1){
+do{
+a=getRandomInt(-6,6);
+b=getRandomInt(-6,6);
+}while(a===0 && b===0)
+r=a*a+b*b;}
+question=`$$円x^{2}+y^{2}=${r}上の点(${a}，${b})における接線の方程式を求めよ。$$`;
+let answer;
+if(a===0){
+answer=`y=${b}`;}
+else if(b===0){
+answer=`x=${a}`;}
+else{
+let d=gcd(gcd(Math.abs(a),Math.abs(b) ),r);
+let [a1,b1,r1]=[a/d,b/d,r/d]
+if(a1<0){[a1,b1,r1]=[-a1,-b1,-r1];}
+answer=`${keisu(a1,`x`)}${moji(b1,`y`)}=${r1}`;
+}
+solution=`$$円x^{2}+y^{2}=${r}上の点(${a}，${b})における接線の方程式は$$
+$$${a}x+${kakko(b)}y=${r}$$
+$$すなわち，${answer}$$`;
+}//i=4終わり
+if(i===5){//外部から引いた接線
+ let x, y;
+  do {
+    x = getRandomInt(-9, 9);
+    y = getRandomInt(-9, 9);
+  } while ( a * x + b * y !== r || x * x + y * y === r); // 外部の点を保証
+question = `$$点\\text{A}(${x}，${y})を通り，円x^{2}+y^{2}=${r}に$$
+$$接する直線の方程式を求めよ。$$`;
+let k2,k1,te;
+k2=x*x + y*y;
+k1=-2*r*y;
+te=(r-x*x)*r;
+let d=gcd( gcd(k2,k1),te );
+[k2,k1,te]=[k2/d,k1/d,te/d];
+let shiki=`${keisu(k2,`y_{1}^2`)}${moji(k1,`y_{1}`)}${teisu(te)}=0`;
+let a1,a2,a3,b1,b2,b3;
+d=gcd( gcd(a , b ) , r);
+[a1,a2,a3]=[a/d,b/d,r/d];
+d=gcd( gcd((k2*r-y*te/b)/x , te/b ) , r*k2);
+[b1,b2,b3]=[(k2*r-y*te/b)/(x*d),(te/b)/d,(r*k2)/d];
+
+solution = `$$接点を\\text{P}(x_1 , y_1 )とすると$$
+$$x_{1}^2 + y_{1}^2 = ${r} \\cdots \\cdots ①$$
+$$また，点\\text{P}における，この円の接線の方程式は$$
+$$x_{1}x + y_{1}y = ${r} \\cdots \\cdots ②$$
+$$この直線が点\\text{A}を通るから$$
+$$${keisu(x,`x_1`)}${moji(y,`y_{1}`)}=${r} \\cdots \\cdots ③$$
+$$①，③から連立してx_{1}を消去すると，$$
+$$${shiki}$$
+$$これを解いて$$
+$$y_1 = ${b} ，${bunsu(te/b,k2)}$$
+$$y_1 = ${b} のとき，x_{1}=${a}$$
+$$y_1 = ${bunsu(te/b,k2)} のとき，x_{1}=${bunsu( (k2*r-y*te/b),x*k2 )}$$
+$$よって，求める接線の方程式は$$
+$$${keisu(a1,`x`)}${moji(a2,`y`)}=${a3} ， ${keisu(b1,`x`)}${moji(b2,`y`)}=${b3}$$`;
+
+}//i=5終わり
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>円と直線</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　共有点の座標</option>
+          <option value="2">2.　共有点をもつ条件</option>
+          <option value="3">3.　弦の長さ</option>
+          <option value="4">4.　円の接線</option>
+          <option value="5">5.　円の外側から引いた接線</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
