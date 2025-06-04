@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>朝テスト対策</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+  #top {
+      height: 10vh;
+      background: #f0f0f0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.5em;
+    }
+    #bottom {
+      height: 90vh;
+      padding: 20px;
+      overflow-y: auto;
+    }
+#soluButton {
+  background-color: orange;
+}
+#nextButton{
+  background-color: cyan;
+}
+    .input-box {
+      width: 70px;
+      height: 50px;
+      font-size: 1.5em;
+      margin: 5px;
+    }
+    .button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+
+    .hidden {
+      display: none;
+    }
+.color0 { background-color: gray; color: white; }
+.color1 { background-color: blue; color: white; }
+.color2 { background-color: green; color: white; }
+.color3 { background-color: red; color: white; }
+
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: auto;
+      height: auto;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+let I = 0;
+let mistakeCount = 0;
+let startTime = null;
+let endTime = null;
+
+let N,an1,an2,bn1,bn2,bn3;
+N=0
+	let kaisu=1;
+    let correctAnswers = [];
+
+function startTask() {
+   const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  const now = new Date();
+  startTime = now;
+  I = 1;
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+ function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+
+    function moji(num, str) {
+      if (num === 0) return "";
+      if (num === 1) return `+${str}`;
+      if (num === -1) return `-${str}`;
+      return num > 0 ? `+${num}${str}` : `${num}${str}`;
+    }
+
+    function teisu(num) {
+      if (num === 0) return "";
+      return num > 0 ? `+${num}` : `${num}`;
+    }
+
+    function getRandomInt(min, max, excludeZero = false) {
+      let val;
+      do {
+        val = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && val === 0);
+      return val;
+    }
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+
+function startQuiz() {
+  I = 1;
+  startTime = new Date();
+  document.getElementById("startButton").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function generateQuestion() {
+  let question = "";
+	let solution="";
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextButton").classList.add("hidden");
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+ const questionDiv = document.getElementById("question");
+  const solutionDiv = document.getElementById("solution");
+  const feedbackDiv = document.getElementById("feedback");
+
+
+if (I === 0) {
+    questionDiv.innerHTML = `
+  <p>朝テストの練習用です。</p>
+  <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で5問です。終わったらリザルト画面になります。</p>
+  <p>目標5分。満点を目指しましょう。</p>
+  <button class="button" onclick="startTask()">開始</button>
+`;
+
+    document.getElementById("ansButton").classList.add("hidden");
+    document.getElementById("soluButton").classList.add("hidden");
+	
+
+    return;
+  }
+
+  if (I === 1) {
+    let j = getRandomInt(1, 3);
+
+    if (j === 1) {
+      let a = getRandomInt(2, 3);
+      let p = getRandomInt(-8, 8, true);
+      while (gcd(a, p) !== 1) {
+        p = getRandomInt(-8, 8, true);
+      }
+      let q = p;
+      while (q === p) {
+        q = getRandomInt(-4, 4, true);
+      }
+      let b = a * q + p;
+      let c = p * q;
+      let f1 = p > 0 ? "+" : "-";
+      let f2 = q > 0 ? "+" : "-";
+
+      question = `$$${a}x^2${moji(b, "x")}${teisu(c)}を因数分解した式は$$<br>
+      $$(\\fbox{1}x${f1}\\fbox{2})(x${f2}\\fbox{3})である。$$<br>
+      $$\\fbox{1}～\\fbox{3}に当てはまる数を入力せよ。（完答）$$`;
+
+      correctAnswers = [a, Math.abs(p), Math.abs(q)];
+      for (let i = 0; i < 3; i++) {
+        let input = document.createElement("input");
+        input.className = "input-box";
+        input.type = "number";
+        input.id = `input${i}`;
+        inputsDiv.appendChild(input);
+	solution=`たすき掛け頑張ってね。`;
+      }
+
+    } if(j===2) {
+      let a = getRandomInt(1, 15);
+      let b = a;
+      while (a === b) {
+        b = getRandomInt(1, 15);
+      }
+      if ([1, 4, 9].includes(a) && [1, 4, 9].includes(b)) {
+        b = 7;
+      }
+      if (a < b) [a, b] = [b, a];
+      let c = getRandomInt(-3, 3, true);
+      let A = a === 1 ? `1` : a === 4 ? `2` : a === 8 ? `2\\sqrt{2}` : a === 9 ? `3` : `\\sqrt{${a}}`;
+      let B = b === 1 ? `1` : b === 4 ? `2` : b === 8 ? `2\\sqrt{2}` : b === 9 ? `3` : `\\sqrt{${b}}`;
+
+      question = `$$a=${A}+${B}, \\quad b=${A}-${B}とするとき，$$
+      $$a^2+b^2${moji(c, "ab")}の値を求めよ。$$`;
+	solution=`$$(a+b)^2${moji(c-2,`ab`)}$$`;
+      let ans = 4 * a + (c - 2) * (a - b);
+      correctAnswers = [Math.round(ans)];
+
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input0`;
+      inputsDiv.appendChild(input);
+
+    }
+
+	if(j===3){//分母の有理化
+	let p,q,a;
+	a=2;
+	p=getRandomInt(1,6);
+	q=p+a*a;
+	 question = `$$a=\\frac{${kanyaku(q,1)}-${kanyaku(p,1)}}{${a}}とするとき，$$
+$$a^{2}-\\frac{1}{a^2}の値は\\fbox{ 1 }\\sqrt{\\fbox{ 2 } }である。$$
+$$答えが\\sqrt{5}のようなときは，\\fbox{ 1 }に1，\\fbox{ 2 }に5を入力して答えよ。$$`;
+let a1,a2;
+[a1,a2]=kanyaku(p*q,2);
+	 solution = `$$\\frac{1}{a}=\\frac{${a}}{${kanyaku(q, 1)}-${kanyaku(p, 1)}}$$
+$$=\\frac{${a}(${kanyaku(q, 1)}+${kanyaku(p, 1)})}{(${kanyaku(q, 1)}-${kanyaku(p, 1)})(${kanyaku(q, 1)}+${kanyaku(p, 1)})}$$
+$$=\\frac{${kanyaku(q, 1)}+${kanyaku(p, 1)}}{${a}}$$
+$$よって，a^2 +\\frac{1}{a^2}=(a+\\frac{1}{a})(a-\\frac{1}{a})$$
+$$=${kanyaku(q, 1)}\\cdot${kanyaku(p, 1)}$$
+$$=${kanyaku(p * q, 1)}$$`;
+
+    for (let i = 0; i < 2; i++) {
+      let input = document.createElement("input");
+      input.className = "input-box";
+      input.type = "number";
+      input.id = `input${i}`;
+      inputsDiv.appendChild(input);
+    }
+
+    correctAnswers = [a1, a2];
+	
+}//j＝3終わり
+
+    document.getElementById("question").innerHTML = question;
+    MathJax.typesetClear();
+    MathJax.typeset();
+  }
+if (I === 2) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+  let f = getRandomInt(1, 2);
+  let F = f === 1 ? `>` : `<`;
+  let b = getRandomInt(1, 8, true);
+  let c;
+  do {
+    c = getRandomInt(-8, 8, true);
+  } while ((b - c) % 2 !== 0);
+
+  let roots = [(-b - c) / 2, (b - c) / 2].sort((a, b) => a - b);
+  let x1 = roots[0], x2 = roots[1];
+
+  question = `$$方程式\\ |2x${teisu(c)}|=${b}\\ の解は$$
+  $$x=\\fbox{ 1 },\\fbox{ 2 }\\ であるから，$$
+  $$不等式\\ |2x${teisu(c)}|${F}${b}\\ の解は\\ \\fbox{ 3 }\\ である。$$
+  $$ただし，\\fbox{ 1 }<\\fbox{ 2 } とし，\\fbox{ 3 } は選択肢1，2から選べ。$$
+  $$選択肢$$
+  $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } < x \\quad \\quad 2 \\quad \\fbox{ 1 } < x < \\fbox{ 2 }$$`;
+
+answer= f===1 ? `x\\lt ${x1}，${x2}\\lt x`:`${x1}\\lt x \\lt ${x2}`;
+
+  correctAnswers = [x1, x2, f];
+solution=`$$|2x${teisu(c)}|=${b}より，$$
+$$2x${teisu(c)}=\\pm${b}であるから$$
+$$x=${x1},${x2}$$
+$$よって，不等式の解は${answer}である$$
+`;
+
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}
+ if (I === 4) {
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+  let f = getRandomInt(1, 2);
+  let F = f === 1 ? `>` : `<`;
+
+  let b = getRandomInt(-8, 8);
+  let c;
+  do {
+    c = getRandomInt(-8, 8);
+  } while (b === c);
+
+  if (b > c) [b, c] = [c, b];
+
+  let x1 = b;
+  let x2 = c;
+  let x0 = b * c;
+
+  question = `$$2次方程式x^2${moji(-(x1 + x2),`x`)}${teisu(x0)}=0の解は$$
+  $$x=\\fbox{ 1 },\\fbox{ 2 } であるから，$$
+  $$不等式x^2${moji(-(x1 + x2),`x`)}${teisu(x0)}${F}0 の解は\\ \\fbox{ 3 }\\ である。$$
+  $$ただし，\\fbox{ 1 }<\\fbox{ 2 } とし，\\fbox{ 3 } は選択肢1，2から選べ。$$
+  $$選択肢$$
+  $$ 1 \\quad x < \\fbox{ 1 },\\ \\fbox{ 2 } \\lt x \\quad \\quad 2 \\quad \\fbox{ 1 } \\lt x \\lt \\fbox{ 2 }$$`;
+
+  correctAnswers = [x1, x2, f];
+
+answer= f===1 ? `x\\lt ${x1}，${x2}\\lt x`:`${x1}\\lt x \\lt ${x2}`;
+
+solution=`$$与式より$$
+$$(x${teisu(-x1)})(x${teisu(-x2)})${F}0$$
+$$よって，不等式の解は${answer}である$$
+`;
+
+
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+
+  }
+ document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}
+if (I === 5) {
+let j=getRandomInt(1,3);
+if(j===1){
+  let p1, p2, q, A;
+  p1 = getRandomInt(1, 5);
+  p2 = -p1;
+  A = getRandomInt(1, 4); // ← 修正: A== ではなく A = に
+
+  let P, Q,kai;
+  let j = getRandomInt(1, 2);
+
+ if (A === 1) {
+    P = `|x| \\gt ${p1}`;
+    q = j === 1 ? getRandomInt(p1, 7) : getRandomInt(-6, p2);
+    Q = j === 1 ? ` ${q} \\lt x` : ` x \\lt ${q} `;
+	kai=`x\\lt${p2}，${p1}\\lt x`;
+  }
+
+  if (A === 2) {
+    P = `|x| \\lt ${p1}`;
+    q = j === 1 ? getRandomInt(p1, 7) : getRandomInt(-6, p2);
+    Q = j === 1 ? `x \\lt ${q}` : `${q} \\lt x`;
+	kai=`${p2}\\lt x \\lt${p1}`;
+  }
+
+  if (A === 3) {
+    P = j === 1 ? `| x | \\lt${p1}` : `| x |\\gt ${p1}`;
+	kai= j===1 ?`${p2}\\lt x \\lt${p1}` :`x\\lt${p2}，${p1}\\lt x`;
+    Q = j === 1 ? `x\\lt${p2}かつ　x \\lt ${p1}` : `${p2} \\lt x　または　x \\lt ${p1}`;
+  }
+
+  if (A === 4) {
+    P = j === 1 ? `| x | \\gt ${p1}` : `| x | \\lt ${p1}`; 
+	kai= j===2 ?`$\\lt x \\lt${p1}` :`x\\lt${p2}，${p1}\\lt x`;
+
+    Q = j === 1 ? `${p2-1} \\lt x　` : `${p1-1} \\lt x　`;
+  }
+
+  question = `$$xは実数とする。${P}は，${Q}であるための$$
+$$\\fbox{(ｱ)}である。\\fbox{(ｱ)}に当てはまるものを$$
+$$次の1～4のうちから一つ選べ。$$
+$$1~~~必要条件ではあるが，十分条件ではない。$$
+$$2~~~十分条件ではあるが，必要条件ではない。$$
+$$3~~~必要十分条件である。$$
+$$4~~~必要条件も十分条件でもない。$$`;
+
+  correctAnswers = [A];
+let TF1,TF2;
+if(A===1){TF1=`偽`; TF2=`真`;} if(A===2){TF1=`真`; TF2=`偽`;} if(A===3){TF1=`真`; TF2=`真`;} if(A===4){TF1=`偽`; TF2=`偽`;}
+
+solution=`$$${P}の解くと$$
+$$ ${kai}$$
+$$「${kai}」ならば「${Q}」は${TF1}，「${Q}」ならば「${kai}」は${TF2}である。$$
+$$よって，答えは${A}である。$$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+}//j=1
+if(j===2){
+let n;
+n=getRandomInt(4,7);
+ question = `$$${n+1}~ 角形の対角線の本数を求めよ。$$`;
+   let answer = n*(n+1)/2 -(n+1);
+	solution=`$$${n+1}角形の頂点から2点を1組決めて結ぶと線分が1本できる。$$
+$$線分の本数は全部で_{${n+1}}\\mbox{C}_{2}本ある。$$
+$$このうち，${n+1}本が辺であり，残りが対角線である。$$
+$$よって，_{${n+1}}\\mbox{C}_{2}-${n+1}=${answer}$$`;
+for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+correctAnswers = [answer];
+
+
+}//j=2
+if(j===3){
+let m,n;
+m=getRandomInt(3,5);
+n=getRandomInt(3,5);
+question = `$$赤玉${m}個，白玉${n}個入った袋の中から同時に2個取り出すとき，$$
+$$取り出した玉が，ともに白玉である確率は\\frac{\\fbox{　1　} }{\\fbox{　2　} }である。$$`;
+let a1,a2;
+a1=n*(n-1);
+a2=(m+n)*(m+n-1);
+[a1,a2]=yakubun(a1,a2);
+correctAnswers = [a1,a2];
+for (let i = 0; i < 2; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+}//j=3
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 5問目終わり
+  if (I === 3) {//二次関数最大最小
+ const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+
+    let a,b,p,q,m,n;
+	p=getRandomInt(-6, 6,true);
+	q=getRandomInt(-5, 5);
+	a=getRandomInt(-6, 6,true);
+	b=a+getRandomInt(1,6);
+	m=-2*p;//xの係数
+	n=p*p+q;//定数項
+
+  question = `$$${a}\\leqq x \\leqq ${b}において，$$
+$$2次関数f(x)=x^2${moji(m,`x`)}${teisu(n)}は$$
+$$x= \\fbox{ 1 }のとき，最小値\\fbox{ 2 } をとる。$$
+`;
+if(a<= p && p<= b){
+  correctAnswers = [p, q];
+}
+else if(p<a){
+	 correctAnswers = [a, (a-p)**2 +q];
+}
+else {
+	 correctAnswers = [b, (b-p)**2 + q ];
+}
+  for (let i = 0; i < 2; i++) {
+
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+}
+	solution=`$$f(x)=(x${-p})^2 ${teisu(q)}より$$
+$$放物線y=f(x)の頂点は(${p}，${q})である。$$
+`;
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 5問目終わり
+
+if (I === 6) {//次はここから。これで最後。
+document.getElementById("Bquestion").innerHTML = "";
+
+showResult();
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 12問目終わり
+
+ window.solutionText = solution;
+}
+
+ function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = '';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+
+function checkAnswer() {
+const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.add("hidden"); // ボタン非表示に戻
+  let allCorrect = true;
+  for (let i = 0; i < correctAnswers.length; i++) {
+    const input = document.getElementById(`input${i}`);
+    const val = parseInt(input.value);
+    if (val !== correctAnswers[i]) {
+      allCorrect = false;
+    }
+  }
+
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextButton");
+ const soluBtn = document.getElementById("soluButton");
+soluBtn.classList.remove("hidden"); // ボタン表示
+
+  if (allCorrect) {
+    feedback.innerHTML = "<span style='color: green;'>正解！</span>";
+    nextBtn.classList.remove("hidden"); // ボタン表示
+	setTimeout(generateQuiz, 1000);
+  } else {
+    feedback.innerHTML = `<span style='color: red;'>不正解。正解は ${correctAnswers.join(", ")} です。</span>`;
+    nextBtn.classList.add("hidden"); // ボタン非表示に戻す（連打対策）
+        mistakeCount++;
+  }
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+}
+
+function nextQuestion() {
+  I++; // カウントはここで進める
+	kaisu=1;
+ const soluBtn = document.getElementById("soluButton");
+   const ansBtn = document.getElementById("ansButton");
+document.getElementById("nextButton").classList.add("hidden"); // 再び隠す
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+	soluBtn.classList.add("hidden"); 
+window.solutionText = ``;
+ showSolution();
+  generateQuestion();
+}
+
+function regenerateQuestion() {
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden");
+	kaisu++;
+window.solutionText = `${kaisu}回目！`
+showSolution();
+  generateQuestion(); // 問番（I）はそのまま
+}
+
+ function showResult() {
+      endTime = new Date();
+      const durationSec = Math.floor((endTime - startTime) / 1000);
+      const minutes = Math.floor(durationSec / 60);
+      const seconds = durationSec % 60;
+
+      let timeRank = "D";
+      if (durationSec <= 60) timeRank = "S";
+      else if (durationSec <= 120) timeRank = "A";
+      else if (durationSec <= 180) timeRank = "B";
+      else if (durationSec <= 240) timeRank = "C";
+
+      let mistakeRank = "D";
+      if (mistakeCount === 0) mistakeRank = "S";
+      else if (mistakeCount <= 1) mistakeRank = "A";
+      else if (mistakeCount <= 2) mistakeRank = "B";
+      else if (mistakeCount <= 3) mistakeRank = "C";
+
+      document.getElementById('question').innerHTML = `
+        <h2>結果</h2>
+        <p>開始時刻: ${startTime.toLocaleTimeString()}</p>
+        <p>終了時刻: ${endTime.toLocaleTimeString()}</p>
+        <p>かかった時間: ${minutes}分${seconds}秒（評価: ${timeRank}）</p>
+        <p>間違えた回数: ${mistakeCount}回（評価: ${mistakeRank}）</p>
+        <button class="button" onclick="copyScreenshot()">記録</button>
+      `;
+    }
+
+function copyScreenshot() {
+ const target = document.querySelector('.container'); // スクショ対象の要素
+
+  html2canvas(target).then(canvas => {
+    // 画像データURLを取得
+    const imageData = canvas.toDataURL("image/png");
+
+    // ダウンロードリンクを作成してクリック
+    const link = document.createElement("a");
+    link.href = imageData;
+    link.download = "screenshot.png"; // 保存時のファイル名
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+    }
+
+
+
+    function startOver() {
+      I = 0;
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden")
+ document.getElementById("soluButton").classList.add("hidden");
+  document.getElementById("ansButton").classList.remove("hidden");
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();    }
+
+window.onload = function () {
+  if (I === 0) {
+    document.getElementById("intro").style.display = "block";
+    document.getElementById("status").textContent = "準備中…";
+  } else {
+    generateQuestion();
+  }
+};
+document.getElementById("soluButton").style.backgroundColor = "orange";
+  </script>
+
+  <!-- MathJax読み込み -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+
+       function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+
+     <div id="top">
+    <div id="status">現在1問目</div>
+    <button class="button" onclick="startOver()">最初から</button>
+  </div>
+
+  <div id="bottom">
+<div id="intro" style="margin-bottom: 1em;">
+  <p>朝テストの練習ページです。</p>
+  <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で5問です。終わったらリザルト画面になります。</p>
+  <p>5分以内に全問正解できるようにしましょう。</p>
+  <button class="button" onclick="startTask()">開始</button>
+</div>
+    <div id="Bquestion"></div>
+    <div id="question"></div>
+    <div id="inputs"></div>
+
+    <button class="button hidden" id="ansButton" onclick="checkAnswer()"class="color1">答え合わせ</button>
+ <button class="button hidden" id="soluButton" onclick="showSolution()">解説</button>
+<button class="button" onclick="regenerateQuestion()">この問題をもう一度</button>
+    <button class="button hidden" id="nextButton" onclick="nextQuestion()">次の問題へ</button>
+    <div id="feedback"></div>
+	 <div id="solution" class="solution"></div>
+  </div>
+
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button class="button"onclick="clearBoard()">クリア</button>
+<button class="button"onclick="toggleEraser()">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
