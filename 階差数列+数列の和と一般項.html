@@ -385,7 +385,7 @@ if (b1 === 2 && TS!==0) {
 else if(TS!==0){
   answer = `\\frac{${keisu(KI,"")}(${num})${b1}^{n}${constant}}{${denominator}}`;
 }else if(TS===0){
-  answer = `\\frac{${num}${b1}^{n}${constant}}{${denominator}}`;
+  answer = `\\frac{${keisu(KI,"")}${num}${b1}^{n}${constant}}{${denominator}}`;
 }
 let bunbo=(b1-1)*(b1-1);
 let yaku=gcd(KI,bunbo);
