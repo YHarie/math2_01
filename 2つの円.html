@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>円と直線</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+
+
+if(i===1){//2つの円の位置関係
+  let r1, r2, a, b, d;
+  r1 = getRandomInt(1, 3); // 円Oの半径
+
+  do {
+    a = getRandomInt(-5, 5, true);
+    b = getRandomInt(-5, 5, true);
+    d = a ** 2 + b ** 2;
+  } while (d < r1 ** 2);
+
+  let j = getRandomInt(1, 5); // 位置関係の種別
+
+  if(j === 1){ // 外部
+    let t = getRandomInt(2, 5);
+    r2 = t ** 2;
+    do {
+      a = getRandomInt(-9, 9, true);
+      b = getRandomInt(-9, 9, true);
+      d = a ** 2 + b ** 2;
+    } while(d < (r1 + t) ** 2);
+  }
+
+  if(j === 2){ // 外接
+    let R = getRandomInt(1, 5);
+    r2 = R ** 2;
+    d = (r1 + R)**2;
+    let A = getRandomInt(1, d);
+    let B = d - A;
+    a = kanyaku(A, 1);
+    b = kanyaku(B, 1);
+  }
+
+  if(j === 3){ // 2点で交わる
+    let R2;
+    do { R2 = getRandomInt(1, 100); } while(4 * d * R2 <= d ** 2 - r1 ** 2 + R2 ** 2);
+    for(let k = 1; k * k < R2; k++){ r2 = k * k; }
+  }
+
+  if(j === 4){ // 内接
+    let R;
+    do { R = getRandomInt(1, 10); } while(R < r1);
+    r2 = R ** 2;
+    d =( R - r1)**2;
+    let A = getRandomInt(1, d);
+    let B = d - A;
+    a = kanyaku(A, 1);
+    b = kanyaku(B, 1);
+  }
+
+  if(j === 5){ // 内部にある
+    let R2;
+    do { R2 = getRandomInt(1, 100); } while(4 * d * R2 <= d ** 2 - r1 ** 2 + R2 ** 2);
+    let R;
+    for(let k = 1; k * k < R2; k++){ R = k; }
+    R += getRandomInt(1, 3);
+    r2 = R ** 2;
+  }
+
+  // 問題文生成
+  let C;
+  if(j === 1 || j === 3 || j === 5){
+    C = `(x${teisu(-a)})^{2}+(y${teisu(-b)})^{2}=${r2}`;
+  } else {
+    C = `(x-${a})^{2}+(y-${b})^{2}=${r2}`;
+  }
+
+  question = `$$円\\ x^2+y^2=${r1 ** 2} \\ と\\ 円\\ ${C} \\ との位置関係を調べよ。$$`;
+
+  let answer = j === 1 ? `互いに外部にある。` :
+               j === 2 ? `外接する。` :
+               j === 3 ? `2点で交わる。` :
+               j === 4 ? `内接する。` :
+                         `他方が一方の内部にある。`;
+
+  // 解説生成
+  solution = `$$x^2+y^2=${r1 ** 2}は，$$
+$$中心が原点，半径が${r1}の円である。$$
+$$また，${C}は$$
+$$中心が(${a}，${b})，半径が${kanyaku(r2,1)}の円である。$$
+$$2つの円の中心間の距離dは$$`;
+
+  // √の部分の追記
+  let distanceExpr = j === 2 || j === 4
+    ? `(${a})^2 + (${b})^2`
+    : `${kakko(a)}^2 + ${kakko(b)}^2`;
+
+  solution += `$$d=\\sqrt{${distanceExpr}}=${kanyaku(d,1)}$$\n`;
+
+  // 判定条件の記述
+  let condition = j === 1
+    ? `d\\gt ${r1}+${kanyaku(r2,1)}であるから，`
+    : j === 2
+    ? `d=${r1}+${kanyaku(r2,1)}であるから，`
+    : j === 3
+    ? `${kanyaku(r2,1)}-${r1}\\lt d \\lt ${r1}+${kanyaku(r2,1)}であるから，`
+    : j === 4
+    ? `d=${kanyaku(r2,1)}-${r1}であるから，`
+    : `d\\lt ${kanyaku(r2,1)}-${r1}であるから，`;
+
+  solution += `$$${condition}$$\n`;
+  solution += `$$${answer}$$`;
+
+} // if(i===1) 終了
+
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>円と直線</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　共有点の座標</option>
+          <option value="2">2.　共有点をもつ条件</option>
+          <option value="3">3.　弦の長さ</option>
+          <option value="4">4.　円の接線</option>
+          <option value="5">5.　円の外側から引いた接線</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
