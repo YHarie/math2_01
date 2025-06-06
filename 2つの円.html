@@ -369,7 +369,7 @@ let d=gcd( gcd(p,q) , r);
 [p,q,r]=[p/d,q/d,r/d];
 if(Math.abs(q)===1){
 line2=`y=${keisu(-p*q,`x`)}${teisu(-r*q)}`;}
-else{line2=`y=${bunsu(-p,q)}x${-r*q>0 ? `+`:``}${bunsu(-r,q)}`;
+else{line2=`y=${bunsu(-p,q)}x${-r*q>0 ? `+`:``}${r===0 ?``: bunsu(-r,q)}`;
 }
 let s,t,u;
 [s,t,u]=[p*p+q*q,2*p*r,r*r-q*q*r1];
