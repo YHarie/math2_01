@@ -420,9 +420,9 @@ if (i === 4) {
 
   let x3, y3;
   // 答えの円の中心座標 (x3, y3)：aと異なり、直線上にある点
-  do {
-    x3 = getRandomInt(-8, 8, true);
-    y3 = getRandomInt(-12, 12, true);
+  do {let k=getRandomInt(-3,3,true);
+	let d1=gcd(m,Math.abs(n) );
+      [x3,y3]=[k*n/d1,-k*m/d1];
   } while (x3 === a || m * x3 + n * y3 !== 0);
 
   let R = (x1 - x3) ** 2 + (y1 - y3) ** 2; // 半径の2乗
@@ -430,8 +430,8 @@ if (i === 4) {
 
   let s, t, k;
   do {
-    s = getRandomInt(-10, 10, true);
-    t = getRandomInt(1, 10, true);
+    s = getRandomInt(-20, 20, true);
+    t = getRandomInt(1, 20, true);
     k = bunsu(s, t);
   } while (t * a !== x3 * (s + t)); // この条件の意味は不明確なので確認が必要
 
