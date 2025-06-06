@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>円と直線</title>
+  <title>2つの円</title>
   <style>
     html, body {
       margin: 0;
@@ -179,6 +179,14 @@ function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
 return [a*a,2*a*b,b*b];//次数順に係数を返す。
 
 }
+
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+
 function distance(a,b,c,x,y){//点と直線の距離
 let p,q,m,n,r;
 p=Math.abs(a*x+b*y+c);
@@ -225,7 +233,7 @@ if(i===1){//2つの円の位置関係
     let R = getRandomInt(1, 5);
     r2 = R ** 2;
     d = (r1 + R)**2;
-    let A = getRandomInt(1, d);
+    let A = getRandomInt(1, d-1);
     let B = d - A;
     a = kanyaku(A, 1);
     b = kanyaku(B, 1);
@@ -239,10 +247,10 @@ if(i===1){//2つの円の位置関係
 
   if(j === 4){ // 内接
     let R;
-    do { R = getRandomInt(1, 10); } while(R < r1);
+    do { R = getRandomInt(1, 10); } while(R <= r1+1);
     r2 = R ** 2;
     d =( R - r1)**2;
-    let A = getRandomInt(1, d);
+    let A = getRandomInt(1, d-1);
     let B = d - A;
     a = kanyaku(A, 1);
     b = kanyaku(B, 1);
@@ -265,7 +273,8 @@ if(i===1){//2つの円の位置関係
     C = `(x-${a})^{2}+(y-${b})^{2}=${r2}`;
   }
 
-  question = `$$円\\ x^2+y^2=${r1 ** 2} \\ と\\ 円\\ ${C} \\ との位置関係を調べよ。$$`;
+  question = `$$円\\ x^2+y^2=${r1 ** 2} \\ と\\ 円\\ ${C} \\ との$$
+$$位置関係を調べよ。$$`;
 
   let answer = j === 1 ? `互いに外部にある。` :
                j === 2 ? `外接する。` :
@@ -302,7 +311,155 @@ $$2つの円の中心間の距離dは$$`;
   solution += `$$${answer}$$`;
 
 } // if(i===1) 終了
+if(i===2){//円が接する条件
+let a,b,m,n,d,r1,r2;
+do{a=getRandomInt(-9,9,true);
+b=getRandomInt(-9,9,true);
+d=a**2+b**2;
+[m,n]=kanyaku(d,2);
+}while(m<2)
+let j=getRandomInt(1,2);
+let Q;
+r1=getRandomInt(1,m-1);
+if(j===1){//外接する
+Q=`外接する`;
+r2=m-r1;
+r1=r1**2 *n;
+r2=r2**2 *n;
+}
+if(j===2){
+Q=`内接する`;
+r2=m+r1;
+r1=r1**2 *n;
+r2=r2**2 *n;
+}
+let C1=`x^{2}+y^{2}=${r1}`;
+let C2=`(x${teisu(-a)})^{2}+(y${teisu(-b)})^{2}=${r2}`;
 
+question = `$$中心が点(${a}，${b})である円Cと，円${C1}が$$
+$$${Q}とき，円Cの方程式を求めよ。$$`;
+solution=`$$円${C1}は中心が原点，半径が${kanyaku(r1,1)}の円である。$$
+$$2つの円の中心間の距離は\\ \\ \\sqrt{${kakko(a)}^2 +${kakko(b)}^2 }=${kanyaku(d,1)}$$
+$$2つの円が${Q}とき，円Cの半径をrとすると$$
+$$ ${j===1 ? `r+${kanyaku(r1,1)}=${kanyaku(d,1)}`:
+`円Cの中心は円${C1}の外部にあるから\\ $$$$ r-${kanyaku(r1,1)}=${kanyaku(d,1)}`}$$
+$$ゆえにr=${kanyaku(r2,1)}$$
+$$よって，円Cの方程式は\\ \\ ${C2}$$
+`;
+
+}//i=2終わり
+if(i===3){//2つの円の共有点
+let x1,x2,y1,y2,m,n,a,b,r1,r2;
+[x1,y1]=[getRandomInt(-3,3,true),getRandomInt(-3,3,true)];
+[m,n]=[getRandomInt(1,3,true),getRandomInt(-2,2,true)];
+r1=x1**2+y1**2;
+
+do{a=getRandomInt(-5,5,true);
+b=getRandomInt(-9,9,true);
+r2=(a-x1)**2+(b-y1)**2;
+}while(m*a+n*b!==0)
+r2=(a-x1)**2 +(b -y1)**2;
+let C1=`x^2 +y^2 =${r1}`;
+let C2=Cmake(a,b,r2);
+let line1,line2;
+let p,q,r;
+p=2*a; q=2*b; r=-r1+r2 -a**2 -b**2;
+line1=`${keisu(2*a,`x`)}${moji(2*b,`y`)}${teisu(-r1+r2 -a**2 -b**2)}=0`;
+let d=gcd( gcd(p,q) , r);
+[p,q,r]=[p/d,q/d,r/d];
+if(Math.abs(q)===1){
+line2=`y=${keisu(-p*q,`x`)}${teisu(-r*q)}`;}
+else{line2=`y=${bunsu(-p,q)}x${-r*q>0 ? `+`:``}${bunsu(-r,q)}`;
+}
+let s,t,u;
+[s,t,u]=[p*p+q*q,2*p*r,r*r-q*q*r1];
+d=gcd(gcd(s,t),u);
+[s,t,u]=[s/d,t/d,u/d];
+let shiki=`${keisu(s,`x^2`)}${moji(t,`x`)}${teisu(u)}=0`;
+x2=bunsu(u,s*x1);
+y2=bunsu(p*u+r*s*x1,-q*s*x1);
+
+
+question=`$$ 円${C1}と円${C2}$$
+$$の共有点の座標を求めよ。$$`;
+solution=`$$\\begin{eqnarray}
+  \\left \\{
+    \\begin{array}{l}
+      ${C1}\\cdots \\cdots ①\\\\
+      ${C2}\\cdots \\cdots ②
+    \\end{array}
+  \\right .
+\\end{eqnarray}$$
+$$①-②より，$$
+$$${line1}$$
+$$よって，${line2}\\cdots \\cdots ③$$
+$$③を①に代入して，整理すると$$
+$$ ${shiki}$$
+$$これを解いて，x=${x1}，${x2}$$
+$$③に代入して，$$
+$$x=${x1}のとき，y=${y1}，x=${x2}のとき，y=${y2}$$
+$$よって，(${x1}，${y1})，(${x2}，${y2})
+$$
+`;
+}//i=2終わり
+if (i === 4) {
+  let x1, x2, y1, y2, m, n, a, b, r1, r2;
+  [x1, y1] = [getRandomInt(-3, 3, true), getRandomInt(-3, 3, true)];
+  [m, n] = [getRandomInt(1, 3, true), getRandomInt(-2, 2, true)];
+  r1 = x1 ** 2 + y1 ** 2;
+
+  // 直線 mx + ny = 0 上にある点 (a, b)
+  do {
+    a = getRandomInt(-5, 5, true);
+    b = getRandomInt(-9, 9, true);
+  } while (m * a + n * b !== 0);
+  r2 = (a - x1) ** 2 + (b - y1) ** 2;
+
+  let C1 = `x^2 + y^2`;
+  let C2 = Cmake(a, b, r2);
+
+  let x3, y3;
+  // 答えの円の中心座標 (x3, y3)：aと異なり、直線上にある点
+  do {
+    x3 = getRandomInt(-8, 8, true);
+    y3 = getRandomInt(-12, 12, true);
+  } while (x3 === a || m * x3 + n * y3 !== 0);
+
+  let R = (x1 - x3) ** 2 + (y1 - y3) ** 2; // 半径の2乗
+  let A = Cmake(x3, y3, R); // 答えとなる円の方程式
+
+  let s, t, k;
+  do {
+    s = getRandomInt(-10, 10, true);
+    t = getRandomInt(1, 10, true);
+    k = bunsu(s, t);
+  } while (t * a !== x3 * (s + t)); // この条件の意味は不明確なので確認が必要
+
+  // 円の方程式の一般形表示用
+  let CC = `x^2 + y^2 ${moji(-2 * a, `x`)}${moji(-2 * b, `y`)}${teisu(a ** 2 + b ** 2 - r2)}`;
+
+  // 90度回転して得られる、円の交点ともう1点の点Aを生成
+  let [vx, vy] = [x1 - x3, y1 - y3];
+  let [p, q] = [x3 + vy, y3 - vx]; // 90度反時計回り回転した点（もう1点）
+
+  // 出題文の生成
+  question = `$$ 円 ${C1} = ${r1} \\ と\\ 円 ${C2} $$  
+$$ の2つの交点と，点 (${p}, ${q}) を通る円の $$  
+$$ 中心の座標と半径を求めよ。 $$`;
+
+solution=`$$kを定数として$$
+$$ k(${C1}-${r1})+(${CC})=0~\\cdots \\cdots①$$
+$$とすると，①は2つの円の交点と，点(${p}, ${q}) を通る図形を表す。$$
+$$x=${p}，y=${q}を代入すると$$
+$${p**2 +q**2 -r1}k${teisu((p-a)**2 +(q-b)**2 -r2)}=0$$
+$$ゆえに，k=${k}$$
+$$これを①に代入して整理すると$$
+$$ ${A}$$
+$$すなわち，(x${teisu(-x3)})^2 +(x${teisu(-y3)})^2 =${R}$$
+$$よって，求める円の中心は(${x3}，${y3})，半径は${kanyaku(R,1)}である。$`;
+
+
+}
 
     document.getElementById('question').innerHTML = question;
       window.correctAnswer = answer;
@@ -348,14 +505,13 @@ $$2つの円の中心間の距離dは$$`;
 <body>
   <div class="container">
     <div id="left-area">
-      <h1>円と直線</h1>
+      <h1>2つの円</h1>
       <label >モード:
         <select id="modeSelect1" onchange="generateQuiz()">
-          <option value="1" selected>1.　共有点の座標</option>
-          <option value="2">2.　共有点をもつ条件</option>
-          <option value="3">3.　弦の長さ</option>
-          <option value="4">4.　円の接線</option>
-          <option value="5">5.　円の外側から引いた接線</option>
+          <option value="1" selected>1.　2つの円の位置関係</option>
+          <option value="2">2.　円が接する条件</option>
+          <option value="3">3.　2つの円の共有点の座標</option>
+          <option value="4">4.　2つの円の交点を通る図形</option>
           <option value="0">0 (ランダム)</option>
         </select>
 
