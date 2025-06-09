@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>軌跡と領域</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+function FTG(a,b){//不等号返すよ
+if(a>0)
+{
+return b===1 ? `\\gt`:`\\geqq`;}
+if(a<0){
+return b===1 ? `\\lt`:`\\leqq`;}
+}
+
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+  document.getElementById("graphCanvas").style.display = "none";
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+
+
+if(i===1){//軌跡
+
+let ax,ay,bx,by,m,n,k;
+do{
+[ax,ay]=[getRandomInt(-3,3),getRandomInt(-3,3)];
+[bx,by]=[getRandomInt(-3,3),getRandomInt(-3,3)];
+}while([ax,ay]===[bx,by])
+[m,n]=[getRandomInt(1,3),getRandomInt(1,3)];
+[m,n]=yakubun(m,n);
+let divine= (m===1 && n===1) ?`から等距離にある`:`からの距離の比が${m}:${n}である`;
+ question = `$$2点A(${ax}，${ay})，B(${bx}，${by})${divine}$$
+$$点Pの軌跡を求めよ。$$`;
+
+let AP=`${ax===0 ? `x^2`:`(x${teisu(-ax)})^2`}+${ay===0 ? `y^2`:`(y${teisu(-ay)})^2`}`;
+let BP=`${bx===0 ? `x^2`:`(x${teisu(-bx)})^2`}+${by===0 ? `y^2`:`(y${teisu(-by)})^2`}`;
+let A1,A2,A3;
+if (m===1 && n===1){let a,b,c;
+a=-2*ax+2*bx;
+b=-2*ay+2*by;
+c=ax**2+ay**2-bx**2-by**2;
+
+let d=gcd(gcd(a,b),c);
+[a,b,c]=[a/d,b/d,c/d];
+A1=`${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}=0`;
+A2=`直線`
+A3="";
+}else{//円
+let a,b,c,p;
+p=n**2-m**2;
+a=-2*n**2 *ax+2*bx*m**2;
+b=-2*ay*n**2+2*by*m**2;
+c=n**2*(ax**2+ay**2)-m**2*(bx**2+by**2);
+let X,Y;
+X=Math.abs(a/p)===1 ? moji(a/p,`x`):`${a/p>0?`+`:``}${bunsu(a,p)}x`;
+Y=Math.abs(b/p)===1 ? moji(b/p,`y`):`${b/p>0?`+`:``}${bunsu(b,p)}y`;
+A1=`x^2+y^2${X}${Y}${c/p>0?`+`:``}${bunsu(c,p)}=0$$
+$$すなわち，\\left(x${a/p>0?`+`:``}${bunsu(a,2*p)}\\right)^2+\\left(y${b/p>0?`+`:``}${bunsu(b,2*p)}\\right)^2=${bunsu(a**2+b**2-4*c*p,4*p**2)}`;
+let m1,m2;
+[m1,m2]=yakubun(a**2+b**2-4*c*p,4*p**2);
+A2=`円`;
+A3=`中心 \\left(${bunsu(-a,2*p)},${bunsu(-b,2*p)}\\right)，半径${m1%m2===0 ?kanyaku(m1/m2 ):
+`\\frac{${kanyaku(m1,1)} }{${kanyaku(m2,1)}}`}の`;
+}
+  solution = `$$点Pの座標を(x,y)とする。$$
+$$Pの満たす条件は${m===1 && n===1 ? `AP=BP`:`AP:BP=${m}:${n}`}$$
+$$すなわち，${keisu(n**2,`AP^2`)}=${keisu(m**2,`BP^2`)}$$
+$$AP^2 =${AP}$$
+$$BP^2 =${BP}を代入すると，$$
+$$${n===1 ? `${AP}`:`${n*n}\\{${AP} \\}`}=${m===1 ? `${BP}`:`${m*m}\\{ ${BP} \\}`}$$
+$$整理して${A1}\\cdots \\cdots ①$$
+$$ゆえに，条件を満たす点Pは，${A2}①上にある。$$
+$$逆に${A2}①上の任意の点(x,y)は，$$
+$$2点A,B${divine}ことがわかる。$$
+$$よって，求める軌跡は，${A3}${A2}${m===1&&n===1 ? A1:""}である。$$
+`;
+
+} // if(i===1) 終了
+
+if(i===2){//軌跡
+let ax,ay,p,q,r,m,n,k;
+do{
+m=getRandomInt(1,3);
+n=getRandomInt(1,3);
+[m,n]=yakubun(m,n);
+k=getRandomInt(1,2);}while(m===1 && n===1 && k===2)
+let divine=k===2 ? `を${m}:${n}に外分する`:m===1 && n===1 ? `の中`:`を${m}:${n}に内分する`;
+p=getRandomInt(-4,4);
+q=getRandomInt(-4,4);
+do{
+ax=getRandomInt(-4,4);
+ay=getRandomInt(-4,4);
+}while(ax===p && ay===q)
+r=getRandomInt(1,9);
+let Xc,Yc,C;
+Xc= p===0 ?`x^2`:`(x${teisu(-p)})^2`;
+Yc= q===0 ?`y^2`:`(y${teisu(-q)})^2`;
+C=`${Xc}+${Yc}=${r}`;
+question=`$$点Qが円${C}上を動くとき，点A(${ax},${ay})$$
+$$と点Qを結ぶ線分AQ${divine}点Pの軌跡を求めよ。$$`;
+
+let px,py,s,t,Sc,Tc;
+Sc= p===0 ?`s^2`:`(s${teisu(-p)})^2`;
+Tc= q===0 ?`t^2`:`(t${teisu(-q)})^2`;
+let C2=`${Sc}+${Tc}=${r}`;
+px = k===1 ? `\\frac{${n}\\cdot ${kakko(ax)}+${m}s} {${m}+${n}}`:
+`\\frac{${-n}\\cdot ${kakko(ax)}+${m}s} {${m}-${n}}`;
+py = k===1 ? `\\frac{${n}\\cdot ${kakko(ay)}+${m}t} {${m}+${n}}`:
+`\\frac{${-n}\\cdot ${kakko(ay)}+${m}t} {${m}-${n}}`;
+let Pcx,Pcy,r2,ans;
+
+if(m===1){s= k===1 ? `${m+n}x${teisu(-n*ax)}`:
+`${keisu(m-n,`x`)}${teisu(n*ax)}`;
+t= k===1 ? `${m+n}y${teisu(-n*ay)}`:
+`${keisu(m-n,`y`)}${teisu(n*ay)}`;
+Pcx= k===1 ?`(${keisu(m+n,`x`)}${teisu(n*ax-p)})^2`:
+`(${keisu(m-n,`x`)}${teisu(n*ax-p)})^2`;
+Pcy= k===1 ?`(${keisu(m+n,`y`)}${teisu(n*ay-q)})^2`:
+`(${keisu(m-n,`y`)}${teisu(n*ay-q)})^2`;
+}
+
+else{
+s= k===1 ? `\\frac{${m+n}x${teisu(-n*ax)}} {${m}}`:
+`\\frac{${keisu(m-n,`x`)}${teisu(n*ax)}} {${m}}`;
+t= k===1 ? `\\frac{${m+n}y${teisu(-n*ay)}} {${m}}`:
+`\\frac{${keisu(m-n,`y`)}${teisu(n*ay)}} {${m}}`;
+Pcx= k===1 ?`\\left(\\frac{${keisu(m+n,`x`)}${teisu((n*ax) -(p*m))}}{${m}}\\right)^2`:
+`\\left(\\frac{${keisu(m-n,`x`)}${teisu((n*ax) -(p*m))}}{${m}}\\right)^2`;
+Pcy= k===1 ?`\\left(\\frac{${keisu(m+n,`y`)}${teisu((n*ay) -(q*m))}}{${m}}\\right)^2`:
+`\\left(\\frac{${keisu(m-n,`y`)}${teisu((n*ay) -(q*m))}}{${m}}\\right)^2`;
+
+}
+if(k===1){
+Xc= n*ax===p*m ? `x^2`:`\\left(x${(n*ax)-(p*m) >0 ? `+`:``} ${bunsu( ((n*ax)-(p*m))*m,m+n )}\\right)^2`;
+Yc= n*ay===q*m ? `y^2`:`\\left(y${(n*ay)-(q*m) >0 ? `+`:``} ${bunsu( ((n*ay)-(q*m))*m,m+n )}\\right)^2`;
+r2=bunsu(r*m**2,(m+n)**2);
+ans= `\\left(${bunsu( ((n*ax)-(p*m))*m,-(m+n) )},${bunsu( ((n*ay)-(q*m))*m,-(m+n) )}\\right)`;
+
+}if(k===2){
+Xc= n*ax===p*m ? `x^2`:`\\left(x${((n*ax)-(p*m))*(m-n) >0 ? `+`:``} ${bunsu( ((n*ax)-(p*m))*m,m-n )}\\right)^2`;
+Yc= n*ay===q*m ? `y^2`:`\\left(y${((n*ay)-(q*m))*(m-n) >0 ? `+`:``} ${bunsu( ((n*ay)-(q*m))*m,m-n )}\\right)^2`;
+r2=bunsu(r*m**2,(m-n)**2);
+ans= `\\left(${bunsu( ((n*ax)-(p*m))*m,-(m-n) )},${bunsu( ((n*ay)-(q*m))*m,-(m-n) )}\\right)`;
+}
+let R= k===1 ? `\\frac{${kanyaku(r*m**2,1)}}{${m+n}}`:
+Math.abs(m-n)===1 ? kanyaku(r*m**2,1):
+ `\\frac{${kanyaku(r*m**2,1)}}{${Math.abs(m-n)}}`;
+
+solution=`$$点P,Qの座標をそれぞれ(x,y),(s,t)とする。$$
+$$点Qは円${C}上にあるから，$$
+$$${C2}\\cdots \\cdots ①$$
+$$点Pは線分AQ${divine}点であるから$$
+$$ x=${px},y=${py}$$
+$$s=${s}，t=${t}$$
+$$これを①に代入すると$$
+$$${Pcx}+${Pcy}=${r}$$
+$$すなわち，${Xc}+${Yc}=${r2}\\cdots \\cdots ②$$
+$$ゆえに，条件を満たす点Pは円②上にある。$$
+$$逆に，円②上の任意の点P(x,y)は，条件を満たす。$$
+$$よって，求める軌跡は，中心が${ans}，
+半径が${R}の円である。$$
+
+`;
+
+}//i=2終わり
+
+if (i === 3) { // 直線で区切られる領域
+  let j, k, l, m, n, p;
+  j = getRandomInt(-1, 1, true); // 不等号の向き
+  k = getRandomInt(1, 2, true); // =の有無
+  let f = FTG(j, k);
+  let Q, A, S, line;
+
+  do {
+    [m, n, p] = [getRandomInt(0, 4), getRandomInt(-3, 3), getRandomInt(-6, 6)];
+  } while (m === 0 && n === 0);
+
+  if (m === 0) {
+    [n, p] = yakubun(n, p);
+    Q = `${keisu(n, 'y')}${teisu(p)}${f}0`;
+    let f2 = FTG(j * n, k);
+    line = `y=${bunsu(-p, n)}`;
+    A = `y${f2} ${bunsu(-p, n)}`;
+    S = j * n < 0 ? `下部分` : `上部分`;
+  } else if (n === 0) {
+    [m, p] = yakubun(m, p);
+    Q = `${keisu(m, 'x')}${teisu(p)}${f}0`;
+    line = `x=${bunsu(-p, m)}`;
+    let f2 = FTG(j * m, k);
+    A = `x${f2} ${bunsu(-p, m)}`;
+    S = j * m < 0 ? `左部分` : `右部分`;
+  } else {
+    let d = gcd(gcd(m, n), p);
+    [m, n, p] = [m / d, n / d, p / d];
+    Q = `${keisu(m, 'x')}${moji(n, 'y')}${teisu(p)}${f}0`;
+    let f2 = FTG(j * n, k);
+    if (Math.abs(n * m) === 1) {
+      line = `y=${keisu(-m * n, 'x')}${teisu(-p * n)}`;
+      A = `y${f2} ${keisu(-m * n, 'x')}${teisu(-p * n)}`;
+    } else {
+      line = `y=${bunsu(-m, n)}x${-p*n > 0 ? '+' : ''}${p === 0 ? '' : bunsu(-p, n)}`;
+      A = `y${f2} ${bunsu(-m, n)}x${-p*n > 0 ? '+' : ''}${p === 0 ? '' : bunsu(-p, n)}`;
+    }
+    S = j * n > 0 ? `上部分` : `下部分`;
+  }
+
+  question = `$$不等式${Q}の表す領域を図示せよ。$$`;
+  solution = `$$不等式を変形すると$$
+$$ ${A}$$
+$$したがって，求める領域は直線${line}の${k === 1 ? `` : `および，その`}${S}である。$$
+$$すなわち，図の斜線部分である。ただし，境界線を${k === 1 ? `含まない。` : `含む。`}$$`;
+window.a = m;
+window.b = n;
+window.c = p;
+window.k = j; 
+
+}
+if(i===4){
+let a,b,r,j,X,Y;
+j=getRandomInt(1,2);
+a=getRandomInt(-3,3);
+b=getRandomInt(-3,3);
+r=getRandomInt(1,9);
+let k=getRandomInt(-1,1,true);
+let l=getRandomInt(1,2,true);
+let f=FTG(k,l);
+X= a===0 ? `x^2`:`(x${teisu(-a)})^2`;
+Y= b===0 ? `y^2`:`(y${teisu(-b)})^2`;
+let C=`${X}+${Y}${f} ${r}`;
+let Q= j===1 ? C :`x^2 +y^2 ${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a**2 +b**2 -r)} ${f} 0`;
+let A= j===1 ?``:`$$与えられた不等式を変形すると$$ $$${C}となる。$$ $$よって$$`;
+question =`$$不等式${Q}が表す領域を図示せよ。$$`;
+solution=`${A}
+$$不等式の表す領域は，円${X}+${Y}=${r}$$
+$$ ${l===1 ?``:`および，そ`}の${k===1 ? `外部`:`内部`}である。$$
+$$すなわち，図の斜線部分である。ただし，境界線は${l===1 ? `含まない。`:`含む`}$$
+$$※　下の図は，円の中心はわかるが，半径の大きさがわからないため，不十分である。$$
+$$実際に解答する際には，円の半径がわかるよう，軸に数値を書き入れて解答しよう。$$
+`;
+window.a = a;
+window.b = b;
+window.c = r;
+window.k = k; 
+window.l = l;
+}//i=4終わり
+if(i===5){//連立不等式直線2本
+let a,b,c,m,n,l,p,q;
+let f1,f2,k1,k2,j;
+k1=getRandomInt(-1,1,true);//不等号の向き
+k2=getRandomInt(-1,1,true);//不等号の向き
+j=getRandomInt(1,2);
+f1=FTG(k1,j);
+f2=FTG(k2,j);
+//不等号決定
+p=getRandomInt(-2,2);
+q=getRandomInt(-2,2);
+//交点の座標決定
+do{
+a=getRandomInt(-3,3,true);
+b=getRandomInt(-3,3,true);
+m=getRandomInt(-3,3,true);
+n=getRandomInt(-3,3,true);
+c=p*a+q*b;
+l=p*m+q*n;
+}while(a*n-b*m===0)
+//直線の決定
+let f3=FTG(k2 * n,j);
+
+let line1,line2,line3;
+line1= Math.abs(a/b)===1 ? `y${f1} ${keisu(-a/b,`x`)}${-b*c>0 ? `+`:``}${c===0 ? ``:bunsu(-c,b)}`:
+`y${f1}${bunsu(-a,b)}x${-b*c>0 ? `+`:``}${bunsu(-c,b)}`;
+line2=`${keisu(m,`x`)}${moji(n,`y`)}${teisu(l)}${f2}0`;
+line3= Math.abs(m/n)===1 ? `y${f3} ${keisu(-m/n,`x`)}${-n*l>0 ? `+`:``}${bunsu(-l,n)}`:
+`y${f3}${bunsu(-m,n)}x${-n*l>0 ? `+`:``}${l===0 ? ``:bunsu(-l,n)}`;
+question=`$$次の連立不等式の表す領域を図示せよ。$$
+$$
+\\begin{eqnarray}
+  \\\left \\{
+    \\begin{array}{l}
+      ${line1} \\\\
+      ${line2}
+    \\end{array}
+  \\right.
+\\end{eqnarray}$$
+`;
+solution=`$$${line1}の表す領域をA$$
+$$${line2}，すなわち${line3}の表す領域をB$$
+$$とすると，求める領域はAとBの共通部分$$
+$$A\\cap B である。$$
+$$すなわち，図の斜線部分である。$$
+$$ただし，境界線を${j===1 ? `含まない。`:`含む。`}$$
+`;
+window.a = canvas.getContext("2d");
+window.b = [
+    { m: a, n: b, b: c, k: -k1*(b/Math.abs(b) ) },  // k = 1: "< 0"
+    { m: m, n: n, b: l, k: -k2 } // k = -1: "> 0"
+  ];
+window.c = j=== 1 ? false: true;
+
+}//i=5 終わり
+if(i===6){//円と直線
+let a,b,p,q,r,m,n,l,f1,f2;
+a=getRandomInt(-4,4,true);
+b=getRandomInt(-4,4,true);
+p=getRandomInt(-2,2);
+q=getRandomInt(-2,2);
+r=a**2+b**2;//(x-p)^2 +(y-q)^2=r
+let x1,y1,x2,y2;
+[x1,y1]=[p+a,q+b];
+[x2,y2]=[p-b,q+a];//円周上の2点
+do{
+m=getRandomInt(1,2);
+n=getRandomInt(-2,2,true);
+l=-m*x1 -n*y1;//mx+ny+l=0
+}while(a*n===b*m)
+let k1,k2;
+k1=getRandomInt(-1,1,true);
+k2=getRandomInt(-1,1,true);
+let j=getRandomInt(1,2);
+f1=FTG(k1,j);
+f2=FTG(k2,j);
+let line;
+line= Math.abs(m/n)===1 ? `y${f1} ${keisu(-m/n,`x`)}${-n*l>0 ? `+`:``}${l===0 ? ``:bunsu(-l,n)}`:
+`y${f1} ${bunsu(-m,n)}x${-n*l>0 ? `+`:``}${l===0 ? ``:bunsu(-l,n)}`;
+let Xc,Yc;
+Xc= p===0 ? `x^2`:`(x${teisu(-p)})^2`;
+Yc= q===0 ? `y^2`:`(y${teisu(-q)})^2`;
+let C=`${Xc}+${Yc}${f2}${r}`;
+question=`$$次の連立不等式の表す領域を図示せよ。$$
+$$
+\\begin{eqnarray}
+  \\\left \\{
+    \\begin{array}{l}
+      ${line} \\\\
+      ${C}
+    \\end{array}
+  \\right.
+\\end{eqnarray}$$
+`;
+solution=`$$${line}の表す領域をA$$
+$$${C}の表す領域をB$$
+$$とすると，求める領域はAとBの共通部分$$
+$$A\\cap B である。$$
+$$すなわち，図の斜線部分である。$$
+$$ただし，境界線を${j===1 ? `含まない。`:`含む。`}$$
+`;
+window.a=a;
+window.b=b;
+window.p=p;
+window.q=q
+window.m=m;
+window.n=n;
+window.l=l;
+window.f1= (k1<0 && j===1) ? ">":(k1>0 && j===1) ? "<":(k1>0 && j===2) ? ">=" :"<=";
+window.f2= (k2<0 && j===1) ? ">":(k2>0 && j===1) ? "<":(k2>0 && j===2) ? ">=" :"<=";
+
+}//i=6終わり
+
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+
+  // 親コンテナも表示させる必要あり
+  const container = document.getElementById('canvasContainer');
+  if (container) {
+    container.style.display = 'block';
+  }
+
+  const canvas = document.getElementById('graphCanvas');
+  if (canvas) {
+    canvas.style.display = 'block';
+  }
+ let i = parseInt(document.getElementById('modeSelect1').value);
+if(i===3){
+  drawLineAndInequality(window.a, window.b, window.c, window.k);}
+if(i===4){
+	drawCircleRegion(window.a, window.b, window.c, window.k, window.l);//円の描写
+}
+if(i===5){
+const ctx = canvas.getContext('2d');
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	drawLinearInequalitiesRegion(ctx, window.b, window.c);//円の描写
+}
+if(i===6){
+	drawCircleAndLineRegion(window.a, window.b, window.p, window.q, window.m, window.n, window.l, window.f1, window.f2);//円の描写
+}
+if(i===1){
+document.getElementById("graphCanvas");
+const ctx = canvas.getContext('2d');
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+if(i===2){
+document.getElementById("graphCanvas");
+const ctx = canvas.getContext('2d');
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+}
+
+//描画関数
+//円と直線
+function drawCircleAndLineRegion(a, b, p, q, m, n, l, f1, f2) {
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const width = canvas.width;
+  const height = canvas.height;
+  const originX = width / 2;
+  const originY = height / 2;
+  const scale = 40;
+
+  // 判定関数
+  const compare = (val, op) => {
+    if (!op) return false;
+    switch (op) {
+      case "<": return val < 0;
+      case "<=": return val <= 0;
+      case ">": return val > 0;
+      case ">=": return val >= 0;
+    }
+    return false;
+  };
+
+  const isInLineRegion = (x, y) => {
+    const val = m * x + n * y + l;
+    return compare(val, f1);
+  };
+
+  const isInCircleRegion = (x, y) => {
+    const dx = x - p;
+    const dy = y - q;
+    const dist2 = dx * dx + dy * dy;
+    const r2 = a * a + b * b;
+    return compare(dist2 - r2, f2);
+  };
+
+  // 両方の不等式を満たす点を斜線で描画
+  ctx.fillStyle = "rgba(0,0,255,0.1)";
+  for (let px = 0; px < width; px++) {
+    for (let py = 0; py < height; py++) {
+      const x = (px - originX) / scale;
+      const y = (originY - py) / scale;
+      if (isInLineRegion(x, y) && isInCircleRegion(x, y)) {
+        if ((px + py) % 3 === 0) ctx.fillRect(px, py, 1, 1); // 斜線風ドット描画
+      }
+    }
+  }
+
+  // 軸描画
+  ctx.strokeStyle = "black";
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(0, originY);
+  ctx.lineTo(width, originY);
+  ctx.moveTo(originX, 0);
+  ctx.lineTo(originX, height);
+  ctx.stroke();
+
+  // 軸ラベルと原点
+  ctx.font = "14px sans-serif";
+  ctx.fillStyle = "black";
+  ctx.fillText("x", width - 10, originY - 5);
+  ctx.fillText("y", originX + 5, 15);
+  ctx.fillText("O", originX + 5, originY + 15);
+
+  // 円の描画
+  ctx.strokeStyle = "green";
+  ctx.beginPath();
+  ctx.arc(originX + p * scale, originY - q * scale, Math.sqrt(a * a + b * b) * scale, 0, 2 * Math.PI);
+  ctx.stroke();
+
+  // 中心点に黒丸 + 補助線 + 座標ラベル
+  const px = originX + p * scale;
+  const py = originY - q * scale;
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.arc(px, py, 3, 0, 2 * Math.PI);
+  ctx.fill();
+
+  ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = "gray";
+  ctx.beginPath();
+  ctx.moveTo(px, originY);
+  ctx.lineTo(px, py);
+  ctx.moveTo(originX, py);
+  ctx.lineTo(px, py);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+  ctx.fillText(p===0?"": p, px + 3, originY + 15);
+  ctx.fillText(q===0 ? "":q, originX + 5, py - 5);
+
+  // 直線の描画
+  const includeBoundary = (f1.includes("="));
+  ctx.strokeStyle = "red";
+  ctx.setLineDash(includeBoundary ? [] : [4, 4]);
+  ctx.beginPath();
+  if (n !== 0) {
+    let first = true;
+    for (let x = -10; x <= 10; x += 0.1) {
+      const y = (-m * x - l) / n;
+      if (!isFinite(y)) continue;
+      const sx = originX + x * scale;
+      const sy = originY - y * scale;
+      if (first) {
+        ctx.moveTo(sx, sy);
+        first = false;
+      } else {
+        ctx.lineTo(sx, sy);
+      }
+    }
+  } else {
+    // 垂直線 x = -l/m の場合
+    const x = -l / m;
+    const sx = originX + x * scale;
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx, height);
+  }
+  ctx.stroke();
+}
+
+
+//2直線
+function drawLinearInequalitiesRegion(ctx, coeffs, includeBoundary) {
+  const width = ctx.canvas.width;
+  const height = ctx.canvas.height;
+  const originX = width / 2;
+  const originY = height / 2;
+  const scale = 30;
+
+  // 背景塗りつぶし
+  for (let px = 0; px < width; px++) {
+    for (let py = 0; py < height; py++) {
+      const x = (px - originX) / scale;
+      const y = (originY - py) / scale;
+
+      let ok = true;
+      for (const { m, n, b, k } of coeffs) {
+        const val = m * x + n * y + b;
+        const inRegion = k * val < 0 || (includeBoundary && val === 0);
+        if (!inRegion) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) {
+        ctx.fillStyle = "rgba(0, 128, 255, 0.3)";
+        ctx.fillRect(px, py, 1, 1);
+      }
+    }
+  }
+
+  // 軸の描画
+  ctx.setLineDash([]);
+  ctx.strokeStyle = "black";
+  ctx.beginPath();
+  ctx.moveTo(0, originY);
+  ctx.lineTo(width, originY);
+  ctx.moveTo(originX, 0);
+  ctx.lineTo(originX, height);
+  ctx.stroke();
+
+  // 軸ラベルと原点ラベル
+  ctx.font = "20px sans-serif";
+  ctx.fillStyle = "black";
+  ctx.fillText("O", originX + 5, originY + 15);
+  ctx.fillText("x", width - 15, originY - 5);
+  ctx.fillText("y", originX + 5, 15);
+
+  // 中心点
+  ctx.beginPath();
+  ctx.arc(originX, originY, 3, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // ガイド線（補助線）
+  ctx.setLineDash([3, 5]);
+  ctx.strokeStyle = "gray";
+  ctx.beginPath();
+  ctx.moveTo(originX, 0);
+  ctx.lineTo(originX, height);
+  ctx.moveTo(0, originY);
+  ctx.lineTo(width, originY);
+  ctx.stroke();
+
+  // 直線描画
+  function drawLine({ m, n, b }, color) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.setLineDash(includeBoundary ? [] : [5, 5]);
+
+    let first = true;
+    for (let x = -10; x <= 10; x += 0.1) {
+      const y = n !== 0 ? (-m * x - b) / n : null;
+      if (y === null || Math.abs(y) > 100) continue;
+      const px = originX + x * scale;
+      const py = originY - y * scale;
+      if (first) {
+        ctx.moveTo(px, py);
+        first = false;
+      } else {
+        ctx.lineTo(px, py);
+      }
+    }
+    ctx.stroke();
+  }
+
+  drawLine(coeffs[0], "blue");
+  drawLine(coeffs[1], "green");
+
+  // 🔍 交点描画（2本限定）
+  const [f1, f2] = coeffs;
+  const D = f1.m * f2.n - f2.m * f1.n;
+  if (D !== 0) {
+    // 連立方程式の解
+    const x = (f2.n * (-f1.b) - f1.n * (-f2.b)) / D;
+    const y = (f1.m * (-f2.b) - f2.m * (-f1.b)) / D;
+
+    const px = originX + x * scale;
+    const py = originY - y * scale;
+
+    // 点線（補助線）
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = "gray";
+    ctx.beginPath();
+    ctx.moveTo(px, originY); ctx.lineTo(px, py);
+    ctx.moveTo(originX, py); ctx.lineTo(px, py);
+    ctx.stroke();
+
+    // 座標表示
+    ctx.setLineDash([]);
+    ctx.fillStyle = "black";
+    ctx.font = "18px sans-serif";
+    ctx.fillText(`${x===0 ? ``:x}`, px + 5,originY-5);
+    ctx.fillText(` ${y===0 ? "":y}`, originX-20, py -1);
+
+  }
+}
+
+
+function drawCircleRegion(a, b, r, k, l) {
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, 600, 600);
+
+  const originX = 300;
+  const originY = 300;
+  const scale = 40;
+
+  // 軸
+  ctx.strokeStyle = "black";
+  ctx.beginPath();
+  ctx.moveTo(0, originY); ctx.lineTo(600, originY);
+  ctx.moveTo(originX, 0); ctx.lineTo(originX, 600);
+  ctx.stroke();
+
+  // 円の中心と半径
+  const cx = originX + a * scale;
+  const cy = originY - b * scale;
+  const radius = Math.sqrt(r) * scale;
+
+  // ハッチング用パターン
+  const patternCanvas = document.createElement("canvas");
+  patternCanvas.width = 10;
+  patternCanvas.height = 10;
+  const pctx = patternCanvas.getContext("2d");
+  pctx.strokeStyle = k > 0 ? "rgba(0,0,255,0.3)" : "rgba(255,0,0,0.3)";
+  pctx.beginPath();
+  pctx.moveTo(0, 10);
+  pctx.lineTo(10, 0);
+  pctx.stroke();
+  const pattern = ctx.createPattern(patternCanvas, "repeat");
+  ctx.fillStyle = pattern;
+
+  // 領域の塗りつぶし（マス目スキャン）
+  for (let px = 0; px <= 600; px += 5) {
+    for (let py = 0; py <= 600; py += 5) {
+      const x = (px - originX) / scale;
+      const y = (originY - py) / scale;
+      const dx = x - a;
+      const dy = y - b;
+      const val = dx * dx + dy * dy;
+      if ((k > 0 && val > r) || (k < 0 && val < r)) {
+        ctx.fillRect(px, py, 5, 5);
+
+      }
+    }
+
+
+  }
+ // 軸の描画
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, originY); ctx.lineTo(600, originY); // x軸
+  ctx.moveTo(originX, 0); ctx.lineTo(originX, 600); // y軸
+  ctx.stroke();
+
+  // 円の中心に点を描画
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3, 0, 2 * Math.PI); // 半径3の小さな円
+  ctx.fillStyle = "black";
+  ctx.fill();	
+
+  // 原点Oの表示と軸ラベル
+  ctx.fillStyle = "black";
+  ctx.font = "28px Arial";
+  ctx.fillText("O", originX - 25, originY + 25);
+  ctx.fillText("x", 580, originY - 10);
+  ctx.fillText("y", originX + 10, 30);
+	const Xc= a===0 ?``:`${a}`;
+	const Yc= b===0 ? ``:`${b}`;
+      ctx.fillText(Xc, cx, originY);
+      ctx.fillText(Yc, originX, cy);
+
+ctx.strokeStyle = "gray";
+  ctx.setLineDash([5, 5]); // 点線
+
+  ctx.beginPath();
+  ctx.moveTo(cx,cy ); // 上方向
+  ctx.lineTo(cx, originY);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx+radius,cy ); // 上方向
+  ctx.lineTo(cx+radius, originY);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx-radius,cy ); // 上方向
+  ctx.lineTo(cx-radius, originY);
+  ctx.stroke();
+
+
+  ctx.beginPath();
+  ctx.moveTo(cx, cy); // 左方向
+  ctx.lineTo(originX, cy);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx, radius+cy); // 左方向
+  ctx.lineTo(originX, radius+cy);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx, -radius+cy); // 左方向
+  ctx.lineTo(originX, -radius+cy);
+  ctx.stroke();
+
+
+  ctx.setLineDash([]); // 点線解除（リセット）
+
+
+  // 境界線（実線 or 破線）
+  ctx.beginPath();
+  ctx.setLineDash(l === 1 ? [5, 5] : []); // 境界含まないなら破線
+  ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+  ctx.strokeStyle = "blue";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.setLineDash([]); // リセット
+}//円
+
+
+
+function drawLineAndInequality(a, b, c, k) {
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, 600, 600);
+
+  const originX = 300;
+  const originY = 300;
+  const scale = 50;
+
+  // 軸の描画
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, originY); ctx.lineTo(600, originY); // x軸
+  ctx.moveTo(originX, 0); ctx.lineTo(originX, 600); // y軸
+  ctx.stroke();
+
+  // 原点Oの表示と軸ラベル
+  ctx.fillStyle = "black";
+  ctx.font = "28px Arial";
+  ctx.fillText("O", originX - 25, originY + 25);
+  ctx.fillText("x", 580, originY - 10);
+  ctx.fillText("y", originX + 10, 30);
+
+  // 分数表記関数
+  function toFraction(n, d) {
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    const g = gcd(Math.abs(n), Math.abs(d));
+    n /= g; d /= g;
+    if (d < 0) { n *= -1; d *= -1; }
+    return d === 1 ? `${n}` : `${n}/${d}`;
+  }
+
+  // 切片の計算と表示（座標なしで数値のみ表示）
+  const isThroughOrigin = (a * 0 + b * 0 + c === 0);
+  const xIntVal = (a !== 0) ? -c / a : null;
+  const yIntVal = (b !== 0) ? -c / b : null;
+
+  if (!isThroughOrigin) {
+    if (xIntVal !== null && isFinite(xIntVal)) {
+      const xPx = originX + xIntVal * scale;
+      const label = `${toFraction(-c, a)}`;
+      ctx.fillText(label, xPx - 15, originY + 30);
+
+    }
+    if (yIntVal !== null && isFinite(yIntVal)) {
+      const yPx = originY - yIntVal * scale;
+      const label = `${toFraction(-c, b)}`;
+      ctx.fillText(label, originX + 10, yPx + 10);
+    }
+  }
+
+  // 直線の描画
+  if (b !== 0) {
+    const xMin = -originX / scale;
+    const xMax = (600 - originX) / scale;
+    const y1 = (-a * xMin - c) / b;
+    const y2 = (-a * xMax - c) / b;
+
+    const x1Px = originX + xMin * scale;
+    const y1Px = originY - y1 * scale;
+    const x2Px = originX + xMax * scale;
+    const y2Px = originY - y2 * scale;
+
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1Px, y1Px);
+    ctx.lineTo(x2Px, y2Px);
+    ctx.stroke();
+  } else if (a !== 0) {
+    const x = -c / a;
+    const xPx = originX + x * scale;
+    ctx.beginPath();
+    ctx.moveTo(xPx, 0);
+    ctx.lineTo(xPx, 600);
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // === ハッチング模様（斜線領域の表現）===
+  const patternCanvas = document.createElement("canvas");
+  patternCanvas.width = 10;
+  patternCanvas.height = 10;
+  const pctx = patternCanvas.getContext("2d");
+  pctx.strokeStyle = k > 0 ? "rgba(0,0,255,0.3)" : "rgba(255,0,0,0.3)";
+  pctx.lineWidth = 1;
+  pctx.beginPath();
+  pctx.moveTo(0, 10);
+  pctx.lineTo(10, 0);
+  pctx.stroke();
+
+  const pattern = ctx.createPattern(patternCanvas, "repeat");
+  ctx.fillStyle = pattern;
+
+  // 条件を満たすマスだけ塗る
+  ctx.beginPath();
+  for (let px = 0; px <= 600; px += 5) {
+    for (let py = 0; py <= 600; py += 5) {
+      const x = (px - originX) / Math.abs(scale);
+      const y = (originY - py) / Math.abs(scale);
+      const val = a * x + b * y + c;
+      if ((k > 0 && val > 0) || (k < 0 && val < 0)) {
+        ctx.fillRect(px, py, 5, 5);
+
+
+      }
+    }
+  }
+}
+
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>軌跡と領域</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　軌跡の方程式①</option>
+          <option value="2">2.　軌跡の方程式②</option>
+          <option value="3">3.　不等式の表す領域①</option>
+          <option value="4">4.　不等式の表す領域②</option>
+  <option value="5">5.　連立不等式の表す領域①</option>
+<option value="6">6.　連立不等式の表す領域②</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+	<div id="canvasContainer" style="display: none;">
+  <canvas id="graphCanvas" width="600" height="600" style="border:1px solid #ccc; display:none;"></canvas>
+
+</div>
+
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
