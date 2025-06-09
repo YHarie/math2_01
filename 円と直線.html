@@ -226,7 +226,7 @@ Y=`x=${x1}のとき，y=${y1}，x=${x2}のとき，y=${y2}`;
 answer=`(${x1}，${y1})，(${x2}，${y2})`;
 }
 if(j===3){
-if(a<0){[a,b]=[-a,-b];}
+if(a<0){[a,b,r]=[-a,-b,-r];}
 [m,n]=yakubun(-a,b);
 [x2,y2]=[x1,y1];
 let p,q;
@@ -236,7 +236,7 @@ line= k===1 ? `y=${bunsu(m,n)}x${p>0 ? `+${C}`:C}`:`${keisu(a,`x`)}${moji(b,`y`)
 hosoku=k===1 ? ``:`${line}から，y=${bunsu(m,n)}x${p>0 ? `+${C}`:C}\\cdots \\cdots ③`;
 Y=`x=${x1}のとき，y=${y1}`;
 answer=`(${x1}，${y1})`;
-
+if(r<0){r=-r;}
 }
 question=`$$円x^{2}+y^{2}=${r}と直線${line}の共有点の座標を求めよ。$$`;
 solution=`$$\\begin{eqnarray}  \\left\\{
