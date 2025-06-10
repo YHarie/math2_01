@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>数学ⅡB + iframe</title>
+  <title>Harry TRIAL 数学ⅡB</title>
   <style>
     body {
       margin: 0;
@@ -18,6 +18,7 @@
 
     .menu {
       display: flex;
+      flex-wrap: wrap;
       gap: 2em;
     }
 
@@ -28,7 +29,8 @@
       position: relative;
     }
 
-    .dropdown-content, .sub-dropdown-content {
+    .dropdown-content,
+    .sub-dropdown-content {
       display: none;
       position: absolute;
       background-color: #f1f1f1;
@@ -37,37 +39,46 @@
       z-index: 1;
     }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-
-    .dropdown-content a {
+    .dropdown-content a,
+    .sub-dropdown-content a {
       color: #0077cc;
       padding: 1em;
       display: block;
       text-decoration: none;
     }
 
-    .dropdown-content a:hover {
+    .dropdown-content a:hover,
+    .sub-dropdown-content a:hover {
       background-color: #e0f7fa;
     }
 
     .sub-dropdown {
       position: relative;
     }
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.sub-dropdown:hover .sub-droptidown-content {
+  display: block;
+}
 
     .sub-dropdown-content {
       top: 0;
       left: 100%;
-    }
-
-    .sub-dropdown:hover .sub-dropdown-content {
-      display: block;
+      white-space: nowrap;
     }
 
     .sub-dropdown > a::after {
       content: " ▸";
       font-size: 0.9em;
+    }
+
+    .section-title {
+      font-weight: bold;
+      color: red;
+      margin-top: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid #ccc;
     }
 
     #toggleMenu {
@@ -82,39 +93,26 @@
 
     #menuContainer {
       display: block;
+      max-height: 80vh;
+      overflow-y: auto;
     }
-    .section-title {
-  font-weight: bold;
-  color: red;
-  margin-top: 10px;
-  padding: 5px 0;
-  border-bottom: 1px solid #ccc;
-}
-
 
     iframe {
       width: 100%;
-      height: 100vh;
+      height: calc(100vh - 150px);
       border: none;
     }
+
     @media (orientation: portrait) {
-      .container {
-        flex-direction: column;
+      body {
+        font-size: 2em;
       }
 
-      #left-area, #right-area {
-        height: 50vh;
+      select,
+      button {
+        font-size: 1.5em;
       }
-
-
-    body {
-    font-size: 2em;
-  }
-
-   select, button {
-    font-size: 1.5em;
-  }
-}
+    }
   </style>
 </head>
 <body>
@@ -137,14 +135,13 @@
                 <a href="jouyo.html" target="content-frame">剰余の定理</a>
                 <a href="高次因数分解.html" target="content-frame">3次以上の因数分解</a>
                 <a href="高次方程式.html" target="content-frame">高次方程式</a>
-               <div class="section-title">　図形と方程式</div>
+                <div class="section-title">　図形と方程式</div>
                 <a href="平面上の点.html" target="content-frame">平面上の点</a>
                 <a href="直線の方程式.html" target="content-frame">直線の方程式</a>
                 <a href="円の方程式.html" target="content-frame">円の方程式</a>
                 <a href="円と直線.html" target="content-frame">円と直線</a>
-                <a href="2つの円.html" target="content-frame">2つの円</a>  
-                <a href="軌跡と領域.html" target="content-frame">軌跡と領域</a>  
-                                
+                <a href="2つの円.html" target="content-frame">2つの円</a>
+                <a href="軌跡と領域.html" target="content-frame">軌跡と領域</a>
               </div>
             </div>
             <div class="sub-dropdown">
@@ -156,15 +153,14 @@
                 <a href="等比数列の和.html" target="content-frame">等比数列の和</a>
                 <a href="和の記号Σ.html" target="content-frame">和の記号Σ</a>
                 <a href="階差数列+数列の和と一般項.html" target="content-frame">階差数列+数列の和と一般項</a>
-                
               </div>
             </div>
             <div class="sub-dropdown">
               <a href="#">対策ページ</a>
               <div class="sub-dropdown-content">
-                   <a href="朝テスト練習王.html" target="content-frame">朝テスト練習王</a>
-                   <a href="課題0529.html" target="content-frame">ベネッセ模試練習</a>
-                  </div>
+                <a href="朝テスト練習王.html" target="content-frame">朝テスト練習王</a>
+                <a href="課題0529.html" target="content-frame">ベネッセ模試練習</a>
+              </div>
             </div>
           </div>
         </div>
@@ -173,14 +169,8 @@
   </nav>
 
   <main>
-  <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
-  <script>
-    function loadPage(url) {
-      document.getElementById("content-frame").src = url;
-    }
-  </script>
-</main>
-
+    <iframe name="content-frame" src="top.html" id="content-frame"></iframe>
+  </main>
 
   <script>
     const toggleBtn = document.getElementById('toggleMenu');
@@ -192,13 +182,47 @@
       menuContainer.style.display = visible ? 'block' : 'none';
       toggleBtn.textContent = visible ? 'メニューを隠す' : 'メニューを表示';
     });
-  </script>
-  <footer style="text-align: right; font-size: 0.5rem; color: #aaa; margin-top: 0.5em;">
-  &copy; <span id="year"></span> Yotaro.Harie. 無断使用を禁じます。
-</footer>
 
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+    // 遅延でsubmenuが消えない処理
+    document.querySelectorAll('.sub-dropdown').forEach(dropdown => {
+      const submenu = dropdown.querySelector('.sub-dropdown-content');
+      let hideTimeout;
+
+      dropdown.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+        submenu.style.display = 'block';
+
+        // はみ出し対策
+        const rect = submenu.getBoundingClientRect();
+        const overflowRight = rect.right > window.innerWidth;
+        submenu.style.left = overflowRight ? 'auto' : '100%';
+        submenu.style.right = overflowRight ? '100%' : 'auto';
+      });
+
+      dropdown.addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+          submenu.style.display = 'none';
+        }, 300);
+      });
+
+      submenu.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+      });
+
+      submenu.addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+          submenu.style.display = 'none';
+        }, 300);
+      });
+    });
+  </script>
+
+  <footer style="text-align: right; font-size: 0.5rem; color: #aaa; margin-top: 0.5em;">
+    &copy; <span id="year"></span> Yotaro.Harie. 無断使用を禁じます。
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
