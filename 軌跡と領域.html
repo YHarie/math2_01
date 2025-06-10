@@ -542,7 +542,7 @@ $$ただし，境界線を${j===1 ? `含まない。`:`含む。`}$$
 window.a=a;
 window.b=b;
 window.p=p;
-window.q=q
+window.q=q;
 window.m=m;
 window.n=n;
 window.l=l;
@@ -550,7 +550,83 @@ window.f1= (k1<0 && j===1) ? ">":(k1>0 && j===1) ? "<":(k1>0 && j===2) ? ">=" :"
 window.f2= (k2<0 && j===1) ? ">":(k2>0 && j===1) ? "<":(k2>0 && j===2) ? ">=" :"<=";
 
 }//i=6終わり
+if(i===7){//連立　和集合
+let a,b,c,m,n,l,p,q;
+let f,f1,f2,f3,f4,k1,j;
+k1=getRandomInt(-1,1,true);//不等号の向き
+j=getRandomInt(1,2);
+f=FTG(k1,j);
+f1=FTG(1,j);
+f2=FTG(k1,j);
+f3=FTG(-1,j);
+f4=FTG(-k1,j);
+//不等号決定
+p=getRandomInt(-2,2);
+q=getRandomInt(-2,2);
+//交点の座標決定
+do{
+a=getRandomInt(-3,3,true);
+b=getRandomInt(-3,3,true);
+m=getRandomInt(-3,3,true);
+n=getRandomInt(-3,3,true);
+c=p*a+q*b;
+l=p*m+q*n;
+}while(a*n-b*m===0)
+//直線の決定
 
+let line1,line2,line3;
+line1= `${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}`;
+line2=`${keisu(m,`x`)}${moji(n,`y`)}${teisu(l)}`;
+question=`$$不等式(${line1})(${line2})${f}0の表す領域を図示せよ。$$
+`;
+solution=`$$与えられた不等式が成り立つことは$$
+$$
+\\begin{eqnarray}
+  \\\left \\{
+    \\begin{array}{l}
+      ${line1}${f1}0 \\\\
+      ${line2}${f2}0
+    \\end{array}
+  \\right.
+\\end{eqnarray}\\cdots \\cdots ①$$
+$$または
+\\begin{eqnarray}
+  \\\left \\{
+    \\begin{array}{l}
+      ${line1}${f3}0 \\\\
+      ${line2}${f4}0
+    \\end{array}
+  \\right.
+\\end{eqnarray}\\cdots \\cdots ②$$
+
+$$が成り立つことと同値である。$$
+$$よって，求める領域は①の表す領域Aと$$
+$$②の表す領域Bの和集合$$
+$$A\\cup B である。$$
+$$すなわち，図の斜線部分である。$$
+$$ただし，境界線を${j===1 ? `含まない。`:`含む。`}$$
+`;
+let F1, F2, F3, F4;
+if (k1 > 0) {
+  F1 = F2 = j === 2 ? "<=" : "<";
+  F3 = F4 = j === 2 ? ">=" : ">";
+} else {
+  F1 = F4 = j === 2 ? ">=" : ">";
+  F2 = F3 = j === 2 ? "<=" : "<";
+}
+
+window.a=a;
+window.b=b;
+window.c=c;
+window.m=m;
+window.n=n;
+window.l=l;
+window.f1=F1;
+window.f2=F2;
+window.f3=F3;
+window.f4=F4;
+window.j=j;
+}
 
     document.getElementById('question').innerHTML = question;
       window.correctAnswer = answer;
@@ -598,6 +674,10 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 if(i===6){
 	drawCircleAndLineRegion(window.a, window.b, window.p, window.q, window.m, window.n, window.l, window.f1, window.f2);//円の描写
 }
+if(i===7){
+	drawUnionRegionWithAnnotations(window.a, window.b, window.c, window.m, window.n, window.l, window.f1, window.f2, window.f3, window.f4, window.j);
+
+}
 if(i===1){
 document.getElementById("graphCanvas");
 const ctx = canvas.getContext('2d');
@@ -612,6 +692,158 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 //描画関数
+//和集合
+function drawUnionRegionWithAnnotations(a, b, c, m, n, l, f1, f2, f3, f4, j) {
+  const canvas = document.getElementById('graphCanvas');
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  const scale = 40; // 1単位あたり20px
+  const originX = width / 2;
+  const originY = height / 2;
+
+  ctx.clearRect(0, 0, width, height);
+
+  // 補助関数
+  function toCanvasX(x) { return originX + x * scale; }
+  function toCanvasY(y) { return originY - y * scale; }
+
+  function drawAxes() {
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, originY);
+    ctx.lineTo(width, originY); // x軸
+    ctx.moveTo(originX, 0);
+    ctx.lineTo(originX, height); // y軸
+    ctx.stroke();
+
+    // 原点O
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = '#000';
+    ctx.fillText('O', originX + 5, originY - 5);
+  }
+
+  function getComparator(op) {
+    switch (op) {
+      case '>': return (v) => v > 0;
+      case '<': return (v) => v < 0;
+      case '>=': return (v) => v >= 0;
+      case '<=': return (v) => v <= 0;
+    }
+  }
+
+  function shadeRegion(cmp1a, cmp1b, cmp2a, cmp2b, color) {
+    const step = 4;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+
+    for (let x = -width / 2 / scale; x <= width / 2 / scale; x += 0.2) {
+      for (let y = -height / 2 / scale; y <= height / 2 / scale; y += 0.2) {
+        const val1 = a * x + b * y + c;
+        const val2 = m * x + n * y + l;
+        if (cmp1a(val1) && cmp1b(val2)) {
+          const cx = toCanvasX(x);
+          const cy = toCanvasY(y);
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + step, cy + step);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function drawLine(A, B, C, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    const x1 = -width / (2 * scale);
+    const x2 = width / (2 * scale);
+    const y1 = -(A * x1 + C) / B;
+    const y2 = -(A * x2 + C) / B;
+    ctx.beginPath();
+    ctx.moveTo(toCanvasX(x1), toCanvasY(y1));
+    ctx.lineTo(toCanvasX(x2), toCanvasY(y2));
+    ctx.stroke();
+  }
+
+  function drawIntercepts(A, B, C, color) {
+    ctx.fillStyle = color;
+    ctx.font = '12px sans-serif';
+    if (B !== 0) {
+	const yInt =-C/B;
+      const YI = -C % B===0 ? -C/B:`${-C/B<0? `-`:``}${Math.abs(C)}/${Math.abs(B)}`;
+      ctx.fillText(`${YI}`, toCanvasX(0) + 5, toCanvasY(yInt));
+    }
+    if (A !== 0) {
+      const xInt = -C / A;
+	const XI = -C % A===0 ? -C/A:`${-C/A<0? `-`:``}${Math.abs(C)}/${Math.abs(A)}`;
+
+      ctx.fillText(`${XI}`, toCanvasX(xInt), toCanvasY(0) - 5);
+    }
+
+  }
+
+  function drawIntersectionAndDropLines() {
+    const D = a * n - b * m;
+    if (D === 0) return; // 平行な直線
+    const x = (b * l - n * c) / D;
+    const y = (c * m - a * l) / D;
+
+    const cx = toCanvasX(x);
+    const cy = toCanvasY(y);
+
+    // 点の描画
+    ctx.fillStyle = 'blue';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // 点線を軸に下ろす
+    ctx.strokeStyle = 'gray';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx, originY); // x軸へ
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(originX, cy); // y軸へ
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 座標表示
+    ctx.fillStyle = 'black';
+    ctx.font = '12px sans-serif';
+	 ctx.fillText(x.toFixed(0), toCanvasX(x), toCanvasY(0) + 5);
+
+	ctx.fillText(y.toFixed(0), toCanvasX(0) - 5, toCanvasY(y));
+      }
+
+  drawAxes();
+
+  const cmp1a = getComparator(f1);
+  const cmp1b = getComparator(f2);
+  const cmp2a = getComparator(f3);
+  const cmp2b = getComparator(f4);
+
+  // 塗りつぶし：和集合（2つの領域を同時に塗る）
+  shadeRegion(cmp1a, cmp1b, cmp1a, cmp1b, 'rgba(200,0,0,0.4)');
+  shadeRegion(cmp2a, cmp2b, cmp2a, cmp2b, 'rgba(200,0,0,0.4)');
+
+  // 直線描画
+  drawLine(a, b, c, 'red');
+  drawLine(m, n, l, 'green');
+
+  // 切片表示
+  drawIntercepts(a, b, c, 'red');
+  drawIntercepts(m, n, l, 'green');
+
+  // 交点と点線表示
+  drawIntersectionAndDropLines();
+}
+
 //円と直線
 function drawCircleAndLineRegion(a, b, p, q, m, n, l, f1, f2) {
   const canvas = document.getElementById("graphCanvas");
@@ -1123,6 +1355,7 @@ function drawLineAndInequality(a, b, c, k) {
           <option value="4">4.　不等式の表す領域②</option>
   <option value="5">5.　連立不等式の表す領域①</option>
 <option value="6">6.　連立不等式の表す領域②</option>
+<option value="7">7.　和集合の表す領域①</option>
           <option value="0">0 (ランダム)</option>
         </select>
 
