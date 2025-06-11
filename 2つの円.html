@@ -240,9 +240,7 @@ if(i===1){//2つの円の位置関係
   }
 
   if(j === 3){ // 2点で交わる
-    let R2;
-    do { R2 = getRandomInt(1, 100); } while(4 * d * R2 <= d ** 2 - r1 ** 2 + R2 ** 2);
-    for(let k = 1; k * k < R2; k++){ r2 = k * k; }
+    for(let k = 1; (r1-k)**2 <= d; k++){ r2 = k * k; }
   }
 
   if(j === 4){ // 内接
@@ -257,11 +255,9 @@ if(i===1){//2つの円の位置関係
   }
 
   if(j === 5){ // 内部にある
-    let R2;
-    do { R2 = getRandomInt(1, 100); } while(4 * d * R2 <= d ** 2 - r1 ** 2 + R2 ** 2);
     let R;
-    for(let k = 1; k * k < R2; k++){ R = k; }
-    R += getRandomInt(2, 3);
+    for(let k = 1; (k-r1)**2 <= d; k++){ R = k; }
+    R += getRandomInt(1, 2);
     r2 = R ** 2;
   }
 
