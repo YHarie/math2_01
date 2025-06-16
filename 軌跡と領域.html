@@ -220,7 +220,7 @@ let ax,ay,bx,by,m,n,k;
 do{
 [ax,ay]=[getRandomInt(-3,3),getRandomInt(-3,3)];
 [bx,by]=[getRandomInt(-3,3),getRandomInt(-3,3)];
-}while([ax,ay]===[bx,by])
+}while(ax===by && ay===by)
 [m,n]=[getRandomInt(1,3),getRandomInt(1,3)];
 [m,n]=yakubun(m,n);
 let divine= (m===1 && n===1) ?`から等距離にある`:`からの距離の比が${m}:${n}である`;
