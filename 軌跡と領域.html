@@ -254,7 +254,7 @@ $$すなわち，\\left(x${a/p>0?`+`:``}${bunsu(a,2*p)}\\right)^2+\\left(y${b/p>
 let m1,m2;
 [m1,m2]=yakubun(a**2+b**2-4*c*p,4*p**2);
 A2=`円`;
-A3=`中心 \\left(${bunsu(-a,2*p)},${bunsu(-b,2*p)}\\right)，半径${m1%m2===0 ?kanyaku(m1/m2 ):
+A3=`中心 \\left(${bunsu(-a,2*p)},${bunsu(-b,2*p)}\\right)，半径${m1%m2===0 ?kanyaku(m1/m2 ,1):
 `\\frac{${kanyaku(m1,1)} }{${kanyaku(m2,1)}}`}の`;
 }
   solution = `$$点Pの座標を(x,y)とする。$$
