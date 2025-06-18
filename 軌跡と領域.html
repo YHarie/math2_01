@@ -298,19 +298,19 @@ let px,py,s,t,Sc,Tc;
 Sc= p===0 ?`s^2`:`(s${teisu(-p)})^2`;
 Tc= q===0 ?`t^2`:`(t${teisu(-q)})^2`;
 let C2=`${Sc}+${Tc}=${r}`;
-px = k===1 ? `\\frac{${n}\\cdot ${kakko(ax)}+${m}s} {${m}+${n}}`:
-`\\frac{${-n}\\cdot ${kakko(ax)}+${m}s} {${m}-${n}}`;
-py = k===1 ? `\\frac{${n}\\cdot ${kakko(ay)}+${m}t} {${m}+${n}}`:
-`\\frac{${-n}\\cdot ${kakko(ay)}+${m}t} {${m}-${n}}`;
+px = k===1 ? `\\frac{${n}\\cdot ${kakko(ax)}+${keisu(m,`s`)}} {${m}+${n}}`:
+`\\frac{${-n}\\cdot ${kakko(ax)}+${keisu(m,`s`)} } {${m}-${n}}`;
+py = k===1 ? `\\frac{${n}\\cdot ${kakko(ay)}+${keisu(m,`t`)}} {${m}+${n}}`:
+`\\frac{${-n}\\cdot ${kakko(ay)}+${keisu(m,`t`)}} {${m}-${n}}`;
 let Pcx,Pcy,r2,ans;
 
 if(m===1){s= k===1 ? `${m+n}x${teisu(-n*ax)}`:
 `${keisu(m-n,`x`)}${teisu(n*ax)}`;
 t= k===1 ? `${m+n}y${teisu(-n*ay)}`:
 `${keisu(m-n,`y`)}${teisu(n*ay)}`;
-Pcx= k===1 ?`(${keisu(m+n,`x`)}${teisu(n*ax-p)})^2`:
+Pcx= k===1 ?`(${keisu(m+n,`x`)}${teisu(-n*ax-p)})^2`:
 `(${keisu(m-n,`x`)}${teisu(n*ax-p)})^2`;
-Pcy= k===1 ?`(${keisu(m+n,`y`)}${teisu(n*ay-q)})^2`:
+Pcy= k===1 ?`(${keisu(m+n,`y`)}${teisu(-n*ay-q)})^2`:
 `(${keisu(m-n,`y`)}${teisu(n*ay-q)})^2`;
 }
 
@@ -319,23 +319,23 @@ s= k===1 ? `\\frac{${m+n}x${teisu(-n*ax)}} {${m}}`:
 `\\frac{${keisu(m-n,`x`)}${teisu(n*ax)}} {${m}}`;
 t= k===1 ? `\\frac{${m+n}y${teisu(-n*ay)}} {${m}}`:
 `\\frac{${keisu(m-n,`y`)}${teisu(n*ay)}} {${m}}`;
-Pcx= k===1 ?`\\left(\\frac{${keisu(m+n,`x`)}${teisu((n*ax) -(p*m))}}{${m}}\\right)^2`:
+Pcx= k===1 ?`\\left(\\frac{${keisu(m+n,`x`)}${teisu((-n*ax) -(p*m))}}{${m}}\\right)^2`:
 `\\left(\\frac{${keisu(m-n,`x`)}${teisu((n*ax) -(p*m))}}{${m}}\\right)^2`;
-Pcy= k===1 ?`\\left(\\frac{${keisu(m+n,`y`)}${teisu((n*ay) -(q*m))}}{${m}}\\right)^2`:
+Pcy= k===1 ?`\\left(\\frac{${keisu(m+n,`y`)}${teisu((-n*ay) -(q*m))}}{${m}}\\right)^2`:
 `\\left(\\frac{${keisu(m-n,`y`)}${teisu((n*ay) -(q*m))}}{${m}}\\right)^2`;
 
 }
 if(k===1){
-Xc= n*ax===p*m ? `x^2`:`\\left(x${(n*ax)-(p*m) >0 ? `+`:``} ${bunsu( ((n*ax)-(p*m))*m,m+n )}\\right)^2`;
-Yc= n*ay===q*m ? `y^2`:`\\left(y${(n*ay)-(q*m) >0 ? `+`:``} ${bunsu( ((n*ay)-(q*m))*m,m+n )}\\right)^2`;
+Xc= -n*ax===p*m ? `x^2`:`\\left(x${(-n*ax)-(p*m) >0 ? `+`:``} ${bunsu( ((-n*ax)-(p*m)),(m+n) )}\\right)^2`;
+Yc= -n*ay===q*m ? `y^2`:`\\left(y${(-n*ay)-(q*m) >0 ? `+`:``} ${bunsu( ((-n*ay)-(q*m)),(m+n))}\\right)^2`;
 r2=bunsu(r*m**2,(m+n)**2);
-ans= `\\left(${bunsu( ((n*ax)-(p*m))*m,-(m+n) )},${bunsu( ((n*ay)-(q*m))*m,-(m+n) )}\\right)`;
+ans= `\\left(${bunsu( ((-n*ax)-(p*m)),-(m+n) )},${bunsu( ((-n*ay)-(q*m)),-(m+n))}\\right)`;
 
 }if(k===2){
-Xc= n*ax===p*m ? `x^2`:`\\left(x${((n*ax)-(p*m))*(m-n) >0 ? `+`:``} ${bunsu( ((n*ax)-(p*m))*m,m-n )}\\right)^2`;
-Yc= n*ay===q*m ? `y^2`:`\\left(y${((n*ay)-(q*m))*(m-n) >0 ? `+`:``} ${bunsu( ((n*ay)-(q*m))*m,m-n )}\\right)^2`;
+Xc= n*ax===p*m ? `x^2`:`\\left(x${((n*ax)-(p*m))*(m-n) >0 ? `+`:``} ${bunsu( ((n*ax)-(p*m)),(m-n) )}\\right)^2`;
+Yc= n*ay===q*m ? `y^2`:`\\left(y${((n*ay)-(q*m))*(m-n) >0 ? `+`:``} ${bunsu( ((n*ay)-(q*m)),(m-n) )}\\right)^2`;
 r2=bunsu(r*m**2,(m-n)**2);
-ans= `\\left(${bunsu( ((n*ax)-(p*m))*m,-(m-n) )},${bunsu( ((n*ay)-(q*m))*m,-(m-n) )}\\right)`;
+ans= `\\left(${bunsu( ((n*ax)-(p*m)),-(m-n) )},${bunsu( ((n*ay)-(q*m)),-(m-n) )}\\right)`;
 }
 let R= k===1 ? `\\frac{${kanyaku(r*m**2,1)}}{${m+n}}`:
 Math.abs(m-n)===1 ? kanyaku(r*m**2,1):
