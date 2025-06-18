@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>式と証明</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+ function combi(n, r) {
+        function factorial(x) {
+          return x <= 1 ? 1 : x * factorial(x - 1);
+        }
+        return factorial(n) / (factorial(r) * factorial(n - r));
+      }
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+
+
+if(i===1){//展開の公式
+let a,b,shiki;
+let j=getRandomInt(1,3);
+if(j===1){
+a=getRandomInt(-6,6,true);
+shiki=`(x${moji(a,`y`)})^3`;
+answer=`x^3 ${moji(3*a,`x^2 y`)}${moji(3*a*a,`x y^2`)}${moji(a**3,`y^3`)}`;
+}
+if(j===2){
+do{
+a=getRandomInt(2,3,true);
+b=getRandomInt(-3,3,true);
+}while(gcd(a,b)!==1)
+shiki=`(${keisu(a)}x${moji(b,`y`)})^3`;
+answer=`${keisu(a**3,`x^3`)}${moji(3*a*a*b,`x^2 y`)}${moji(3*a*b*b,`xy^2`)}${moji(b*b*b,`y^3`)}`;
+
+}
+if(j===3){
+a=getRandomInt(-6,6,true);
+shiki=`(x${moji(a,`y`)})(x^2 ${moji(-a,`xy`)}${moji(a*a,`y^2`)})`;
+answer=`x^3 ${moji(a**3,`y^3`)}`;
+}
+  question = `$$ ${shiki}を展開せよ。$$
+`;
+
+solution=`$$ ${shiki}=${answer} $$
+`;
+}
+
+if(i===2){//展開の公式
+let a,b,shiki;
+let j=getRandomInt(1,2);
+if(j===1){
+do{
+a=getRandomInt(2,3,true);
+b=getRandomInt(-3,3,true);
+}while(gcd(a,b)!==1)
+shiki=`(${keisu(a,`x`)}${moji(b,`y`)})(${keisu(a*a,`x^2`)} ${moji(-a*b,`xy`)}${moji(b*b,`y^2`)})`;
+answer=`${keisu(a**3,`x^3`)}${moji(b*b*b,`y^3`)}`;
+
+}
+if(j===2){
+a=getRandomInt(1,3,true);
+shiki=`(x${moji(a**3,`y^3`)})(x${moji(a**3*(-1),`y^3`)})$$
+$$=(x${moji(a,`y`)})(x${moji(-a,`y`)})(x^2 ${moji(-a,`xy`)}${moji(a*a,`y^2`)})(x^2 ${moji(a,`xy`)}${moji(a*a,`y^2`)})`;
+answer=`x^6 ${moji(a**6*(-1),`y^6`)}`;
+}
+  question = `$$ ${answer}を因数分解せよ。$$
+`;
+
+solution=`$$ ${answer}=${shiki} $$
+`;
+}
+if(i===3){//二項定理係数計算
+let a,b,n,r,shiki,kou;
+let j=getRandomInt(1,2);
+if(j===1){//ｙなし
+do{
+a=getRandomInt(1,3,true);
+b=getRandomInt(-3,3,true);
+}while(gcd(a,b)!==1)
+n=getRandomInt(4,7,true);
+r=getRandomInt(1,n-1,true);
+kou=`[x^{${keisu(r)}}]`;
+shiki=`(${keisu(a,`x`)}${teisu(b)})^{${n}}`;
+answer=combi(n,r)*(a**r)*(b**(n-r));
+}
+if(j===2){
+do{
+a=getRandomInt(1,3,true);
+b=getRandomInt(-3,3,true);
+}while(gcd(a,b)!==1)
+n=getRandomInt(4,7,true);
+r=getRandomInt(1,n-1,true);
+kou=`[x^{${keisu(r)}}y^{${keisu(n-r)}}]`;
+shiki=`(${keisu(a,`x`)}${moji(b,`y`)})^{${n}}`;
+answer=combi(n,r)*(a**r)*(b**(n-r));
+}
+  question = `$$次の展開式における，[~~~~]内に指定された項の係数を求めよ。$$
+$$ ${shiki}~~~~~~~~${kou}$$
+`;
+
+solution=`$$ ${shiki}の展開式の一般項は$$
+$$_{${n}}\\mbox{C}_{r} (${keisu(a,`x`)}) ^{${n}-r} ${b===1 && j===2 ? keisu(b,`y`):
+j===2 ? `(${keisu(b,`y`)})`:kakko(b)}^{r}$$
+$$ x^{${keisu(r)}}y^{${keisu(n-r)}}の項はr=${n-r}のときで，その係数は$$
+$$ _{${n}}\\mbox{C}_{${n-r}} \\cdot ${kakko(a)}^{${r}}\\cdot ${kakko(b)}^{${n-r}} =${answer} $$
+
+`;
+}
+if(i===4){//割り算
+let a,b,p,q,m,n,A,B;
+a=getRandomInt(-3,3);
+b=getRandomInt(-3,3,true);
+B=`x^2${moji(a,`x`)}${teisu(b)}`;
+p=getRandomInt(2,4,true);
+q=getRandomInt(-3,3,true);
+m=getRandomInt(-8,8);
+n=getRandomInt(-9,9);
+A=`${keisu(p,`x^3`)}${moji(a*p+q,`x^2`)}${moji(b*p+a*q+m,`x`)}${teisu(b*q+n)}`;
+question=`$$次の多項式A，Bについて，AをBで割った商を余りを求めよ。$$
+$$A=${A}，B=${B}$$`;
+solution=`$$商　：${keisu(p,`x`)}${teisu(q)}$$
+$$余り　：　${keisu(m,`x`)}${teisu(n)}$$
+`;
+}//i=4
+if(i===5){//割り算
+let a,b,p,q,m,n,A,B;
+a=getRandomInt(-3,3);
+b=getRandomInt(-3,3,true);
+B=`x^2${moji(a,`x`)}${teisu(b)}`;
+p=getRandomInt(2,4,true);
+q=getRandomInt(-3,3,true);
+m=getRandomInt(-8,8,true);
+n=getRandomInt(-9,9,true);
+A=`${keisu(p,`x^3`)}${moji(a*p+q,`x^2`)}${moji(b*p+a*q+m,`x`)}${teisu(b*q+n)}`;
+let Q,R;
+Q=`${keisu(p,`x`)}${teisu(q)}`;
+R=`${keisu(m,`x`)}${teisu(n)}`;
+
+question=`$$多項式${A}を多項式Bで割ると，$$
+$$ 商${Q}，余りが${R}である。$$
+$$Bを求めよ。$$`;
+solution=`$$条件から，次の等式が成り立つ。$$
+$$ ${A}=B\\times (${Q})+(${R})$$
+$$ゆえに$$
+$$ ${keisu(p,`x^3`)}${moji(a*p+q,`x^2`)}${moji(b*p+a*q,`x`)}${teisu(b*q)}=B\\times (${Q})$$
+$$よって，${keisu(p,`x^3`)}${moji(a*p+q,`x^2`)}${moji(b*p+a*q,`x`)}${teisu(b*q)} は，${Q}で割り切れて$$
+$$その商がBである。$$
+$$よって，B=${B}$$
+
+`;
+}//i=5
+if(i===6){
+  let r1,r2,r3,r4;
+  r1 = getRandomInt(-5, 5);
+r2= getRandomInt(-5, 5,true);
+do{
+r3= getRandomInt(-5, 5,true);}while(r3===r1 || r3===r2 )
+do{r4= getRandomInt(-5, 5,true);}while(r4===r3 || r4===r2 ||r4===r1)
+  
+  let num1,den1,num2,den2;
+ num1= r1===r2 ? `(x${teisu(r1)})^2`:r1===0 ? `x(x${teisu(r2)})`:`(x${teisu(r1)})(x${teisu(r2)})`;
+ den1= `(x${teisu(r3)})(x${teisu(r4)})`;
+  num2 = `x${teisu(r3)}`;
+ den2 = `x${teisu(r1)}`;
+let j=getRandomInt(1,2);
+if(j===1){
+  question= `$$  \\frac{x^2 ${moji(r1+r2,`x`)}${teisu(r1*r2)} }{x^2${moji(r3+r4,`x`)}${teisu(r3*r4)} }  \\times  \\frac{${num2}}{${den2}} を計算せよ。$$`;
+}
+if(j===2){
+  question= `$$  \\frac{x^2 ${moji(r1+r2,`x`)}${teisu(r1*r2)} }{x^2${moji(r3+r4,`x`)}${teisu(r3*r4)} }  \\div  \\frac{${den2}}{${num2}} を計算せよ。$$`;
+}
+solution=`$$(与式)=\\frac{${num1} }{${den1} }\\times\\frac{${num2}}{${den2}}$$
+$$=\\frac{x${teisu(r2)} }{x${teisu(r4)} }$$`;
+}//分数の乗除
+
+if(i===7){
+let j=getRandomInt(1,2);
+if(j===1){
+  let r1,r2,r3,i;
+    r1 = getRandomInt(-5, 5,true);
+  do{ r2 = getRandomInt(-5, 5);}while(r1===r2)
+  do{ r3 = getRandomInt(-5, 5, true);}while(r3===r1 ||r3===r2)
+   i = getRandomInt(-1, 1, true);
+
+  let a = i * (r1 + r3 - r2);
+  let b = i * (r1 * r3);
+
+  const num1 = `x`;
+  const den1 = `x${teisu(r1)}`;
+  const ax = keisu(a,`x`);
+  const bStr = b === 0 ? "" : (b > 0 ? `+${b}` : `${b}`);
+  let num2 = `${ax}${bStr}`;
+  const den2 =`x^2${moji(r1+r2,`x`)}${teisu(r1*r2)}`;
+if (a === 0) {
+  i = b > 0 ? `${i}` : `${-i}`;
+  num2 = b < 0 ? `${-b}` : `${b}`;
+}
+if (b === 0) {
+  i = a > 0 ? `${i}` : `${-i}`;
+  a = a < 0 ? `${-a}` : `${a}`;
+ num2=`${a}x`;
+}
+ let sign = i === 1 ? "+" : "-";
+   question = `$$次の計算をせよ。$$
+$$\\frac{${num1}}{${den1}} ${sign} \\frac{${num2}}{${den2}}$$`;
+
+  solution = `$$ (与式)=\\frac{${num1}}{${den1}} ${sign} \\frac{${num2} }{(x${teisu(r1)})${r2===0 ? `x`:`(x${teisu(r2)})`} }$$
+$$=\\frac{x(x${teisu(r2)})${sign}${a===0 ?num2:`(${num2})`} }{(x${teisu(r1)})(x${teisu(r2)} )}$$
+$$=\\frac{x^2${moji(r2+a*i,`x`)}${teisu(b*i)}}{(x${teisu(r1)})(x${teisu(r2)} )}$$
+$$=\\frac{(x${teisu(r1)})(x${teisu(r3)})}{(x${teisu(r1)})(x${teisu(r2)} )}$$
+$$=\\frac{x${teisu(r3)}}{x${teisu(r2)}} $$`;
+}//j=1
+if(j===2){
+let r1,r2,r3,r4;
+r1=getRandomInt(-4,4,true);
+r2=-1*r1**2;
+let k=getRandomInt(-1,1,true);
+let sighn= k===1 ? `+`:`-`;
+r3=getRandomInt(1,-r2,true);
+r4=r2-k*r3;
+ question = `$$次の計算をせよ。$$
+$$\\frac{x^2${teisu(r4)}}{x ${teisu(r1)}} ${sighn} \\frac{${r3}}{x ${teisu(r1)}}$$`;
+
+  solution = `$$(与式)=\\frac{(x^2${teisu(r4)} )${sighn}${kakko(r3)} }{x ${teisu(r1)}}$$
+$$=\\frac{x^2${teisu(r2)}}{x ${teisu(r1)}}$$
+$$=\\frac{(x${teisu(r1)})(x${teisu(-r1)})}{x ${teisu(r1)}}$$
+$$=x${teisu(-r1)}$$`;
+
+}
+}//i=7
+if(i===8){//恒等式
+let a,b,c,r,j;
+j=getRandomInt(1,2);
+a=getRandomInt(1,2);
+b=getRandomInt(-6,6,true);
+c=getRandomInt(-6,6,true);
+r=getRandomInt(-3,3,true);
+if(j===1){
+question=`$$次の等式がxについての恒等式となるように$$
+$$定数a,b,cの値を定めよ。$$
+$$ ${keisu(a,`x^2`)}${moji(2*a*r+b,`x`)}${teisu(a*r**2 +r*b +c)}=a(x${teisu(r)})^2 +b(x${teisu(r)}) +c$$`;
+
+solution=`$$等式の右辺をxについて整理すると$$
+$$${keisu(a,`x^2`)}${moji(2*a*r+b,`x`)}${teisu(a*r**2 +r*b +c)}=ax^2 
++( ${keisu(2*r,`a`)}+b)x+(${keisu(r**2,`a`)}${moji(r,`b`)}+c)$$
+$$この等式が，xについての恒等式となるのは$$
+$$両辺の同じ次数の項が等しいときである。$$
+$$よって$$
+$$ ${a}=a，${2*a*r+b}=${keisu(2*r,`a`)} + b，   ${a*r**2 +r*b +c}=${keisu(r**2,`a`)}${moji(r,`b`)}+c$$
+$$これを解いて，a=${a}，b=${b}，c=${c} 
+$$`;
+}
+if(j===2){
+let m,n,p;
+do{
+m=getRandomInt(1,2);
+n=getRandomInt(-3,3,true);
+}while(gcd(m,n)>1)
+do{p=getRandomInt(-3,3);}while(p===n)
+question=`$$次の等式がxについての恒等式となるように$$
+$$定数a,bの値を定めよ。$$
+$$ \\frac{${keisu(a+m*b,`x`)} ${teisu(p*a+n*b)} }{(${keisu(m,`x`)}${teisu(n)})(x${teisu(p)})}
+=\\frac{a}{${keisu(m,`x`)}${teisu(n)}}+\\frac{b}{x${teisu(p)}} $$`;
+
+
+
+}
+}//i=8のとき。
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>式と証明</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　展開基本問題</option>
+          <option value="2">2.　因数分解基本問題</option>
+          <option value="3">3.　二項定理</option>
+          <option value="4">4.　多項式の割り算</option>
+          <option value="5">5.　多項式の割り算Ⅱ</option>
+          <option value="6">6.　分数式の乗除</option>
+          <option value="7">7.　分数式の加減</option>
+          <option value="8">8.　恒等式</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
