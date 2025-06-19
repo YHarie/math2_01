@@ -388,8 +388,8 @@ else if(TS!==0){
   answer = `\\frac{${keisu(KI,"")}${num}${b1}^{n}${constant}}{${denominator}}`;
 }
 let bunbo=(b1-1)*(b1-1);
-let yaku=gcd(KI,bunbo);
-bunbo=bunbo/yaku; KI=KI/yaku;
+let yaku=gcd( gcd(KI,bunbo) , constant);
+bunbo=bunbo/yaku; KI=KI/yaku;constant=constant/yaku;
 
 let answer2;
 if (b1 === 2) {
