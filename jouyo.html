@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>剰余の定理</title>
+  <title>剰余の定理と因数定理</title>
   <style>
     html, body {
       margin: 0;
@@ -27,6 +27,7 @@
       flex: 1;
       background-color: #f9f9f9;
       font-size: 1em;
+
     }
 
     #right-area {
@@ -34,11 +35,7 @@
       background-color: #222;
       color: white;
     }
-
-    body {
-      font-size: 1.3em;
-    }
-
+         body{font-size:1.3em;}
     @media (orientation: portrait) {
       .container {
         flex-direction: column;
@@ -48,22 +45,15 @@
         height: 50vh;
       }
 
-      body {
-        font-size: 2em;
-      }
 
-      input, select, button {
-        font-size: 1.5em;
-      }
-    }
+    body {
+    font-size: 2em;
+  }
 
-    input {
-      width: 100px;
-      height: 40px;
-      font-size: 1em;
-      padding: 1vw;
-      margin-right: 2vw;
-    }
+   select, button {
+    font-size: 1.5em;
+  }
+}
 
     .correct { color: green; }
     .incorrect { color: red; }
@@ -74,8 +64,14 @@
       max-height: 80vh;
       touch-action: none;
     }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
   </style>
-
   <script>
     function getRandomInt(min, max, excludeZero = false) {
       let v;
@@ -84,88 +80,247 @@
       } while (excludeZero && v === 0);
       return v;
     }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
 
-    function formatPoly(coefs) {
-      const terms = [];
-      const n = coefs.length - 1;
-      coefs.forEach((c, i) => {
-        if (c === 0) return;
-        const exp = n - i;
-        const sign = c < 0 ? '-' : (terms.length ? '+' : '');
-        const absVal = Math.abs(c);
-        let term = '';
-        if (exp === 0) {
-          term = absVal.toString();
-        } else if (exp === 1) {
-          term = (absVal === 1 ? '' : absVal) + 'x';
-        } else {
-          term = (absVal === 1 ? '' : absVal) + `x^{${exp}}`;
-        }
-        terms.push(sign + term);
-      });
-      return terms.join('');
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
     }
 
-    function generateQuiz() {
-      const question = document.getElementById('question');
-      question.innerHTML = '';
-      const scoreDisplay = document.getElementById('scoreDisplay');
-      problems = [];
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
 
-      // 問題1: ax^2+bx+c を x+r で割った余り
-      {
-        const a = getRandomInt(1, 3);
-        const b = getRandomInt(-3, 3, true);
-        const c = getRandomInt(-3, 3, true);
-        const r = getRandomInt(-2, 2, true);
-        const poly = formatPoly([a, b, c]);
-        const rem = a * (-r) * (-r) + b * (-r) + c;
-        problems.push({ poly, r, answer: rem });
-      }
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
 
-      // 問題2: ax^3+bx^2+cx+d を x+r で割った余り
-      {
-        const a = getRandomInt(1, 3);
-        const b = getRandomInt(-3, 3, true);
-        const c = getRandomInt(-3, 3, true);
-        const d = getRandomInt(-3, 3, true);
-        const r = getRandomInt(-2, 2, true);
-        const poly = formatPoly([a, b, c, d]);
-        const rem = a * (-r) * (-r) * (-r) + b * r * r + c * (-r) + d;
-        problems.push({ poly, r, answer: rem });
-      }
+  let outside = 1;
+  let inside = n;
 
-      problems.forEach((p, i) => {
-        const div = document.createElement('div');
-        div.className = 'question';
-        div.innerHTML = `
-          <div><strong>問${i + 1}.</strong> \\(${p.poly}\\) を \\(x${p.r >= 0 ? '+' : ''}${p.r}\\) で割った余りを求めなさい。</div>
-          <input type="number" id="input${i}" placeholder="あまり">
-          <button onclick="checkAnswer(${i})"style="padding: 1rem 1rem; font-size: 1rem">答え合わせ</button>
-          <span id="result${i}"></span>
-        `;
-        question.appendChild(div);
-      });
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
 
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+ if(i===1){
+	let a = getRandomInt(1, 3);
+        let b = getRandomInt(-3, 3, true);
+        let c = getRandomInt(-3, 3, true);
+        let d = getRandomInt(-3, 3, true);
+        let r = getRandomInt(-2, 2, true);
+        answer = a * (-r) * (-r) * (-r) + b * r * r + c * (-r) + d;
+	question=`$$ ${keisu(a)}x^3${moji(b,`x^2`)}${moji(c,`x`)}${teisu(d)}を$$
+	$$x${teisu(-r)}で割ったときの余りを求めよ。$$`;
+	solution=`$$P(x)=${keisu(a)}x^3${moji(b,`x^2`)}${moji(c,`x`)}${teisu(d)}とおくと$$
+$$剰余の定理より，x${teisu(-r)}で割ったときの余りは$$
+	$$P(${r})=${a}\\cdot${kakko(r)}^3${teisu(b)}\\cdot${kakko(r)}^2${teisu(c)}\\cdot${kakko(r)}${teisu(d)}$$
+$$=${answer}$$`;
+}//i=1
+ if(i===2){
+	let a = getRandomInt(1, 3);
+        let b = getRandomInt(-3, 3, true);
+        let c = getRandomInt(-3, 3, true);
+        let d = getRandomInt(-3, 3, true);
+	let p = getRandomInt(2, 3, true);
+        let r = getRandomInt(-2, 2, true);
+	let num = a*(r**3)+b*p*(r**2)+c*(p**2)*r+d*(p**3);
+	let den = p**3;
+        answer = bunsu(num,den);
+	question=`$$ ${keisu(a)}x^3${moji(b,`x^2`)}${moji(c,`x`)}${teisu(d)}を$$
+	$$${keisu(p,`x`)}${teisu(-r)}で割ったときの余りを求めよ。$$`;
+	solution=`$$P(x)=${keisu(a)}x^3${moji(b,`x^2`)}${moji(c,`x`)}${teisu(d)}とおくと$$
+$$剰余の定理より，${keisu(p,`x`)}${teisu(-r)}で割ったときの余りは$$
+	$$P(${r})=${a}\\cdot \\left(${bunsu(r,p)}\\right)^3${teisu(b)}\\cdot \\left(${bunsu(r,p)}\\right)^2${teisu(c)}\\cdot \\left(${bunsu(r,p)}\\right)${teisu(d)}$$
+$$=${answer}$$`;
+}//i=2
+if(i===3){
+	let p,q,r1,r2;
+	let a = getRandomInt(1, 4);
+        let b = getRandomInt(-5, 5, true);
+	do{
+        p = getRandomInt(-3, 3, true);
+        q = getRandomInt(-3, 3, true);
+	}while(p===q)
+	r1 = a*p+b;
+	r2 = a*q+b;
+	question=`$$多項式P(x)をx${teisu(-p)}で割ると余りが${r1}，$$
+	$$x${teisu(-q)}で割ると余りが${r2}である。$$
+	$$P(x)を(x${teisu(-p)})(x${teisu(-q)})で割ったときの余りを求めよ。$$`;
+	solution=`$$P(x)を2次式(x${teisu(-p)})(x${teisu(-q)})で割ったときの商をQ(x),$$
+	$$余りをax+bとすると，$$
+	$$　　P(x)=(x${teisu(-p)})(x${teisu(-q)})Q(x)+ax+b　　(a,bは定数)$$
+	$$与えられた条件から，剰余の定理より$$
+	$$P(${p})=${r1}　かつ　P(${q})=${r2}$$
+	$$よって，$$
+	$$${keisu(p,`a`)}+b=${r1}，　${keisu(q,`a`)}+b=${r2}$$
+	$$これを解いて，a=${a}，b=${b}$$
+	$$したがって，求めるあまりは　${keisu(a,`x`)}${teisu(b)}$$`;
+
+}//i=3
+	if(i===4){
+	let a1,a2,a3,r1,r2,r3;
+	a1 =getRandomInt(-3,3,true);
+	a2 =getRandomInt(-3,3,true);
+	a3 =getRandomInt(-3,3,true);
+	function sortNumbers(a, b) {
+ 	 return a - b;
+	}
+
+	function sortThreeNumbers(num1, num2, num3) {
+	  const numbers = [num1, num2, num3];
+	  numbers.sort(sortNumbers);
+	  return numbers;
+	}
+
+	[a1,a2,a3]=sortThreeNumbers(a1,a2,a3);
+	let j=getRandomInt(1,2);
+	let shiki,p;
+	if(j===1){
+	p=1;
+	 r1 = -(a1 + a2 + a3);
+	 r2 = a1 * a2 + a2 * a3 + a3 * a1;
+	 r3 = -a1 * a2 * a3;
+	 shiki=`x^3${moji(r1,`x^2`)}${moji(r2,`x`)}${teisu(r3)}`;
+	answer= a1===a2 && a2===a3 ? `( x ${ teisu(-a1) } )^{3} `:
+	a1===a2 ? `(x${teisu(-a1)})^2 (x${teisu(-a3)})`:
+	a2===a3 ? `(x${teisu(-a1)})(x${teisu(-a2)})^2`:
+	`(x${teisu(-a1)})(x${teisu(-a2)})(x${teisu(-a3)})`;
+	}
+	if(j===2){
+	do{p=getRandomInt(2,3);}while(gcd(p,a3)!==1)
+	 r1 = -(a1 + a2)*p - a3;
+	 r2 = a1 * a2 *p + (a2+a1) * a3 ;
+	 r3 = -a1 * a2 * a3;
+	 shiki=`${p}x^3${moji(r1,`x^2`)}${moji(r2,`x`)}${teisu(r3)}`;
+	answer= a1===a2 ? `(x${teisu(-a1)})^2 (${p}x${teisu(-a3)})`:
+	`(x${teisu(-a1)})(x${teisu(-a2)})(${p}x${teisu(-a3)})`;
+	}
+
+	question=`$$${shiki}を因数分解せよ。$$`;i
+	solution=`$$P(x)=${shiki}とすると$$
+	$$P(${a1})=${p}\\cdot${kakko(a1)}^3${teisu(r1)}\\cdot${kakko(a1)}^2${teisu(r2)}\\cdot ${kakko(a1)}${teisu(r3)}=0$$
+	$$ゆえにP(x)はx${teisu(-a1)}を因数に持つ。$$
+	$$よって，P(x)=(x${teisu(-a1)})(${keisu(p,`x^2`)} ${moji(-p*a2 -a3,`x`)}${teisu(a2*a3)})$$
+	$$ゆえに，　　${shiki}=${answer}$$
+	`;
+	
+}//i=4
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
       MathJax.typeset();
     }
 
-    function checkAnswer(i) {
-      const input = document.getElementById(`input${i}`);
-      const feedback = document.getElementById(`result${i}`);
-      const user = parseFloat(input.value);
-      const correct = window.problems[i].answer;
-
-        feedback.textContent = (user === correct)
-          ? '正解！'
-          : `不正解。正解は ${correct} です。`;
-
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
     }
 
-    function showSolution() {
-      document.getElementById('solution').innerHTML = window.solutionText;
-      MathJax.typeset();
-    }
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
 
     window.onload = function () {
       generateQuiz();
@@ -181,96 +336,116 @@
 
     window.addEventListener('resize', resizeCanvas);
   </script>
-
   <script>
-    MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-      chtml: { displayAlign: "left" }
-    };
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-
 <body>
   <div class="container">
     <div id="left-area">
-      <h1>剰余の定理</h1>
+      <h1>剰余の定理と因数定理</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　x-kで割ったときの余り</option>
+          <option value="2">2.　ax+bで割ったときの余り</option>
+          <option value="3">3.　二次式で割ったときの余り</option>
+          <option value="4">4.　因数定理</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
       <div id="question" class="question"></div>
-      <div>
-        <button onclick="generateQuiz()" style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
       </div>
       <div id="feedback" class="feedback"></div>
       <div id="solution" class="solution"></div>
     </div>
-
-    <div id="right-area">
+   <div id="right-area">
       <p>ここにメモを書いたり、図形を描いたりできます。</p>
-      <canvas id="blackboard" width="700" height="700"></canvas>
-      <button onclick="clearBoard()">クリア</button>
-      <button onclick="toggleEraser()">消しゴム切替</button>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
     </div>
   </div>
 
-  <script>
-    const canvas = document.getElementById('blackboard');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let isErasing = false;
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
 
-    function toggleEraser() {
-      isErasing = !isErasing;
-    }
+ function toggleEraser() {
+  isErasing = !isErasing;
 
-    function getStrokeStyle() {
-      return isErasing ? "#222" : "white";
-    }
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
 
-    function getLineWidth() {
-      return isErasing ? 20 : 2;
-    }
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
 
-    function drawLine(x, y) {
-      ctx.lineTo(x, y);
-      ctx.strokeStyle = getStrokeStyle();
-      ctx.lineWidth = getLineWidth();
-      ctx.stroke();
-    }
 
-    canvas.addEventListener('mousedown', e => {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(e.offsetX, e.offsetY);
-    });
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
 
-    canvas.addEventListener('mousemove', e => {
-      if (drawing) drawLine(e.offsetX, e.offsetY);
-    });
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
 
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mouseleave', () => drawing = false);
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
 
-    canvas.addEventListener('touchstart', e => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      ctx.beginPath();
-      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-      drawing = true;
-    });
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
 
-    canvas.addEventListener('touchmove', e => {
-      e.preventDefault();
-      if (!drawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
-    });
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
 
-    canvas.addEventListener('touchend', () => drawing = false);
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
 
-    function clearBoard() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-  </script>
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
 </body>
 </html>
