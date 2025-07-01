@@ -225,7 +225,7 @@ let sighn=j===1 ? `+`:`-`;
 
 question=`$$(${a}${moji(b,`i`)})${sighn}(${c}${moji(d,`i`)})　を計算せよ。$$`;
 
-answer=j===1 ? `${a+c}${moji(b+d,`i`)}`:`${a-c}${moji(b-d,`i`)}`;
+answer=j===1 ? `${teisu(a+c)}${moji(b+d,`i`)}`:`${teisu(a-c)}${moji(b-d,`i`)}`;
 
 solution=`$$(与式)=(${kakko(a)}${sighn}${kakko(c)})+(${kakko(b)}${sighn}${kakko(d)})i$$
 $$=${answer}$$`;
@@ -239,7 +239,7 @@ d=getRandomInt(-7,7,true);
 
 question=`$$(${a}${moji(b,`i`)})\\times (${c}${moji(d,`i`)})　を計算せよ。$$`;
 
-answer=`${a*c-b*d}${moji(a*d+b*c,`i`)}`;
+answer=`${teisu(a*c-b*d)}${moji(a*d+b*c,`i`)}`;
 
 solution=`$$(与式)=${kakko(a)}\\cdot${kakko(c)}+${kakko(a)}\\cdot${kakko(d)}i+
 ${kakko(b)}\\cdot${kakko(c)}i+${kakko(b)}\\cdot${kakko(d)}i^2$$
