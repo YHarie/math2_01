@@ -50,10 +50,11 @@
     font-size: 2em;
   }
 
-  input, select, button {
+   select, button {
     font-size: 1.5em;
   }
 }
+
     .correct { color: green; }
     .incorrect { color: red; }
 
@@ -63,8 +64,15 @@
       max-height: 80vh;
       touch-action: none;
     }
-
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
   </style>
+
   <script>
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
