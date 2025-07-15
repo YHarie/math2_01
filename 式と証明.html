@@ -460,8 +460,15 @@ $$定数a,bの値を定めよ。$$
 $$ \\frac{${keisu(a+m*b,`x`)} ${teisu(p*a+n*b)} }{(${keisu(m,`x`)}${teisu(n)})(x${teisu(p)})}
 =\\frac{a}{${keisu(m,`x`)}${teisu(n)}}+\\frac{b}{x${teisu(p)}} $$`;
 
-
-
+solution=`$$与えられた等式がxについての恒等式ならば，$$
+$$その両辺に(${keisu(m,`x`)}${teisu(n)})(x${teisu(p)})をかけて得られる等式$$
+$$　　　　　${keisu(a+m*b,`x`)} ${teisu(p*a+n*b)} =a(x${teisu(p)})+b(${keisu(m,`x`)}${teisu(n)})$$
+$$もxについての恒等式である。$$
+$$右辺をxについて整理すると$$
+$$　　　　　${keisu(a+m*b,`x`)} ${teisu(p*a+n*b)} =(a${moji(m,`b`)})x+(${keisu(p,`a`)}${moji(n,`b`)})$$
+$$両辺の同じ次数の項の係数が等しいから$$
+$$　　　　　${a+m*b}=a${moji(m,`b`)}，　　${p*a+n*b}=${keisu(p,`a`)}${moji(n,`b`)}$$
+$$これを解いて，　　　a=${a}，b=${b}$$`;
 }
 }//i=8のとき。
 
