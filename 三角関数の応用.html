@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>三角関数の応用</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+function insu(a, b, c) {
+  for (let l = -6; l <= 6; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+    function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+function drawTrigGraph(func, theta,theta2) {
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.style.display = "block";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const centerX = 200;
+  const centerY = 200;
+  const radius = 100;
+
+  // 座標変換関数（数学座標→canvas座標）
+  const toCanvas = (x, y) => [centerX + x * radius, centerY - y * radius];
+
+  // === 座標軸 ===
+  ctx.beginPath();
+  ctx.moveTo(0, centerY);
+  ctx.lineTo(400, centerY); // x軸
+  ctx.moveTo(centerX, 0);
+  ctx.lineTo(centerX, 400); // y軸
+  ctx.strokeStyle = "gray";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // === 原点 "O" 表示 ===
+  ctx.fillStyle = "black";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("O", centerX + 5, centerY - 5);
+
+  // === 単位円 ===
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // === 角度に対応する点 ===
+  const x = Math.cos(theta);
+  const y = Math.sin(theta);
+  const [cx, cy] = toCanvas(x, y);
+  const x2 = Math.cos(theta2);
+  const y2 = Math.sin(theta2);
+  const [cx2, cy2] = toCanvas(x2, y2);
+  ctx.beginPath();
+  ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
+  ctx.arc(cx2, cy2, 4, 0, 2 * Math.PI);
+  ctx.fillStyle = "red";
+  ctx.fill();
+
+  // === 補助線（sin, cos, tan）===
+  if (func === "sin") {
+    ctx.beginPath();
+    ctx.moveTo(0, cy);
+    ctx.lineTo(400, cy);
+    ctx.strokeStyle = "blue";
+    ctx.stroke();
+  }
+
+  if (func === "cos") {
+    ctx.beginPath();
+    ctx.moveTo(cx, 0);
+    ctx.lineTo(cx, 400);
+    ctx.strokeStyle = "green";
+    ctx.stroke();
+  }
+
+  if (func === "tan") {
+    const slope = Math.tan(theta);
+    ctx.beginPath();
+    ctx.moveTo(0, centerY + slope * (centerX)); // x=-2
+    ctx.lineTo(400, centerY - slope * (200));   // x=2
+    ctx.strokeStyle = "purple";
+    ctx.stroke();
+  }
+
+  // === 角度ラベル（例: θ）===
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY);
+  ctx.lineTo(cx, cy);
+   ctx.moveTo(centerX, centerY);
+  ctx.lineTo(cx2, cy2);
+  ctx.strokeStyle = "orange";
+  ctx.setLineDash([5, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = "orange";
+  ctx.fillText("θ", (cx + centerX) / 2 + 5, (cy + centerY) / 2 - 5);
+  ctx.fillText("θ", (cx2 + centerX) / 2 + 5, (cy2 + centerY) / 2 - 5);
+  ctx.fillText("x", 390,centerY +15);
+  ctx.fillText("y", centerX -15, 10);
+  ctx.fillText("O", (centerX +5,centerY-5));
+}
+
+
+function clearGraph() {
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.style.display = "none";
+}
+
+
+function generateQuiz() {
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  clearGraph();
+  let i = parseInt(document.getElementById('modeSelect1').value);
+ let a1 = getRandomInt(-4, 4,true);
+let question, answer, solution,k,l,value;
+if(i===0){i=getRandomInt(1,3);}
+if (i === 1) {//方程式
+  let j,num,den,equation,A1,A2;
+  k=getRandomInt(1,3);
+  l=getRandomInt(-1,1,true);
+  j=getRandomInt(1,3);
+  den= k===1 ? 6 : k===2 ? 3:4;
+  let thetaRad2 ;
+  if (j===1) {
+    equation=`\\mathrm{sin\\theta}`;
+    value=` ${keisu(l)}${k===1 ? `\\frac{1}{2}`:k===2 ? `\\frac{\\sqrt{3}}{2}`:`\\frac{1}{\\sqrt{2}}` }`;
+    num= l===1 ? 1:1+den;
+    A1=`\\frac{${num} }{${den}}\\pi`;
+    A2=`\\frac{${l===1 ? den-1:2*den-1}}{${den}}\\pi`;
+    thetaRad2 = l===1 ? (den-1)/ den * Math.PI:(2*den-1) / den * Math.PI; // 例：A2 のラジアン
+    }
+  if (j===2) {
+  equation=`\\mathrm{cos\\theta}`;
+    value=` ${keisu(l)}${k===1 ? `\\frac{\\sqrt{3}}{2}`:k===2 ? `\\frac{1}{2}`:`\\frac{1}{\\sqrt{2}}` }`;
+    num= l===1 ? 1:den-1;
+    A1=`\\frac{${num} }{${den}}\\pi`;
+    A2=`\\frac{${den*2-num}}{${den}}\\pi`;
+    thetaRad2 =(2*den-num) / den * Math.PI; // 例：A2 のラジアン
+  }
+  if(j===3){
+      equation=`\\mathrm{tan\\theta}`;
+      value=`${keisu(l)} ${k===1 ? `\\frac{1}{\\sqrt{3}}`:k===2 ? `\\sqrt{3}`: 1}`;
+      num=l===1 ? 1:den-1;
+      A1=`\\frac{${num}}{${den}}\\pi`;
+      A2=`\\frac{${num+den}}{${den}}\\pi`;
+      thetaRad2 = (num + den) / den * Math.PI; // 例：A2 のラジアン
+  }
+let func = j === 1 ? "sin" : j === 2 ? "cos" : "tan";
+let thetaRad = num / den * Math.PI; // 例：A1 のラジアン
+  question = `$$ 0\\leqq \\theta \\leqq 2\\pi のとき，方程式 ${equation}=${value}を解け。$$
+  $$また，\\theta に制限がないときの解を求めよ。 $$`;
+
+  solution = `$$下の図より， \\theta =${A1}，${A2}$$
+  $$また，\\theta に制限がないときの解は$$
+  $$\\theta =${j===3 ? `${A1}+n\\pi`:`${A1}+2n\\pi， ${A2}+2n\\pi`}　(nは整数)$$`;
+  document.getElementById("soluButton").onclick = () => {
+  window.solutionText = solution;
+  showSolution();
+  drawTrigGraph(func, thetaRad,thetaRad2);
+}
+}
+if(i===2){
+ let j,num,den,equation,m,A1,A2;
+  k=getRandomInt(1,3);
+  l=getRandomInt(-1,1,true)
+  j=getRandomInt(1,3);
+  m=getRandomInt(-1,1,true);
+  den= k===1 ? 6 : k===2 ? 3:4;
+  let thetaRad2 ;
+  if (j===1) {
+    equation=`\\mathrm{sin\\theta}`;
+    value=` ${keisu(l)}${k===1 ? `\\frac{1}{2}`:k===2 ? `\\frac{\\sqrt{3}}{2}`:`\\frac{1}{\\sqrt{2}}` }`;
+    num= l===1 ? 1:1+den;
+    A1=`\\frac{${num} }{${den}}\\pi`;
+    A2=`\\frac{${l===1 ? den-1:2*den-1}}{${den}}\\pi`;
+    thetaRad2 = l===1 ? (den-1)/ den * Math.PI:(2*den-1) / den * Math.PI; // 例：A2 のラジアン
+    answer= l*m===1 ? `${A1}\\lt \\theta \\lt ${A2}`:`0\\leq \\theta \\lt ${A1}，${A2}\\lt \\theta \\lt 2\\pi`; 
+  }
+  if (j===2) {
+  equation=`\\mathrm{cos\\theta}`;
+    value=` ${keisu(l)}${k===1 ? `\\frac{\\sqrt{3}}{2}`:k===2 ? `\\frac{1}{2}`:`\\frac{1}{\\sqrt{2}}` }`;
+    num= l===1 ? 1:den-1;
+    A1=`\\frac{${num} }{${den}}\\pi`;
+    A2=`\\frac{${den*2-num}}{${den}}\\pi`;
+    thetaRad2 =(2*den-num) / den * Math.PI; // 例：A2 のラジアン
+    answer= m>0 ? `0\\leq \\theta \\lt ${A1}，${A2}\\lt \\theta \\lt 2\\pi`:`${A1}\\lt \\theta \\lt ${A2}`;
+  }
+  if(j===3){
+      equation=`\\mathrm{tan\\theta}`;
+      value=`${keisu(l)} ${k===1 ? `\\frac{1}{\\sqrt{3}}`:k===2 ? `\\sqrt{3}`: 1}`;
+      num=l===1 ? 1:den-1;
+      A1=`\\frac{${num}}{${den}}\\pi`;
+      A2=`\\frac{${num+den}}{${den}}\\pi`;
+      thetaRad2 = (num + den) / den * Math.PI; // 例：A2 のラジアン
+      answer= l===1 && m===1 ? `${A1}\\lt \\theta \\lt \\frac{\\pi}{2}，${A2}\\lt \\theta \\lt \\frac{3}{2}\\pi`:
+      l===1 && m===-1 ? `0\\leqq \\theta \\lt ${A1}，\\frac{\\pi}{2}\\lt \\theta \\lt ${A2}，\\frac{3}{2} \\pi \\lt \\theta \\lt 2\\pi`:
+      m>0 ? `0\\leqq \\theta \\lt \\frac{\\pi}{2}，${A1}\\lt \\theta  \\lt \\frac{3}{2}\\pi，${A2}\\lt \\theta \\lt 2\\pi`:
+      `\\frac{\\pi}{2} \\lt \\theta \\lt ${A1}，\\frac{3}{2}\\pi \\lt \\theta \\lt ${A2}`;
+  }
+let func = j === 1 ? "sin" : j === 2 ? "cos" : "tan";
+let thetaRad = num / den * Math.PI; // 例：A1 のラジアン
+  question = `$$ 0\\leqq \\theta \\leqq 2\\pi のとき，不等式 ${equation} ${m>0 ? `\\gt`: `\\lt`} ${value}を解け。$$`;
+
+  solution = `$$下の図より， ${answer} $$`;
+  document.getElementById("soluButton").onclick = () => {
+  window.solutionText = solution;
+  showSolution();
+  drawTrigGraph(func, thetaRad,thetaRad2);
+}
+}
+ if(i===3){
+  let a,b,c;
+  a=getRandomInt(-2,2,true);
+  b=getRandomInt(-3,3,true)*a;
+  c=getRandomInt(-3,3,true);
+  let p,q,P;
+  p=bunsu(-b,2*a);
+  q=bunsu(4*a*c-b**2,4*a);
+  P=-b/(2*a);
+  let j,k,l;
+  j=getRandomInt(1,2);
+  k=getRandomInt(-1,1,true);
+  let torigo1,torigo2,torigo3;
+  torigo1= j===1 ? `\\mathrm{sin} \\theta`:`\\mathrm{cos} \\theta`;
+  torigo2= j*k=== 1 || j*k===-2 ?`\\mathrm{sin^2}\\theta`:`\\mathrm{cos^2}\\theta`;
+  torigo3= j*k=== -1 ?`\\mathrm{sin^2}\\theta`:`\\mathrm{cos^2}\\theta`;
+  let tfunc =`${keisu(a,`t^2`)}${moji(b,`t`)}${teisu(c)}`; 
+  let func= k>0 ? `${keisu(a,torigo2)}${moji(b,torigo1)}${teisu(c)}`:`${keisu(-a,torigo2)}${moji(b,torigo1)}${teisu(c+a)}`;
+  let Amax,Amin,maxt,mint,maxtheta,mintheta;
+  if(a>0){
+    Amin= Math.abs(P)<1.01 ? q:P<-1 ? a-b+c:a+b+c;
+    Amax= P>0 ? a-b+c:a+b+c;
+    maxt= P>0 ? -1:1;
+    mint= Math.abs(P)<1.01 ? p:P<-1 ? -1 : 1;
+    maxtheta= P>0 && j===1 ? `\\frac{3}{2}\\pi`:P>0 &&j===2 ? `\\pi`:
+    j===1 ? `\\frac{\\pi}{2}`:0;
+    mintheta=P===-1 && j===1 ? `\\frac{3}{2}\\pi`: P===-1 && j===2 ?`\\pi`:
+    Math.abs(P)===0.5 && j===1 ? `\\frac{${4-6*P}}{6}\\pi，\\frac{${8-P*6}}{6}\\pi`:Math.abs(P)===0.5 && j===2 ? `\\frac{${1.5-P}}{3}\\pi，\\frac{${4.5+P}}{3}\\pi`:
+    P===1 && j===1 ?`\\frac{\\pi}{2}`:0;
+  }
+  if(a<0){
+    Amax= Math.abs(P)<1.01 ? q:P<-1 ? a-b+c:a+b+c;
+    Amin= P>0 ? a-b+c:a+b+c;
+    mint= P>0 ? -1:1;
+    maxt= Math.abs(P)<1.01 ? p:P<-1 ? -1 : 1;
+    mintheta= P>0 && j===1 ? `\\frac{3}{2}\\pi`:P>0 &&j===2 ? `\\pi`:
+    j===1 ? `\\frac{\\pi}{2}`:0;
+    maxtheta=P===-1 && j===1 ? `\\frac{3}{2}\\pi`: P===-1 && j===2 ?`\\pi`:
+    Math.abs(P)===0.5 && j===1 ? `\\frac{${4-6*P}}{6}\\pi，\\frac{${8-P*6}}{6}\\pi`:Math.abs(P)===0.5 && j===2 ? `\\frac{${1.5-P}}{3}\\pi，\\frac{${4.5+P}}{3}\\pi`:
+    P===1 && j===1 ?`\\frac{\\pi}{2}`:0;
+  }
+  question=`$$ 0\\leq \\theta \\lt 2\\pi のとき，関数y=${func}の$$
+  $$最大値と最小値を求めよ。また，そのときの\\theta の値を求めよ。$$`;
+  solution=`${k>0 ? ``:`$$ ${torigo2}=1-${torigo3}より，$$
+  $$y=${keisu(-a)}\\left(1-${torigo3} \\right)${moji(b,torigo1)}${teisu(c+a)}$$
+    $$　=${keisu(a,torigo3)}${moji(b,torigo1)}${teisu(c)}$$`}
+    $$ t=${torigo1}とおくと$$
+    $$-1\\leq t \\leq 1 \\cdots \\cdots ①$$
+    $$y=${tfunc}=${keisu(a)}\\left(t${P<0 ? `+`:``}${bunsu(b,2*a)} \\right)^2${(4*a*c-b**2)*a >0 ?`+`:``}${q===`0`?``:q}$$
+     $$$$
+      $$①の範囲において，yは$$
+      $$t=${mint}　　で最小値${Amin}をとり，$$
+      $$t=${maxt}　　で最大値${Amax}をとる。$$
+      $$$$
+      $$また，0\\leq \\theta \\lt 2\\pi であるから$$
+      $$t=${mint}ならば\\theta =${mintheta}，　t=${maxt}ならば\\theta =${maxtheta}$$
+      $$よって，この関数は$$
+      $$\\theta = ${mintheta}のとき最小値${Amin}をとり，\\theta = ${maxtheta}のとき最大値${Amax}をとる。$$   
+  `;
+   document.getElementById("soluButton").onclick = () => {
+  window.solutionText = solution;
+  showSolution();}
+
+ }
+
+  document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>三角関数の応用</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">
+          <option value="1" selected>1.　三角関数を含む方程式</option>
+          <option value="2">2.　三角関数を含む不等式</option>
+          <option value="3">3.　《応用》三角関数を含む関数の最大・最小</option>
+          <option value="0">ランダム</option>
+                  </select>
+
+      </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button id="soluButton" onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+      <canvas id="graphCanvas" width="400" height="400" style="border:1px solid gray; display: none;"></canvas>
+
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()" style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
