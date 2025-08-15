@@ -206,10 +206,10 @@ if(i===1){
 	let j=getRandomInt(1,2);
 	if(j===1){
 	question=`$$ ${sita}°を弧度法で表せ。$$`
-	solution=`$$ ${sita}°=\\frac{${sita}}{360}\\pi=${bunsu(sita,360)}\\pi $$`;
+	solution=`$$ ${sita}°=\\frac{${sita}}{180}\\pi=${bunsu(sita,180)}\\pi $$`;
 	}if(j===2){
-	question=`$$ ${bunsu(sita,360)}\\piを度数法で表せ。$$`
-	solution=`$$ ${bunsu(sita,360)}\\pi=${bunsu(sita,360)}\\pi \\times180°=${sita}°$$ `;
+	question=`$$ ${bunsu(sita,180)}\\piを度数法で表せ。$$`
+	solution=`$$ ${bunsu(sita,180)}\\pi=${bunsu(sita,180)}\\pi \\times180°=${sita}°$$ `;
 	
 	}
     }
@@ -517,4 +517,5 @@ if(i===3){
 </script>
 
 </body>
+
 </html>
