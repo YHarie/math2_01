@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>加法定理</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 4);//1～4です。
+  let question = '', answer = 0, solution = '';
+  let theta;
+  if(i===1){
+    let arg=[15,75,165,105];
+    let j=getRandomInt(0,3);
+    theta=arg[j];
+    let a,b,k,A,C;
+    A=[`\\frac{\\sqrt{6}+\\sqrt{2}}{4}`,`\\frac{\\sqrt{6}-\\sqrt{2}}{4}`,`2-\\sqrt{3}`]
+    let B=[`\\frac{1}{2}`,`\\frac{\\sqrt{3}}{2}`,
+    `\\frac{1}{2}`,`\\frac{\\sqrt{3}}{2}`,
+    `\\frac{\\sqrt{3}}{2}`,`\\left(-\\frac{1}{2}\\right)`,
+    `\\frac{\\sqrt{3}}{2}`,`\\frac{1}{2}`];
+    let A1=[`2-\\sqrt{3}`,`2+\\sqrt{3}`,`-2+\\sqrt{3}`,`-2-\\sqrt{3}`]
+    C=[`\\frac{1}{\\sqrt{3}}`,`\\sqrt{3}`];
+    if(j===0){
+      a=`45°`;
+      b=`30°`;
+      k=-1;
+    }
+    if(j===1){
+      a=`45°`;
+      b=`30°`;
+      k=1;
+    }
+    if(j===2){
+      a=`45°`;
+      b=`120°`;
+      k=1;
+    }
+    if(j===3){
+      a=`45°`;
+      b=`60°`;
+      k=1;
+    }
+    let tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+    let sc=getRandomInt(0,2);
+    question=`$$加法定理を用いて，${tri[sc]}${theta}°の値を求めよ。$$`;
+    let shiki;
+    if(sc===0){
+      shiki=`${tri[sc]}${a}${tri[1]}${b}${moji(k)}${tri[1]}${a}${tri[0]}${b}$$
+      $$=\\frac{1}{\\sqrt{2}}\\cdot ${B[2*j+1]}${moji(k)}\\frac{1}{\\sqrt{2}}\\cdot${B[j*2]}`;
+      answer =  A[(j+1) % 2];
+    }
+        if(sc===2){
+      shiki=`\\frac{${tri[sc]}${a}${moji(k)}${tri[sc]}${b}} {1${moji(-k)}${tri[sc]}${a}${tri[sc]}${b}}$$
+      $$=\\frac{1${moji(k)}${j===2 ? `\\left( -${C[1]}\\right)`:C[Math.floor(j/2)]}}{1${moji(-k)}1\\cdot ${j===2 ? `\\left( -${C[1]}\\right)`:C[Math.floor(j/2)]}}`;
+      answer = A1[j];
+    }
+    if(sc===1){
+      shiki=`${tri[sc]}${a}${tri[sc]}${b}${moji(-k)}${tri[0]}${a}${tri[0]}${b}$$
+      $$=\\frac{1}{\\sqrt{2}}\\cdot ${B[2*j+1]}${moji(-k)}\\frac{1}{\\sqrt{2}}\\cdot${B[j*2]}`;
+      answer = (j<2 ? "":"-")+ A[j % 2];
+    }
+    solution=`$$ ${tri[sc]}${theta}°$$
+    $$=${tri[sc]}(${a}+${b})$$
+    $$=${shiki}$$
+    $$=${answer}$$`;
+
+	}//i=1
+  if(i===2){
+    let j=getRandomInt(1,2);
+    let tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+    if(j===1){
+    let list=[[3,4,5],[5,12,13]];
+    let j1,j2,a,a1,a2,b,b1,b2;
+    j1=getRandomInt(0,1);
+    do{j2=getRandomInt(0,1)}while(j2===j1)
+    let lista=list[j1];
+    let listb=list[j2];
+    a=getRandomInt(0,1);
+    a1= `\\frac{${lista[a]}}{${lista[2]}}`;
+    a2=`-\\frac{${lista[(a+1)%2]}}{${lista[2]}}`;
+    b=getRandomInt(0,1);
+    b1= `\\frac{${listb[b]}}{${listb[2]}}`;
+    b2=`\\frac{${listb[(b+1)%2]}}{${listb[2]}}`;
+    let k=getRandomInt(0,1);
+    let k1=getRandomInt(0,1);
+    let k2=getRandomInt(-1,1,true);
+    question=`$$ \\frac{\\pi}{2}\\lt \\alpha \\lt \\pi，0\\lt \\beta \\lt \\frac{\\pi}{2}とする。$$
+    $$${tri[0]}\\alpha= ${a1}，${tri[k]}\\beta= ${k===0 ? b1:b2}であるとき，${tri[k1]}(\\alpha ${moji(k2)}\\beta)を求めよ。$$`;
+    solution=`$$${tri[0]}\\alpha=${a1}と\\frac{\\pi}{2}\\lt \\alpha \\lt \\piより，${tri[1]}\\alpha=${a2}，$$
+    $$${tri[k]}\\beta=${k===0 ?b1 : b2}と0\\lt \\beta \\lt \\frac{\\pi}{2}より，${tri[(k+1)%2]}\\beta=${k===0 ? b2 : b1}$$
+    $$加法定理より，$$
+    ${k1===0 ? `$$${tri[0]}(\\alpha ${moji(k2)} \\beta)=${tri[0]}\\alpha${tri[1]}\\beta ${moji(k2)} ${tri[1]}\\alpha ${tri[0]}\\beta$$
+    $$=${a1}\\cdot${b2}${moji(k2)}\\left( ${a2} \\right)\\cdot${b1}$$
+    $$=${bunsu(lista[a]*listb[(b+1)%2]-k2*lista[(a+1)%2]*listb[b],lista[2]*listb[2])}$$`:
+
+    `$$${tri[1]}(\\alpha ${moji(k2)}\\beta)=${tri[1]}\\alpha ${tri[1]}\\beta ${moji(-k2)}${tri[0]}\\alpha ${tri[0]}\\beta$$
+    $$=\\left( ${a2} \\right)\\cdot ${b2}${moji(-k2)}${a1}\\cdot${b1}$$
+    $$=${bunsu(-lista[(a+1)%2]*listb[(b+1)%2]-k2*lista[a]*listb[b],lista[2]*listb[2])}$$`}`;
+    }
+    if(j===2){
+      let m,n;
+      do{
+      m=getRandomInt(3,5);
+      n=getRandomInt(1,m-1);}while((m===5&&n===4 )||(m===5 && n===3))
+      let list=[[9,16,25],[25,144,169],[n**2,m**2-n**2,m**2]];
+      let j1,j2,a,a1,a2,b,b1,b2;
+    j1=getRandomInt(0,1);
+    j2=2;
+    let lista=list[j1];
+    let listb=list[j2];
+    a=getRandomInt(0,1);
+    a1= `\\frac{${kanyaku(lista[a],1)}}{${kanyaku(lista[2],1)}}`;
+    a2=`-\\frac{${kanyaku(lista[(a+1)%2],1)}}{${kanyaku(lista[2],1)}}`;
+    b=getRandomInt(0,1);
+    b1=`\\frac{${kanyaku(listb[b],1)}}{${kanyaku(listb[2],1)}}`;
+    b2=`\\frac{${kanyaku(listb[(b+1)%2],1)}}{${kanyaku(listb[2],1)}}`;
+    let k=getRandomInt(0,1);
+    let k1=getRandomInt(0,1);
+    let k2=getRandomInt(-1,1,true);
+    question=`$$ \\frac{\\pi}{2}\\lt \\alpha \\lt \\pi，0\\lt \\beta \\lt \\frac{\\pi}{2}とする。$$
+    $$ ${tri[0]}\\alpha= ${a1}，${tri[k]}\\beta= ${k===0 ? b1:b2}であるとき，${tri[k1]}(\\alpha ${moji(k2)}\\beta)を求めよ。$$`;
+    solution=`$$${tri[0]}\\alpha=${a1}と\\frac{\\pi}{2}\\lt \\alpha \\lt \\piより，${tri[1]}\\alpha=${a2}，$$
+    $$${tri[k]}\\beta=${k===0 ?b1 : b2}と0\\lt \\beta \\lt \\frac{\\pi}{2}より，${tri[(k+1)%2]}\\beta=${k===0 ? b2 : b1}$$
+    $$加法定理より，$$
+    ${k1===0 ? `$$${tri[0]}(\\alpha ${moji(k2)} \\beta)=${tri[0]}\\alpha${tri[1]}\\beta ${moji(k2)} ${tri[1]}\\alpha ${tri[0]}\\beta$$
+    $$=${a1}\\cdot${b2}${moji(k2)}\\left( ${a2} \\right)\\cdot${b1}$$
+    $$=\\frac{${kanyaku(lista[a]*listb[(b+1)%2],1)}${moji(-k2)}${kanyaku(lista[(a+1)%2]*listb[b],1)}}{${kanyaku(lista[2]*listb[2],1)}}$$`:
+
+    `$$${tri[1]}(\\alpha ${moji(k2)}\\beta)=${tri[1]}\\alpha ${tri[1]}\\beta ${moji(-k2)}${tri[0]}\\alpha ${tri[0]}\\beta$$
+    $$=\\left( ${a2} \\right)\\cdot ${b2}${moji(-k2)}${a1}\\cdot${b1}$$
+    $$=\\frac{-${kanyaku(lista[(a+1)%2]*listb[(b+1)%2],1)}${moji(-k2)}${kanyaku(lista[a]*listb[b],1)}}{${kanyaku(lista[2]*listb[2],1)}}$$`}`;
+    }
+  }//i=2
+  if(i===3){
+    let tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+    let j=getRandomInt(1,2);
+    let m,n,l,k2;
+    k2=getRandomInt(-1,1,true);
+    if(j===1){
+      m=getRandomInt(3,5);
+      n=getRandomInt(1,m);
+      l=bunsu(m+n*k2,1-k2*m*n);
+    }
+    if(j===2){
+      let n1,n2;
+      m=getRandomInt(3,6);
+      n1=getRandomInt(2,4);
+      do{n2=getRandomInt(1,3*n1-1);}while(gcd(n1,n2)!==1)
+      n=bunsu(n2,n1);
+      l=bunsu(m*n1+k2*n2,n1-m*n2*k2);
+    }
+    
+    
+    question=`$$ 0\\lt \\alpha \\lt \\frac{\\pi}{2}，0\\lt \\beta \\lt \\frac{\\pi}{2}とする。$$
+    $$${tri[2]}\\alpha=${m},${tri[2]}\\beta=${n}のとき，$$
+    $$${tri[2]}(\\alpha${moji(k2)}\\beta)の値を求めよ。$$`;
+    solution=`$$加法定理より，$$
+    $$${tri[2]}(\\alpha ${moji(k2)}\\beta)=\\frac{${tri[2]}\\alpha ${moji(k2)}${tri[2]}\\beta}{1${moji(-k2)}${tri[2]}\\alpha${tri[2]}\\beta}$$
+    $$=\\frac{${m}${moji(k2)}${n}}{1${moji(-k2)}${m}\\cdot${n}}$$
+    $$=${l}$$`;
+  }//i=3
+  if(i===4){
+    let tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+    let j=getRandomInt(1,2);
+    let m,n,l,k2;
+    k2=-1;
+    if(j===1){
+      m=getRandomInt(3,5);
+      n=getRandomInt(1,m);
+      l=bunsu(m+n*k2,1-k2*m*n);
+    }
+    if(j===2){
+      let n1,n2;
+      m=getRandomInt(3,6);
+      n=bunsu(m-1,m+1);
+      l=1;
+    }
+    let m1=getRandomInt(-4,4);
+    let n1=getRandomInt(-4,4);
+    question=`$$2直線y=${keisu(m,`x`)}${teisu(m1)}，y=${keisu(n,`x`)}${teisu(n1)}のなす角を\\theta とする。$$
+    $$このとき，${tri[2]}\\theta の値${j===2 ?`と\\thetaの大きさ`:``}を求めよ。$$`;
+    solution=`
+    $$x軸の正の向きと直線y=${keisu(m,`x`)}${teisu(m1)}のなす角を\\alpha，$$
+    $$x軸の正の向きと直線y=${keisu(n,`x`)}${teisu(n1)}のなす角を\\betaとする。$$
+    $$${tri[2]}\\alpha=${m}，${tri[2]}\\beta=${n}であるから，$$
+    $$${tri[2]}\\theta=${tri[2]}(\\alpha ${moji(k2)}\\beta)$$
+    $$=\\frac{${tri[2]}\\alpha ${moji(k2)}${tri[2]}\\beta}{1${moji(-k2)}${tri[2]}\\alpha${tri[2]}\\beta}$$
+    $$=\\frac{${m}${moji(k2)}${n}}{1${moji(-k2)}${m}\\cdot${n}}$$
+    $$=${l}$$
+    $$${j===2 ? `${tri[2]}\\theta=${l}より，\\theta=\\frac{\\pi}{4}`:``}$$`;
+  }
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>加法定理</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　有名角の加法定理</option>
+          <option value="2">2.　正弦・余弦の加法定理</option>
+          <option value="3">3.　正接の加法定理</option>
+          <option value="4">4.　直線のなす角</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
