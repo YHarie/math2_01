@@ -263,7 +263,7 @@ let xs = x1 + x2;
     if (yb < 0) { yss = -yss; yb = -yb; }
     let x = xb === 1 ? xss : bunsu(xss, xb);
     let y = yb === 1 ? yss : bunsu(yss, yb);
-    answer = `(${x}，${y})`;
+    answer = `\\left(${x}，${y} \\right)`;
     question = `$$2点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2})を結ぶ線分\\rm{AB}について，$$
 $$線分\\rm{AB}の中点\\rm{M}の座標を求めよ。$$`;
     solution = `$$点{\\rm{M}}の座標を(x,y)とすると$$
@@ -483,3 +483,4 @@ $$対称な点\\rm{Q}の座標を求めよ。$$`;
 
 </body>
 </html>
+
