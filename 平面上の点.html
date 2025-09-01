@@ -290,7 +290,7 @@ let x = xb === 1 ? xss : bunsu(xss,xb);
 let y = yb === 1 ? yss : bunsu(yss,yb);
 let xshiki=k===1?`\\frac{${n}\\cdot${kakko(x1)}+${m}\\cdot${kakko(x2)}}{${m}+${n}}`:`\\frac{${-n}\\cdot${kakko(x1)}+${m}\\cdot${kakko(x2)}}{${m}-${n}}`;
 let yshiki=k===1?`\\frac{${n}\\cdot${kakko(y1)}+${m}\\cdot${kakko(y2)}}{${m}+${n}}`:`\\frac{${-n}\\cdot${kakko(y1)}+${m}\\cdot${kakko(y2)}}{${m}-${n}}`;
-answer=`(${x}，${y})`;
+answer=`\\left(${x}，${y}\\right)`;
 question=`$$2点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2})を結ぶ線分\\rm{AB}について，$$
 $$${m}：${n}に${divine}する点\\rm{P}の座標を求めよ。$$`;
 solution=`$$点{\\rm{P}}の座標を(x,y)とすると$$
@@ -483,4 +483,5 @@ $$対称な点\\rm{Q}の座標を求めよ。$$`;
 
 </body>
 </html>
+
 
