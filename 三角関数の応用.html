@@ -368,7 +368,92 @@ let thetaRad = num / den * Math.PI; // 例：A1 のラジアン
   drawTrigGraph(func, thetaRad,thetaRad2);
 }
 }
- if(i===3){
+if(i===3){
+let tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+let j=getRandomInt(0,2);
+let k=getRandomInt(0,5);
+let valueset=[
+  [`\\frac{1}{2}`,4,20],[`\\frac{1}{\\sqrt{2}}`,6,18],[`\\frac{\\sqrt{3}}{2}`,8,16],
+  [`-\\frac{1}{2}`,28,44],[`-\\frac{1}{\\sqrt{2}}`,30,42],[`-\\frac{\\sqrt{3}}{2}`,32,40],
+  [`\\frac{1}{2}`,8,40],[`\\frac{1}{\\sqrt{2}}`,6,42],[`\\frac{\\sqrt{3}}{2}`,4,44],
+  [`-\\frac{1}{2}`,16,32],[`-\\frac{1}{\\sqrt{2}}`,18,30],[`\\frac{\\sqrt{3}}{2}`,20,28],
+  [`\\frac{1}{\\sqrt{3}}`,4,28],[1,6,30],[`\\sqrt{3}`,8,32],[`-\\frac{1}{\\sqrt{3}}`,20,44],[-1,18,42],[`-\\sqrt{3}`,16,40]
+];
+let value=[4,6,8,-4,-6,-8];
+let m=value[getRandomInt(0,5)];
+let theta=`\\theta${m>0 ?`+`:``}${bunsu(m,24)}\\pi `;
+let n=valueset[j*6+k];
+let n1=n[1];let n2=n[2];
+let a1=n[1]-m<0 ? n[1]-m+48:n[1]-m;
+let a2=n[2]-m>=48 ? n[2]-m-48:n[2]-m;
+[a1,a2]=a1>a2 ?[a2,a1]:[a1,a2];
+let Ans1=a1===0 ? 0: a1%24===0 ? keisu(a1/24,`\\pi`):`${bunsu(a1,24)}\\pi`;
+let Ans2=  a2===0 ? 0: a2%24===0 ? keisu(a2/24,`\\pi`):`${bunsu(a2,24)}\\pi`;
+let A= a1<a2 ? [Ans1,Ans2]:[Ans2,Ans1];
+let l=getRandomInt(0,2);
+let Q1=[`方程式`,`不等式`,`不等式`];
+let Q2=[`=`,`\\lt`,`\\gt`];
+
+  question=`$$ 0\\leqq \\theta \\lt 2\\pi のとき，$$
+  $$${Q1[l]}${tri[j]}\\left(${theta}\\right)${Q2[l]}${n[0]}を解け。 $$`;
+if(l===0){
+  solution=`$$0\\leqq \\theta \\lt 2\\pi のとき，
+  ${bunsu(m,24)}\\pi \\leqq ${theta}\\lt${bunsu(m+48,24)}\\pi$$
+  $$であるから，${tri[j]}\\left(${theta}\\right)=${n[0]}　より，$$
+  $$${theta}=${bunsu(a1+m,24)}\\pi，${bunsu(a2+m,24)}\\pi$$
+  $$ゆえに　　\\theta=${A[0]},${A[1]}  $$`;}
+if(l===1){
+  let sina,cosa,tana;
+   sina=24-m >n[2] ||24-m>n[1] ? `0\\leqq \\theta \\lt ${A[0]}，${A[1]}\\lt \\theta \\lt 2\\pi`: 
+   n[2]-48===m ? `${A[1]}\\lt \\theta \\lt 2\\pi`:n[1]===m ? `${A[1]}\\lt \\theta \\lt 2 \\pi`:
+   `${A[0]}\\lt \\theta \\lt ${A[1]}`;
+   cosa=m===n[1] ?`${A[0]} \\lt \\theta \\lt ${A[1]}`:  m<n[1] && n[2]-48<m ?`${A[0]}\\lt \\theta \\lt ${A[1]}`:`0\\leqq \\theta \\lt ${A[0]}，${A[1]}\\lt \\theta \\lt 2\\pi`;
+
+   tana=n[1]>12 ? `${bunsu(12-m,24)}\\pi \\lt \\theta \\lt ${A[0]}，${bunsu(36-m,24)}\\pi \\lt \\theta \\lt ${A[1]}`:
+   n[2]>m+48 ? `0\\lt ${A[0]}，${bunsu(12-m,24)}\\pi \\lt \\theta \\lt ${A[1]}，${bunsu(36-m,24)}\\pi \\lt \\theta \\lt 2\\pi`:
+   n[1]===m ?`${bunsu(12-m,24)}\\pi \\lt \\theta \\lt ${A[1]}，${bunsu(36-m,24)}\\pi \\lt \\theta \\lt 2\\pi`:
+  n[1]>m ? `0\\lt \\theta \\lt ${A[0]}，${bunsu(12-m,24)}\\pi \\lt \\theta \\lt ${A[1]}，${bunsu(36-m,24)}\\pi \\lt \\theta \\lt 2\\pi`:
+  `${bunsu(12-m,24)}\\pi \\lt \\theta \\lt ${A[0]}，${bunsu(36-m,24)}\\pi \\lt \\theta \\lt ${A[1]}`;
+  answer=[`${sina}`,`${cosa}`,`${tana}`]
+  solution=`$$0\\leqq \\theta \\lt 2\\pi のとき，
+  ${bunsu(m,24)}\\pi \\leqq ${theta}\\lt${bunsu(m+48,24)}\\pi$$
+  $$であるから，${tri[j]}\\left(${theta}\\right)=${n[0]}　とすると，$$
+  $$${theta}=${bunsu(a1+m,24)}\\pi，${bunsu(a2+m,24)}\\pi$$
+  $$ゆえに　　${answer[j]}$$`;}
+
+  if(l===2){
+  let sina,cosa,tana;
+   sina=24-m >n[2] ||24-m>n[1] ? `${A[0]}\\lt \\theta \\lt ${A[1]}`: 
+   n[2]-48===m ? `0\\leqq \\theta \\lt ${A[1]}`:n[1]===m ? `0\\leqq \\theta \\lt ${A[1]}`:
+   `0\\lt \\theta \\lt ${A[0]},${A[1]}\\lt \\theta \\lt 2\\pi`;
+   cosa=m===n[1] ?`${A[1]} \\lt \\theta \\lt 2\\pi`: 
+    m<n[1] && n[2]-48<m ?`0\\leqq \\theta \\lt ${A[0]}，${A[1]}\\lt \\theta \\lt 2\\pi`:
+    `${A[0]}\\lt \\theta \\lt ${A[1]}`;
+
+   tana=n[1]>12 ? `0\\leqq \\theta \\lt ${bunsu(12-m,24)}\\pi ，${A[0]} \\lt \\theta \\lt ${bunsu(36-m,24)}\\pi， ${A[1]}\\lt \\theta \\lt 2\\pi`:
+   n[2]>m+48 ? `${A[0]}\\lt \\theta \\lt ${bunsu(12-m,24)}\\pi，${A[1]} \\lt \\theta \\lt ${bunsu(36-m,24)}\\pi`:
+   n[1]===m ?`0\\leqq \\theta \\lt ${bunsu(12-m,24)}\\pi， ${A[1]}\\lt \\theta \\lt ${bunsu(36-m,24)}\\pi`:
+  n[1]>m ? `${A[0]}\\lt \\theta \\${bunsu(12-m,24)}\\pi，${A[1]} \\lt \\theta \\lt ${bunsu(36-m,24)}\\pi `:
+  `0\\leqq \\theta ${bunsu(12-m,24)}\\pi，${A[0]} \\lt \\theta \\lt ${bunsu(36-m,24)}\\pi，${A[1]} \\lt \\theta \\lt 2\\pi`;
+  answer=[`${sina}`,`${cosa}`,`${tana}`]
+  solution=`$$0\\leqq \\theta \\lt 2\\pi のとき，
+  ${bunsu(m,24)}\\pi \\leqq ${theta}\\lt${bunsu(m+48,24)}\\pi$$
+  $$であるから，${tri[j]}\\left(${theta}\\right)=${n[0]}　とすると，$$
+  $$${theta}=${bunsu(a1+m,24)}\\pi，${bunsu(a2+m,24)}\\pi$$
+  $$ゆえに　　${answer[j]}$$`;}
+
+let func = j === 0 ? "sin" : j === 1 ? "cos" : "tan";
+let thetaRad = n[2]/24 * Math.PI; // 例：A1 のラジアン
+let thetaRad2 = m/24 * Math.PI; // 例：A1 のラジアン
+let thetaRad3 = n[1]/24 * Math.PI; // 例：A1 のラジアン
+  document.getElementById("soluButton").onclick = () => {
+  window.solutionText = solution;
+  showSolution();
+ drawTrigGraph(func, thetaRad,thetaRad2);
+}
+  
+}//i=3
+ if(i===4 ){
   let a,b,c;
   a=getRandomInt(-2,2,true);
   b=getRandomInt(-3,3,true)*a;
@@ -409,20 +494,20 @@ let thetaRad = num / den * Math.PI; // 例：A1 のラジアン
     Math.abs(P)===0.5 && j===1 ? `\\frac{${4-6*P}}{6}\\pi，\\frac{${8-P*6}}{6}\\pi`:Math.abs(P)===0.5 && j===2 ? `\\frac{${1.5-P}}{3}\\pi，\\frac{${4.5+P}}{3}\\pi`:
     P>=1 && j===1 ?`\\frac{\\pi}{2}`:0;
   }
-  question=`$$ 0\\leq \\theta \\lt 2\\pi のとき，関数y=${func}の$$
+  question=`$$ 0\\leqq \\theta \\lt 2\\pi のとき，関数y=${func}の$$
   $$最大値と最小値を求めよ。また，そのときの\\theta の値を求めよ。$$`;
   solution=`${k>0 ? ``:`$$ ${torigo2}=1-${torigo3}より，$$
   $$y=${keisu(-a)}\\left(1-${torigo3} \\right)${moji(b,torigo1)}${teisu(c+a)}$$
     $$　=${keisu(a,torigo3)}${moji(b,torigo1)}${teisu(c)}$$`}
     $$ t=${torigo1}とおくと$$
-    $$-1\\leq t \\leq 1 \\cdots \\cdots ①$$
+    $$-1\\leqq t \\leqq 1 \\cdots \\cdots ①$$
     $$y=${tfunc}=${keisu(a)}\\left(t${P<0 ? `+`:``}${bunsu(b,2*a)} \\right)^2${(4*a*c-b**2)*a >0 ?`+`:``}${q===`0`?``:q}$$
      $$$$
       $$①の範囲において，yは$$
       $$t=${mint}　　で最小値${Amin}をとり，$$
       $$t=${maxt}　　で最大値${Amax}をとる。$$
       $$$$
-      $$また，0\\leq \\theta \\lt 2\\pi であるから$$
+      $$また，0\\leqq \\theta \\lt 2\\pi であるから$$
       $$t=${mint}ならば\\theta =${mintheta}，　t=${maxt}ならば\\theta =${maxtheta}$$
       $$よって，この関数は$$
       $$\\theta = ${mintheta}のとき最小値${Amin}をとり，\\theta = ${maxtheta}のとき最大値${Amax}をとる。$$   
@@ -482,7 +567,8 @@ let thetaRad = num / den * Math.PI; // 例：A1 のラジアン
         <select id="modeSelect1" onchange="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">
           <option value="1" selected>1.　三角関数を含む方程式</option>
           <option value="2">2.　三角関数を含む不等式</option>
-          <option value="3">3.　《応用》三角関数を含む関数の最大・最小</option>
+          <option value="3">3.　《応用》三角関数を含む方程式・不等式</option>
+          <option value="4">4.　《応用》三角関数を含む関数の最大・最小</option>
           <option value="0">ランダム</option>
                   </select>
 
