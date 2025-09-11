@@ -307,13 +307,13 @@ if (I === 0) {
 	a=2;
 	p=getRandomInt(1,6);
 	q=p+a*a;
-	 question = `$$a=\\frac{${kanyaku(q,1)}-${kanyaku(p,1)}}{${a}}とするとき，$$
+	 question = `$$a=\\frac{${kanyaku(q,1)}+${kanyaku(p,1)}}{${a}}とするとき，$$
 $$a^{2}-\\frac{1}{a^2}の値は\\fbox{ 1 }\\sqrt{\\fbox{ 2 } }である。$$
 $$答えが\\sqrt{5}のようなときは，\\fbox{ 1 }に1，\\fbox{ 2 }に5を入力して答えよ。$$`;
 let a1,a2;
 [a1,a2]=kanyaku(p*q,2);
-	 solution = `$$\\frac{1}{a}=\\frac{${a}}{${kanyaku(q, 1)}-${kanyaku(p, 1)}}$$
-$$=\\frac{${a}(${kanyaku(q, 1)}+${kanyaku(p, 1)})}{(${kanyaku(q, 1)}-${kanyaku(p, 1)})(${kanyaku(q, 1)}+${kanyaku(p, 1)})}$$
+	 solution = `$$\\frac{1}{a}=\\frac{${a}}{${kanyaku(q, 1)}+${kanyaku(p, 1)}}$$
+$$=\\frac{${a}(${kanyaku(q, 1)}-${kanyaku(p, 1)})}{(${kanyaku(q, 1)}+${kanyaku(p, 1)})(${kanyaku(q, 1)}-${kanyaku(p, 1)})}$$
 $$=\\frac{${kanyaku(q, 1)}+${kanyaku(p, 1)}}{${a}}$$
 $$よって，a^2 +\\frac{1}{a^2}=(a+\\frac{1}{a})(a-\\frac{1}{a})$$
 $$=${kanyaku(q, 1)}\\cdot${kanyaku(p, 1)}$$
@@ -860,4 +860,5 @@ function toggleEraser() {
 </script>
 
 </body>
+
 </html>
