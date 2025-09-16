@@ -314,7 +314,7 @@ let a1,a2;
 [a1,a2]=kanyaku(p*q,2);
 	 solution = `$$\\frac{1}{a}=\\frac{${a}}{${kanyaku(q, 1)}+${kanyaku(p, 1)}}$$
 $$=\\frac{${a}(${kanyaku(q, 1)}-${kanyaku(p, 1)})}{(${kanyaku(q, 1)}+${kanyaku(p, 1)})(${kanyaku(q, 1)}-${kanyaku(p, 1)})}$$
-$$=\\frac{${kanyaku(q, 1)}+${kanyaku(p, 1)}}{${a}}$$
+$$=\\frac{${kanyaku(q, 1)}-${kanyaku(p, 1)}}{${a}}$$
 $$よって，a^2 +\\frac{1}{a^2}=(a+\\frac{1}{a})(a-\\frac{1}{a})$$
 $$=${kanyaku(q, 1)}\\cdot${kanyaku(p, 1)}$$
 $$=${kanyaku(p * q, 1)}$$`;
@@ -862,3 +862,4 @@ function toggleEraser() {
 </body>
 
 </html>
+
