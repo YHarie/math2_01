@@ -212,7 +212,7 @@ function generateQuiz() {//問題生成関数
     question=`$$ ${keisu(A[0])}${arg[0]===1 ? ``:kanyaku(arg[0],1)}${tri[0]}\\theta${moji(A[1])}${arg[1]===1 ?``:kanyaku(arg[1],1)}${tri[1]}\\theta
     　をr${tri[0]}(\\theta + \\alpha)の形に変形せよ。$$
     $$ ただし，r\\gt 0 ，-\\pi \\lt \\alpha \\lt \\pi とする。 $$`;
-    solution =`$$ \\sqrt{${kakko(arg[0]*A[0])}^2 + ${kakko(arg[1]*A[1])}^2}=${kanyaku(arg[0]+arg[1],1)} より，$$
+    solution =`$$ \\sqrt{\\left( ${keisu(A[0])}${kanyaku(arg[0],1)} \\right)^2 + \\left( ${keisu(A[1])}${kanyaku(arg[1],1)}\\right)^2}=${kanyaku(arg[0]+arg[1],1)} より，$$
     $$ ${keisu(A[0])}${arg[0]===1 ? ``:kanyaku(arg[0],1)}${tri[0]}\\theta${moji(A[1])}${arg[1]===1 ?``:kanyaku(arg[1],1)}${tri[1]}\\theta$$
     $$=${kanyaku(arg[0]+arg[1],1)}\\left(
     ${keisu(A[0])}\\frac{${kanyaku(arg[0]/r,1)}}{${j===0 ?`\\sqrt{2}`:2}}${tri[0]}\\theta ${moji(A[1])}\\frac{${kanyaku(arg[1]/r,1)}}{${j===0 ?`\\sqrt{2}`:2}}${tri[1]}\\theta 
@@ -408,4 +408,5 @@ function generateQuiz() {//問題生成関数
 </script>
 
 </body>
+
 </html>
