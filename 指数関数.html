@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>指数関数</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+  [s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 5);//1～5です。
+  let question = '', answer = 0, solution = '';
+
+if(i === 1){
+  let set=[2,3,4,5];
+  let m,n,l,j;
+  j=getRandomInt(-1,1,true);
+  m=set[getRandomInt(0,3)];
+  let a=getRandomInt(3,4);
+  n=m**2;
+  l=m**a;
+  let sq
+  do{sq=[getRandomInt(3,5),getRandomInt(3,10),getRandomInt(3,11)  ];}
+  while(sq[0]===sq[1]/2 || sq[1]/2===sq[2]/a)
+  let Q= j>0 ? [`\\sqrt[${sq[0]}]{${m}}`,`\\sqrt[${sq[1]}]{${n}}`,`\\sqrt[${sq[2]}]{${l}}`]:
+      [`\\sqrt[${sq[0]}]{\\frac{1}{${m}}}`,`\\sqrt[${sq[1]}]{\\frac{1}{${n}}}`,`\\sqrt[${sq[2]}]{\\frac{1}{${l}}}`]
+  let number=[`${keisu(j)}${bunsu(1,sq[0])}`,`${keisu(j)}${bunsu(2,sq[1])}`,`${keisu(j)}${bunsu(a,sq[2])}`];
+  let rank=[0,1,2];
+  let rank2=[1/sq[0]*j,2/sq[1]*j,a/sq[2]*j];
+  if(rank2[0]>rank2[1]){rank=[rank[1],rank[0],rank[2]];
+    rank2=[rank2[rank[0]],rank2[rank[1]],rank2[rank[2]]];
+  }
+  if(rank2[0]>rank2[2]){rank=[rank[2],rank[1],rank[0]];
+    rank2=[rank2[rank[0]],rank2[rank[1]],rank2[rank[2]]];
+  }
+  if(rank2[1]>rank2[2]){rank=[rank[0],rank[2],rank[1]];
+    rank2=[rank2[rank[0]],rank2[rank[1]],rank2[rank[2]]];}
+
+  question=`$$ ${Q}の大小を不等号を用いて表せ$$`;
+  solution=`$$与えられた数をそれぞれ${m}の累乗の形で表すと$$
+      $$  ${Q[0]}=${m}^{${keisu(j)}${bunsu(1,sq[0])}}，${Q[1]}=${m}^{${keisu(j)}${bunsu(2,sq[1])}}，${Q[2]}=${m}^{${keisu(j)}${bunsu(a,sq[2])}} $$
+    $$ 関数　y=${m}^{x}の底は1より大きいので，$$
+    $$${number[rank[0]]}\\lt ${number[rank[1]]}\\lt ${number[rank[2]]}より，$$
+    $$${Q[rank[0]]}\\lt ${Q[rank[1]]}\\lt ${Q[rank[2]]}$$
+  `;
+  
+}
+if(i===2){
+  let m,n,l,k,p,q,r;
+  let j=getRandomInt(1,2);
+  let set=[2,3,4,5,7,6];
+  m=set[getRandomInt(0,5)];
+  let left,right;
+  if(j===1){
+    p=getRandomInt(-2,2,true);
+    r=getRandomInt(-3,3);
+    l= r>0 ? m**r: r===0 ? 1: bunsu(1,m**(-r)); 
+    left=p>0? `${m**p}^x`:`\\left( ${bunsu(1,m**(-p))} \\right)^x`;
+    right=l;
+    q=0;
+     
+  }
+  if(j===2){
+    p=getRandomInt(1,3)*(getRandomInt(-1,1,true));
+    q=getRandomInt(-3,3);
+    r=getRandomInt(-3,3);
+    left = p>0 ?`${m}^{${keisu(p,`x`)} ${teisu(q)}}`:`\\left( ${bunsu(1,m)} \\right)^{${keisu(-p,`x`)} ${teisu(-q)} }`;
+    right= r>0 ? m**r: r===0 ? 1: bunsu(1,m**(-r)); 
+
+  }
+  question=`$$方程式 ${left} =${right} を解け。$$`;
+     solution=`$$方程式を変形すると$$
+     $$${m}^{${keisu(p,`x`)}${teisu(q)}} =${m}^{${r}}$$
+     $$よって，${keisu(p,`x`)}${teisu(q)}=${r}$$
+     ${p===1 && q===0 ? ``:`$$これを解いて，x=${bunsu(r-q,p)} $$`}
+     `;
+ 
+}
+if(i===3){let m,n,l,k,p,q,r;
+  let j=getRandomInt(1,2);
+  let set=[2,3,4,5,7,6];
+  m=set[getRandomInt(0,5)];
+  let gl=[[`\\lt`,`\\gt`],[`\\leqq`,`\\geqq`]];
+  let left,right;
+  k=gl[getRandomInt(0,1)];
+  let s=getRandomInt(0,1);
+  
+
+  if(j===1){
+    p=getRandomInt(-2,2,true);
+    r=getRandomInt(-3,3);
+    l= r>0 ? m**r: r===0 ? 1: bunsu(1,m**(-r)); 
+    left=p>0? `${m**p}^x`:`\\left( ${bunsu(1,m**(-p))} \\right)^x`;
+    right=l;
+    q=0;
+     
+  }
+  if(j===2){
+    p=getRandomInt(1,3)*(getRandomInt(-1,1,true));
+    q=getRandomInt(-5,5);
+    r=getRandomInt(-4,4);
+    left = p>0 ?`${m}^{${keisu(p,`x`)} ${teisu(q)}}`:`\\left( ${bunsu(1,m)} \\right)^{${keisu(-p,`x`)} ${teisu(-q)} }`;
+    right= r>0 ? m**r: r===0 ? 1: bunsu(1,m**(-r)); 
+
+  }
+  question=`$$不等式 ${left} ${k[s]}${right} を解け。$$`;
+  let t= p>0 ? s:(s+1)%2;
+     solution=`$$不等式を変形すると$$
+     $$${m}^{${keisu(p,`x`)}${teisu(q)}} ${k[s]}${m}^{${r}}$$
+     $$底${m}は1より大きいから，
+     ${keisu(p,`x`)}${teisu(q)}${k[s]}${r}$$
+     ${p===1 && q===0 ? ``:`$$これを解いて，x${k[t]}${bunsu(r-q,p)} $$`}
+     `;
+ 
+}
+if(i===4){
+  let m,n,l,k,p,q,r;
+  let j=getRandomInt(1,4);
+  let set=[2,3,4,5,7,6];
+  m=set[getRandomInt(0,5)];
+  if(j===1){
+  let A=[ [m,1] , [ m, getRandomInt(-6,-1) ],[ 1 , getRandomInt(-6,-1) ] ];
+  k=getRandomInt(0,2);
+  p=A[k];
+  q=[`x=1，0`,`x=1`,`x=0`];
+  question=`$$ 方程式~ ${m**2}^x ${moji(-p[0] - p[1],`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}=0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，t^2 ${moji(-p[0]-p[1],`t`)}${teisu(p[0]*p[1])}=0$$
+  $$　これを解いて$$
+  $$(t${teisu(-p[0])})(t${teisu(-p[1])})=0$$
+  ${k>0 ?`$$ t\\gt 0 であるから $$ $$t=${p[0]}$$`:`$$t=${p}$$`}
+  $$t=${m}^x　であったから，$$
+  $$ ${k>0 ? `${m}^x=${p[0]}`:`${m}^x=${p}`}$$
+  $$よって，${q[k]}$$`;
+  }
+  if(j===2){
+    n=m;
+    m=m**2;
+    p=[n,getRandomInt(-6,-1)];
+    question=`$$ 方程式~ ${m}^{2x} ${moji(-p[0] - p[1],`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}=0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，t^2 ${moji(-p[0]-p[1],`t`)}${teisu(p[0]*p[1])}=0$$
+  $$　これを解いて$$
+  $$(t${teisu(-p[0])})(t${teisu(-p[1])})=0$$
+  $$ t\\gt 0 であるから $$ $$t=${p[0]}$$
+  $$t=${m}^x　であったから，$$
+  $$${m}^x=${p[0]}$$
+  $$よって，x=${bunsu(1,2)}$$`;
+
+  }
+   if(j===3){
+  let A=[ [1,1] ,[1,m], [ 1, getRandomInt(-6,-1) ]];
+  k=getRandomInt(0,2);
+  p=A[k];
+  q=[`x=-1，0`,`x=-1，1`,`x=-1`];
+  question=`$$ 方程式~ ${m}^{2x+1} ${moji(-p[0] - p[1]*m,`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}=0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，${m}t^2 ${moji(-p[0]-m*p[1],`t`)}${teisu(p[0]*p[1])}=0$$
+  $$　これを解いて$$
+  $$(${m}t${teisu(-p[0])})(t${teisu(-p[1])})=0$$
+  $$ t\\gt 0 であるから $$ $$t=${bunsu(p[0],m)}${k<2 ? `，${p[1]}`:``}$$
+  $$t=${m}^x　であったから，$$
+  $$ ${k===2 ? `${m}^x=${bunsu(1,m)}`:`${m}^x=${bunsu(1,m)}，${p[1]}`}$$
+  $$よって，${q[k]}$$`;
+  }
+   if(j===4){
+    set=[2,3];
+    m=set[getRandomInt(0,1)];
+    l=getRandomInt(1,2);
+  let A=[ [1,1] ,[1,m**l], [ 1, getRandomInt(-5,-1) ]];
+  k=getRandomInt(0,2);
+  p=A[k];
+  q=[`x=-2，0`,`x=-2，${l}`,`x=-1`];
+  question=`$$ 方程式~ ${m}^{2x+2} ${moji(-p[0] - p[1]*(m**2),`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}=0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，${m**2}t^2 ${moji(-p[0]-m*m*p[1],`t`)}${teisu(p[0]*p[1])}=0$$
+  $$　これを解いて$$
+  $$(${m**2}t${teisu(-p[0])})(t${teisu(-p[1])})=0$$
+  $$ t\\gt 0 であるから $$ $$t=${bunsu(p[0],m**2)}${k<2 ? `，${p[1]}`:``}$$
+  $$t=${m}^x　であったから，$$
+  $$ ${k===2 ? `${m}^x=${bunsu(1,m**2)}`:`${m}^x=${bunsu(1,m**2)}，${p[1]}`}$$
+  $$よって，${q[k]}$$`;
+  }
+}
+if(i===5){
+  let m,n,l,k,p,q,r;
+  let j=getRandomInt(1,3);
+  let set=[2,3,4,5,7,6];
+  m=set[getRandomInt(0,5)];
+    let gl=[[`\\lt`,`\\gt`],[`\\leqq`,`\\geqq`]];
+  let ftg=gl[getRandomInt(0,1)];
+  l=getRandomInt(0,1);
+  if(j===1){
+  let A=[ [m,1] , [ m, getRandomInt(-6,-1) ],[ 1 , getRandomInt(-6,-1) ] ];
+  k=getRandomInt(0,2);
+  p=A[k];
+  q=[[`1${ftg[0]} t ${ftg[0]}${m}`,`t ${ftg[0]}1，${m}${ftg[0]} t`,`0 ${ftg[0]} x ${ftg[0]}1`,`x${ftg[0]}0，1${ftg[0]} x`],
+  [`0\\lt t ${ftg[0]}${m}`,`${m}${ftg[0]} t `,`x ${ftg[0]} 1`,`1${ftg[0]} x`],
+  [`0\\lt t ${ftg[0]}1`,`1${ftg[0]} t`,`x ${ftg[0]} 0`,`0${ftg[0]} x`]];
+  let Q=q[k];
+  question=`$$ 不等式~ ${m**2}^x ${moji(-p[0] - p[1],`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}${ftg[l]}0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，t^2 ${moji(-p[0]-p[1],`t`)}${teisu(p[0]*p[1])}${ftg[l]}0$$
+  $$　これを解いて$$
+  $$(t${teisu(-p[0])})(t${teisu(-p[1])})${ftg[l]}0$$
+  $$ t\\gt 0 であるから $$ 
+  $$${Q[l]}$$
+  $$t=${m}^x　であったから，$$
+  $$ ${Q[l+2]} $$
+  `;
+  }
+  if(j===2){
+    n=m;
+    m=m**2;
+    p=[n,getRandomInt(-6,-1)];
+  
+  let Q=[`0\\lt t ${ftg[l]}${p[0]}`,`${p[0]}${ftg[0]} t`,`  x ${ftg[0]}${bunsu(1,2)}`,`${bunsu(1,2)}${ftg[0]} x`];
+    question=`$$ 方程式~ ${m}^{2x} ${moji(-p[0] - p[1],`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}${ftg[l]}0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，t^2 ${moji(-p[0]-p[1],`t`)}${teisu(p[0]*p[1])}${ftg[l]}0$$
+  $$　これを解いて$$
+  $$(t${teisu(-p[0])})(t${teisu(-p[1])})${ftg[l]}0$$
+  $$ t\\gt 0 であるから $$ $$${Q[l]}$$
+  $$t=${m}^x　であったから，$$
+  
+  $$${Q[l+2]}$$`;
+
+  }
+  if(j===3){
+  let A=[ [1,1] ,[1,m], [ 1, getRandomInt(-6,-1) ]];
+  k=getRandomInt(0,2);
+  p=A[k];
+  let Q=[ [`${bunsu(1,m)} ${ftg[0]} t ${ftg[0]} 1`,`t ${ftg[0]} ${bunsu(1,m)}，1 ${ftg[0]} t`,`-1 ${ftg[0]} x ${ftg[0]} 0`,`x ${ftg[0]} -1，0 ${ftg[0]} x`],
+[`${bunsu(1,m)} ${ftg[0]} t ${ftg[0]} ${m}`,`t ${ftg[0]} ${bunsu(1,m)}，${m} ${ftg[0]} t`,`-1 ${ftg[0]} x ${ftg[0]} 1`,`x ${ftg[0]} -1，1 ${ftg[0]} x`],
+[`0 \\lt t ${ftg[0]} ${bunsu(1,m)}`,`${bunsu(1,m)} ${ftg[0]} t`,`x ${ftg[0]} -1`,`-1 ${ftg[0]} x`]
+ ]
+  q=Q[k];
+  question=`$$ 方程式~ ${m}^{2x+1} ${moji(-p[0] - p[1]*m,`\\cdot ${m}^x`)}${teisu(p[0]*p[1])}${ftg[l]}0を解け。$$`;
+  solution=`$$ t=${m}^x とおくと$$
+  $$ t\\gt 0 ，${m}t^2 ${moji(-p[0]-m*p[1],`t`)}${teisu(p[0]*p[1])}${ftg[l]}0$$
+  $$　これを解いて$$
+  $$(${m}t${teisu(-p[0])})(t${teisu(-p[1])})${ftg[l]}0$$
+  $$ t\\gt 0 であるから $$ $$${q[l]}$$
+  $$t=${m}^x　であったから，$$
+$$ ${q[l+2]}$$`;
+  }
+
+}
+
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>指数関数</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　累乗の数の大小</option>
+          <option value="2">2.　指数方程式</option>
+          <option value="3">3.　指数不等式</option>
+          <option value="4">4.　指数方程式《応用》</option>
+          <option value="5">5.　指数不等式《応用》</option>
+          <option value="0">ランダム</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
