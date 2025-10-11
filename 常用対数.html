@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>対数関数</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+  [s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+function log(a,b){
+  return `\\log_{${a}} {${b}}`;
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 5);//1～5です。
+  let question = '', answer = 0, solution = '';
+
+if(i === 1){
+  let l2,l3;
+  l2=[0.301,`0.3010`];l3=0.4771;
+let set=[4,6,8,9,5,12,15,16,18,20];
+let j=getRandomInt(0,9);
+let Q=log(10,set[j]);
+let A=[2*l2[0],l2[0]+l3,3*l2[0],l3*2, 0.6990 ,l2[0]*2+l3,l3-l2[0]+1,l2[0]*4,l2[0]+l3*2,1+l2[0]];
+
+let S=[`${log(10,`2^2`)}$$$$=2${log(10,2)}$$$$=2\\times 0.3010`,
+  `${log(10,`\\left(2\\times 3\\right)`)}$$$$=${log(10,2)}+${log(10,3)}$$$$=0.3010+0.4771`,
+  `${log(10,`2^3`)}=3${log(10,2)}$$$$=3\\times 0.3010`,
+  `${log(10,`3^2`)}=2${log(10,3)}$$$$=2\\times 0.4771`,
+  `${log(10,`\\frac{10}{2}`)}$$$$=${log(10,10)}-${log(10,2)}$$$$=1- 0.3010`,
+  `${log(10,`\\left(2^2\\cdot 3\\right)`)}$$$$=${log(10,`2^2`)}+${log(10,3)}$$$$=2${log(10,2)}+${log(10,3)}$$$$=2\\times 0.3010 +0.4771`,
+  `${log(10,`\\left(3\\times 5\\right)`)}$$$$=${log(10,`\\left(3\\times \\frac{10}{2}\\right)`)}
+  $$$$=${log(10,`3`)}+${log(10,`10`)}-${log(10,`2`)}$$$$=0.4771+1-0.3010`,
+  `${log(10,`2^4`)}$$$$=4${log(10,`2`)}$$$$=4\\times 0.3010`,
+  `${log(10,`\\left(2\\cdot 3^2\\right)`)}$$$$=${log(10,`2`)}+${log(10,`3^2`)}$$$$=${log(10,`2`)}+2${log(10,`3`)}$$$$=0.3010+2\\times 0.4771`,
+  `${log(10,`2\\times 10`)}$$$$=${log(10,`2`)}+${log(10,`10`)}$$$$=0.3010+1`
+]
+
+question=`$$ ${Q}の値を答えよ。$$$$ただし，${log(10,2)}=${l2[1]}，${log(10,3)}=${l3}とする。$$`;
+solution=`$$ 　${Q}
+$$$$=${S[j]}
+$$$$=${A[j]}
+$$`;
+}
+if(i===2){
+  let a,p,q,Q,m,n,j;
+  j=getRandomInt(1,10);
+  n=1;
+  m=getRandomInt(1,5)*(10**getRandomInt(1,2));
+  if(j<5){
+    a=2;
+    p=[3010,`0.3010`,log(10,2)];
+    }
+  if(j>4&& j<9){
+    a=3;
+    p=[4771,`0.4771`,log(10,3)];
+    }
+  if(j===9){
+    a=6;
+    p=[7781,`0.7781`,`\\left(${log(10,2)}+${log(10,3)} \\right)`];
+  }
+  if(j===10){
+    a=5;
+    p=[6999,`0.6999`,`\\left(${log(10,10)}-${log(10,2)} \\right)`];
+  }
+  q=m*p[0]/10000;    
+  do{n++}while(n<q)
+  Q=log(10,`${a}^{${m}}`);
+  question=`$$ ${a}^{${m}}は何桁の整数か答えよ。$$$$ただし，${log(10,2)}=0.3010，${log(10,3)}=0.4771とする。$$`;
+  solution=`$$ ${Q}=${m}${p[2]}=${m}\\times${p[1]}=${q}$$
+  $$よって，　　${n-1}\\lt ${Q} \\lt ${n}$$
+  $$ゆえに　　 10^{${n-1}} \\lt ${a}^{${m}} \\lt 10^{${n}}$$
+  $$したがって，${a}^{${m}}は${n}桁の整数である。 $$`
+}
+if(i===3){
+  let a,p,q,Q,m,n,j;
+  j=getRandomInt(1,10);
+  n=1;
+  m=getRandomInt(1,5)*(10**getRandomInt(1,2));
+  if(j<5){
+    a=2;
+    p=[3010,`0.3010`,log(10,2)];
+    }
+  if(j>4&& j<9){
+    a=3;
+    p=[4771,`0.4771`,log(10,3)];
+    }
+  if(j===9){
+    a=6;
+    p=[7781,`0.7781`,`\\left(${log(10,2)}+${log(10,3)} \\right)`];
+  }
+  if(j===10){
+    a=5;
+    p=[6999,`0.6999`,`\\left(${log(10,10)}-${log(10,2)} \\right)`];
+  }
+  q=-m*p[0]/10000;    
+  do{n++}while(n<-q)
+  Q=log(10,`\\left ( ${bunsu(1,a)} \\right)^{${m}}`);
+  question=`$$ \\left( ${bunsu(1,a)}\\right)^{${m}}を小数で表したとき，小数第何位で初めて0でない数が現れるか答えよ。$$$$ただし，${log(10,2)}=0.3010，${log(10,3)}=0.4771とする。$$`;
+  solution=`$$ ${Q}=${-m}${p[2]}=${-m}\\times${p[1]}=${q}$$
+  $$よって，　　${-n}\\lt ${Q} \\lt ${-n+1}$$
+  $$ゆえに　　 10^{${-n}} \\lt \\left ( ${bunsu(1,a)} \\right)^{${m}} \\lt 10^{${1-n}}$$
+  $$したがって，\\left ( ${bunsu(1,a)} \\right)^{${m}}は小数第${n}位で初めて0ではない数が現れる。 $$`
+}
+if(i===4){
+  let k,l,p,q,q2;
+  k=getRandomInt(0,3);
+  l=getRandomInt(0,2);
+  p=[9,8,3,6];
+  p2=[` 2${log(10,3) }-1 `,` 3${log(10,2) }-1`,
+    ` ${log(10,3) }-1 `,` ${log(10,2) }+${log(10,3)}-1`];
+  p3=[1-0.4771*2,1-3*0.301,1-0.4771,1-0.7781];
+  q=[`半分`,`1％`,`10％`];
+  q2=[50,1,10];
+  q3=[-0.3010,-2,-1];
+  answer=
+
+  question=`$$あるガラス板を1枚通るごとに，光の強さが${10*p[k]}％低下する。$$
+  $$このガラス板を何枚以上重ねると，もとの光るの強さの${q[l]}以下になるか。$$
+  $$ただし，${log(10,2)}=0.3010，${log(10,3)}=0.4771とする。 $$`;
+  solution=`$$n枚のガラス板を重ねると，光の強さは\\left( ${bunsu(p[k],10)}\\right)^{n}倍になる。$$
+  $$よって${q[l]}以下，すなわち${bunsu(q2[l],100)}倍以下になるとすると$$
+  $$ \\left( ${bunsu(p[k],10)}\\right)^{n} \\leqq ${bunsu(q2[l],100)}$$
+  $$両辺の常用対数をとると　　n${log(10,bunsu(p[k],10))}\\leqq ${log(10,bunsu(q2[l],100))}$$
+  $$ すなわち　　n\\left(${p2[k]}\\right)\\leqq ${q3[l]}$$
+  $$　ゆえに　　n \\geqq \\frac{${q3[l]}}{${p2[k]}}=\\frac{${-q3[l]}}{${p3[k].toFixed(4)}}=${Math.round(-q3[l]*10/p3[k])/10}\\cdots$$
+  $$したがって　　${Math.ceil(-q3[l]/p3[k])}枚以上$$
+  `;
+}
+
+
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>常用対数</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　常用対数の数値</option>
+          <option value="2">2.　桁数</option>
+          <option value="3">3.　小数</option>
+          <option value="4">4.　文章題</option>
+          <option value="0">ランダム</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
