@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>漸化式</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+  [s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+function log(a,b){
+  return `\\log_{${a}} {${b}}`;
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 5);//1～5です。
+  let question = '', answer = 0, solution = '';
+let an=`a_{n}`; 
+let an1=`a_{n+1}`;
+if(i === 1){
+  let j=getRandomInt(0,3);
+  let r,d,a;
+  a=getRandomInt(-10,10);
+  d=getRandomInt(-6,6,true);
+  let Q,S;
+  answer="";
+  if(j<2){
+    Q=`${an1}=${an}${teisu(d)}`;
+    S=`${a}+(n-1)\\cdot${kakko(d)}`;
+    answer=`=${keisu(d,`n`)}${teisu(a-d)}`;
+  }
+  if(j===2){
+    r=getRandomInt(2,5)*(getRandomInt(-1,1,true));
+    Q=`${an1}=${keisu(r,`${an}`)}`;
+    S=`${a}\\cdot${kakko(r)}^{n-1}`;
+    answer=Math.abs(a)===1 ?`=${keisu(a)}${kakko(r)}^{n-1}`:gcd(a,r)===Math.abs(r) ?`=${keisu(a/r,`\\cdot`)}${kakko(r)}^{n}`:``;
+  }
+  if(j===3){
+    r=getRandomInt(2,5)*(getRandomInt(-1,1,true))
+    Q=`${keisu(r,`${an1}`)}=${an}`;
+    S=`${a}\\cdot\\left( ${bunsu(1,r)} \\right)^{n-1}`;
+    answer=Math.abs(a)===1 ?`=${keisu(a)}\\left( ${bunsu(1,r)} \\right)^{n-1}`:``;
+  }
+  question=`$$次の条件によって定められる数列\\{ ${an}\\}の一般項を求めよ。$$
+ $$　　　a_{1}=${a}，${Q}$$`;
+ solution=`$$ 条件より，数列\\{${an}\\}は初項${a}，${j<2 ?`公差${d}の等差数列であるから`:j===2 ?`公比${r}の等比数列であるから`:`公比${bunsu(1,r)}の等比数列であるから`}$$
+ $$${an}=${S}${answer}$$`;
+}
+if(i===2){
+  let j,a,m,p,Q,S;
+  j=getRandomInt(1,3);
+  a=getRandomInt(-5,5);
+  if(j===1){//等比数列の和
+    m=getRandomInt(2,5)*(getRandomInt(-1,1,true));
+    Q=`${an1}=${an}+${kakko(m)}^{n}`;
+    answer=bunsu(1,m-1)===`1` ? `${kakko(m)}^{n}${teisu(-m+(m-1)*a)}`:
+     -m+(m-1)*a===0 ?`${bunsu(1,m-1)}${m}^{n}`:
+     m>0 ?`${bunsu(1,m-1)}(${m}^{n}${teisu(-m+(m-1)*a)})`:
+     `${bunsu(1,m-1)}\\left\\{${kakko(m)}^{n}${teisu(-m+(m-1)*a)} \\right \\}`;
+    S=`条件より　${an1}-${an}=${kakko(m)}^n$$$$
+    数列\\{ ${an}\\}の階差数列の第~n~項が${kakko(m)}^n であるから，$$$$n\\geqq 2のとき$$$$
+    　　${an}=a_1 +\\sum_{k=1}^{n} ${kakko(m)}^k$$$$
+    　=${a}+${m>0 ? `\\frac{${m}(${m}^{n-1}-1)}{${m}-1}`:`\\frac{${m}\\left \\{1-${kakko(m)}^{n-1} \\right \\} }{1-${kakko(m)}}`}$$$$
+    　=${answer}
+    `;
+  }
+  if(j===2){
+    m=[getRandomInt(-5,5,true),getRandomInt(-5,5)];
+    Q=`${an1}=${an}${moji(m[0],`n`)}${teisu(m[1])}`;
+    answer= m[0]%2===0 ?`${keisu(m[0]/2,`n^2 `)}${moji(-m[0]/2+m[1],`n `)}${teisu(-m[1]+a)}`:
+    `\\frac{${keisu(m[0],`n^2 `)}${moji(-m[0]+2*m[1],`n `)}${teisu(-2*m[1]+2*a)} }{2}`;
+     S=`条件より　${an1}-${an}=${moji(m[0],`n`)}${teisu(m[1])}$$$$
+    数列\\{ ${an}\\}の階差数列の第~n~項が${moji(m[0],`n`)}${teisu(m[1])} であるから，$$$$n\\geqq 2のとき$$$$
+    　　${an}=a_1 +\\sum_{k=1}^{n} ${m[1]===0 ?`${keisu(m[0],`k`)}`:`\\left(  ${keisu(m[0],`k`)}${teisu(m[1])} \\right)`} $$$$
+    　=${a}${teisu(m[0])}\\cdot ${bunsu(1,2)}n(n-1) ${moji(m[1],`(n-1)`)}$$$$
+    　=${answer}`;
+  }
+  if(j===3){
+    m=[getRandomInt(1,4,true),getRandomInt(-4,4)];
+    Q=`${an1}=${an}${moji(m[0],`n^2 `)}${moji(m[1],`n `)}`;
+    p=[2*m[0],-3*m[0]+3*m[1],m[0]-3*m[1],6];
+    let d=gcd( gcd( gcd(p[0],p[1]) ,p[2]) ,6);
+    p=[p[0]/d,p[1]/d,p[2]/d,p[3]/d];
+    
+    answer= p[3]===1 ?`${keisu(p[0],`n^3 `)}${moji(p[1],`n^2 `)}${moji(p[2],`n`)}${teisu(a*p[3])}`:
+     `\\frac{${keisu(p[0],`n^3 `)}${moji(p[1],`n^2 `)}${moji(p[2],`n`)}${teisu(a*p[3])}  } {${p[3]}}`;
+     S=`条件より　${an1}-${an}=${moji(m[0],`n^2 `)}${moji(m[1],`n `)}$$$$
+    数列\\{ ${an}\\}の階差数列の第~n~項が${moji(m[0],`n^2 `)}${moji(m[1],`n `)} であるから，$$$$n\\geqq 2のとき$$$$
+    　　${an}=a_1 +\\sum_{k=1}^{n} ${m[1]===0 ?`${keisu(m[0],`k^2`)}`:`\\left(  ${keisu(m[0],`k^2`)}${moji(m[1],`k `)} \\right)`} $$$$
+    　=${a}${teisu(m[0])}\\cdot ${bunsu(1,6)}n(n-1)(2n-1) ${moji(m[1],`\\cdot \\frac{1}{2}n(n-1)`)}$$$$
+    　=${answer}`;
+  }
+  question=`$$次の条件によって定められる数列\\{ ${an}\\}の一般項を求めよ。$$
+ $$　　　a_{1}=${a}，${Q}$$`;
+ solution=`$$ ${S} $$`;
+}
+if(i===3){
+  let m,n,p,Q,S,a;
+  a=getRandomInt(-5,5);
+m=getRandomInt(2,4)*getRandomInt(-1,1,true);
+p=getRandomInt(-3,3,true);
+n=p-m*p;
+Q=`${an1}=${m}${an}${teisu(n)} `;
+let A=`${an}${teisu(-p)}`;
+answer= (a-p)===m ? ` ${kakko(m)}^n ${teisu(p)}`:a-p===0 ?`${p}`:
+gcd((a-p),m)===Math.abs(m) ? `${keisu((a-p)/m)}\\cdot ${kakko(m)}^n ${teisu(p)}`:a-p===0 ?`${p}`:
+Math.abs(a-p)===1 ?`${keisu(a-p)}${kakko(m)}^{n-1}${teisu(p)}`:
+`${a-p}\\cdot ${kakko(m)}^{n-1}${teisu(p)}`;
+question=`$$次の条件によって定められる数列\\{ ${an}\\}の一般項を求めよ。$$
+ $$　　　a_{1}=${a}，${Q}$$`;
+ S=`${Q}を変形すると　　${an1}${teisu(-p)}=${m}(${A})$$$$
+ ここで，　b_n =${A}とおくと$$$$
+ b_{n+1} =${m}b_n ，　b_1 =a_1 ${teisu(-p)}=${a-p}$$$$
+ よって数列~\\{ b_n \\} は初項${a-p}，公比${m}  の等比数列で$$$$
+ b_n =${a-p}\\cdot ${kakko(m)}^{n-1}$$$$
+ ${an}=b_n ${teisu(p)}であるから，数列\\{  ${an}\\}の一般項は$$$$
+ ${an}=${answer} `;
+ solution=`$$ ${S} $$$$$$
+ $$※　特性方程式 \\alpha =${keisu(m,`\\alpha `)}${teisu(n)}を解くことで，\\alpha =${p}$$
+ $$そこから${an1}${teisu(-p)}=${m}(${A})に変形できる。$$`;
+}
+if(i===4){
+  let a,m,n,p,j,Q,S;
+  j=getRandomInt(1,4);
+  a=getRandomInt(-4,4,true);
+if(j===1){
+  n=getRandomInt(2,3);
+  do{
+  m=getRandomInt(2,4,true)*getRandomInt(-1,1,true);}
+  while(m===n)
+  p=`${(m-n)>0 ?`+`:``}${bunsu(1,(m-n))}`;
+  Q=`${an1}=${keisu(m,`${an}`)}+${n}^{n}`;
+  answer=  Math.abs(m-n)===1?
+  `${keisu((a*(m-n)+n)/(m-n),`\\cdot `)}${kakko(m)}  ^{n-1} ${moji(1/-(m-n),`\\cdot `)}${n}^{n}`:
+  (a*(m-n)+n)===0 ?`${bunsu(1,-(m-n))}\\cdot${n}^{n}`:
+  Math.abs(n/(n-m) )===1 ?`${keisu((a*(m-n)+n)/(m-n),`\\cdot `)}${kakko(m)}  ^{n-1} +${kakko(n)}^{n-1}`:
+  `${bunsu(a*(m-n)+n,(m-n))}\\cdot ${kakko(m)}  ^{n-1}  ${(n-m)>0 ?`+`:``}${bunsu(1,-(m-n))}\\cdot${n}^{n}`;
+  S=`両辺を${n}^{n+1}でわると$$$$
+  \\frac{${an1}}{${n}^{n+1}}=${bunsu(m,n)}\\cdot \\frac{${an}}{${n}^{n}}+${bunsu(1,n)}$$$$
+  ここで，b_n =\\frac{${an}}{${n}^n}とすると，$$$$
+  b_{n+1}=${bunsu(m,n)}\\cdot b_{n} +${bunsu(1,n)}，b_1=\\frac{a_1}{${n}}=${bunsu(a,n)}$$$$
+  これを変形して，b_{n+1}${p}=${bunsu(m,n)}\\left(b_{n}${p} \\right)，b_1 =${bunsu(a*(m-n)+n,n*(m-n))}$$$$
+  よって，数列\\left \\{ b_{n} ${p} \\right \\}は，初項${bunsu(a*(m-n)+n,n*(m-n))}，公比${bunsu(m,n)}の等比数列であるから$$$$
+  b_{n}${p}=${bunsu(a*(m-n)+n,n*(m-n))}\\left( ${bunsu(m,n)}  \\right)^{n-1}$$$$
+  b_{n}=${bunsu(a*(m-n)+n,n*(m-n))}\\left( ${bunsu(m,n)}  \\right)^{n-1}  ${(n-m)>0 ?`+`:``}${bunsu(1,(n-m))}$$$$
+  ${an}=b_{n}\\cdot${kakko(n)}^{n}であるから$$$$
+  ${an}=${answer}$$$$`;
+}
+if(j===2){
+  n=getRandomInt(2,4);
+  p=getRandomInt(-3,3,true);
+  m=-n*p+p;
+  Q=`${an1}=\\frac{${an}}{${keisu(m,`${an}`)}${teisu(n)}}`;
+  let b=bunsu(1-a*p,a);
+  answer=b===0 ? a:
+  a>0? `\\frac{${a}}{${1-a*p}\\cdot ${n}^{n-1}${teisu(a*p)} }`:
+  `\\frac{${-a}}{${a*p-1}\\cdot ${n}^{n-1}${teisu(-a*p)} }`;
+  S=`a_1 および，条件から ${an}\\neq 0$$$$
+  両辺の逆数をとると$$$$
+  \\frac{1}{${an1}}=\\frac{${keisu(m,`${an}`)}${teisu(n)}}{${an}}=${teisu(n)}\\cdot \\frac{1}{${an}}${teisu(m)}$$$$
+  ここで，b_n =\\frac{1}{${an}}とおくと，$$$$
+  b_{n+1}=${keisu(n,` b_{n} `)}${teisu(m)}，b_1=\\frac{1}{a_1}=${bunsu(1,a)}$$$$
+  これを変形して，b_{n+1}${teisu(-p)}=${keisu(n,``)}(b_{n} ${teisu(-p)})　，b_1 =${bunsu(1-a*p,a)}$$$$
+  よって，数列\\left \\{ b_{n} ${teisu(-p)} \\right \\}は，初項${bunsu(1-a*p,a)}，公比${n}の等比数列であるから$$$$
+  b_{n}${teisu(-p)}=${b}\\cdot ${n}^{n-1}$$$$
+  b_{n}=${b}\\cdot ${n}^{n-1}${teisu(p)}=\\frac{${1-a*p}\\cdot ${n}^{n-1}${teisu(a*p)}}{${a}}$$$$
+  ${an}=\\frac{1}{b_{n}}であるから$$$$
+  ${an}=${answer}$$$$ `;
+}
+if(j===3){
+m=getRandomInt(2,3);
+p=[getRandomInt(1,4),getRandomInt(1,7)];
+n=[p[0]*(m-1),(m-1)*p[1]-p[0]];
+Q=`${an1}=${keisu(m,`${an}`)} ${moji(n[0],`n`)} ${teisu(n[1])} `;
+let A=[`${an1}${moji(p[0],`(n+1)`)}${teisu(p[1])}`,`${keisu(m)}(${an}${moji(p[0],`n`)}${teisu(p[1])})`,a+p[0]+p[1]];
+S=`
+${an1}+\\alpha (n+1)+\\beta =${m} \\left(${an}+  \\alpha  n +  \\beta  \\right)$$$$
+\\Longleftrightarrow ${an1}=${m}${an}${moji(m-1,`\\alpha n`)}-\\alpha ${moji(m-1,`\\beta`)}$$$$
+として，これを与式と比較すると$$$$
+${keisu(m-1,`\\alpha `)}=${n[0]}，-\\alpha ${moji(m-1,`\\beta`)}=${n[1]}$$$$
+これを解いて，\\alpha =${p[0]}，\\beta =${p[1]}$$$$
+よって，与式は$$$$
+${A[0]}=${A[1]}と変形でき，$$$$
+数列\\{ ${an}${moji(p[0],`n`)}${teisu(p[1])} \\}は初項a_1  ${teisu(p[0])}${teisu(p[1])}=${A[2]}，公比${m}の等比数列であるから$$$$
+${an}${moji(p[0],`n`)}${teisu(p[1])}=${A[2]}\\cdot ${kakko(m)}^{n-1}$$$$
+よって，${an}=${A[2]}\\cdot ${kakko(m)}^{n-1}${moji(-p[0],`n`)}${teisu(-p[1])}
+`;
+}
+
+if(j===4){
+m=[getRandomInt(2,3),getRandomInt(2,4)];
+p=getRandomInt(-2,-1);
+n=[0,-(m[1]-1)*p];
+n[0]=m[0]**n[1];
+let b=[0,getRandomInt(2,3)];
+b[0]=b[1]+p;
+a=m[0]**b[0];
+
+Q=`${an1}=${ keisu(n[0],`${an}`) }^{${m[1]}}`;
+let bn=`b_n`;
+let bn1=`b_{n+1}`;
+answer= b[1]===1 ?` ${m[1]}^{n-1}${teisu(p)}`:
+b[1]===m[1]?`${m[1]}^{n}${teisu(p)}`:
+`${b[1]}\\cdot ${m[1]}^{n-1}${teisu(p)}`;
+S=`
+a_1 および漸化式の形から${an}\\gt 0 である。$$$$
+漸化式の両辺に${m[0]}を底とする対数をとると$$$$
+　　${log(m[0],`${an1}`)}=${log(m[0],`${keisu(n[0],`${an}`)}^{${m[1]}}`)}
+=${m[1]}${log(m[0],`${an}`)}${teisu(n[1])}$$$$
+ここで${bn}=${log(m[0],`${an}`)}とおくと，
+${bn1}=${m[1]}${bn}${teisu(n[1])}，b_1 =${log(m[0],`a_1`)}=${b[0]}$$$$
+これを変形すると$$$$
+${bn1}${teisu(-p)}=${m[1]}(${an}${teisu(-p)})$$$$
+となり，数列\\{ ${bn}${teisu(-p)}\\}は初項b_1 ${teisu(-p)}=${b[1]}，公比${m[1]}の等比数列であるから$$$$
+${bn}${teisu(-p)}=${b[1]}\\cdot ${m[1]}^{n-1}$$$$
+ゆえに${bn}=${b[1]}\\cdot ${m[1]}^{n-1}${teisu(p)}$$$$
+よって，${an}=${m[0]}^{${bn}}より$$$$
+${an}=${m[0]}^{${answer}}
+`;
+}
+
+
+question=`$$次の条件によって定められる数列\\{ ${an}\\}の一般項を求めよ。$$
+ $$　　　a_{1}=${a}，${Q}$$`;
+ solution=`$$ ${S} $$`;
+}
+
+if(i===5){
+  let an2=`a_{n+2}`;
+  let m,n,a,Q,S,p,j;
+j=getRandomInt(1,4)
+if(j<4){
+  let s,t;
+  s=getRandomInt(-3,-1);
+  do{t=getRandomInt(1,6);}while(s+t===0)
+  a=[getRandomInt(-1,1),0];
+  p=[getRandomInt(-2,2,true),0];
+  
+  m=[t,s,t-s];
+  n=[m[0]+m[1],-m[0]*m[1]];
+  
+  a[1]=p[0]+m[0]*a[0];
+  p[1]=a[1]-m[1]*a[0];
+
+  answer=m[0]===1 ?`${bunsu(p[0],m[2])}\\cdot${kakko(m[1])}^{n-1} ${moji(-p[1]/Math.abs(p[1]))}${bunsu(Math.abs(p[1]),m[2])}`:
+  `${bunsu(p[0],m[2])}\\cdot${kakko(m[1])}^{n-1} ${moji(-p[1]/Math.abs(p[1]))}${bunsu(Math.abs(p[1]),m[2])}\\cdot${kakko(m[0])}^{n-1}`;
+  Q=`a_{n+2}=${keisu(n[0],`${an1}`)}${moji(n[1],`${an}`)}`;
+  S=`特性方程式 \\alpha ^2 =${keisu(n[0],`\\alpha `)}${teisu(n[1])}を解くと$$$$
+  \\alpha ^2 ${moji(-n[0],`\\alpha `)}${teisu(-n[1])}=0$$$$
+  \\alpha =${m[0]}，${m[1]}$$$$
+  与式を$$$$
+  ${an2}${moji(-m[0],`${an1}`)}=${m[1]}(${an1}${moji(-m[0],`${an}`)})$$$$
+  ${an2}${moji(-m[1],`${an1}`)}=${m[0]}(${an1}${moji(-m[1],`${an}`)})$$$$
+  と変形すると，数列\\{${an1}${moji(-m[0],`${an}`)} \\}は，
+  初項 a_2 ${moji(-m[0],`a_1`)}=${p[0]}，公比${m[1]}$$$$
+  数列\\{${an1}${moji(-m[1],`${an}`)} \\}は，
+  初項 a_2 ${moji(-m[1],`a_1`)}=${p[1]}，公比${m[0]}$$$$
+  のそれぞれ等比数列なので，一般項は$$$$
+  ${an1}${moji(-m[1],`${an}`)}=${p[0]}\\cdot${kakko(m[1])}^{n-1}$$$$
+  ${an1}${moji(-m[0],`${an}`)}=${p[1]}\\cdot${kakko(m[0])}^{n-1}$$$$
+  辺々を引いて$$$$
+  ${keisu(m[0]-m[1],`${an}`)}=${p[0]}\\cdot${kakko(m[1])}^{n-1} ${teisu(-p[1])}\\cdot${kakko(m[0])}^{n-1}$$$$
+  よって，${an}=${answer}$$$$
+  `;}
+  if(j===4){
+    p=getRandomInt(2,4,true)*getRandomInt(-1,1,true);
+    Q=`${an2}=${keisu(p*2,`${an1}`)} ${moji(p**2,`${an}`)} `;
+    let b=getRandomInt(-3,3,true);
+    a=[getRandomInt(-2,2),0];
+    a[1]=a[0]*p+b;
+    S=`${Q}を変形すると$$$$
+    　　${an2}${moji(-p,`${an1}`)}=${p}(${an1}${moji(-p,`${an}`)})$$$$
+    よって，数列\\{${an1}${moji(-p,`${an}`)} \\}は，$$$$初項a_2 ${moji(-p,`a_1 `)}=${b}，　公比${p}の等比数列で$$$$
+    　　${an1}${moji(-p,`${an}`)}=${b}\\cdot ${kakko(p)}^{n-1}$$$$
+    ここで，両辺を${kakko(p)}^{n+1}で割ると$$$$
+    　　\\frac{${an1}}{${kakko(p)}^{n+1}}-\\frac{${an}}{${kakko(p)}^{n}}=${bunsu(b,p**2)}$$$$
+    b_{n}=\\frac{${an}}{${kakko(p)}^n}とおくと$$$$
+    b_{n+1}-b_{n}=${bunsu(b,p**2)}，　b_1 =\\frac{a_1}{${p}}=${bunsu(a[0],p)}$$$$
+    よって，数列\\{ b_n \\}は初項${bunsu(a[0],p)}，公差${bunsu(b,p**2)}の等差数列で$$$$
+    b_n =${bunsu(a[0],p)}${b>0 ?`+`:``}${bunsu(b,p**2)}(n-1)
+    =${bunsu(b,p**2)}\\left(n${b*(a[0]*p-b)>=0 ? `+`:`` }${ bunsu(a[0]*p-b,b) } \\right)$$$$
+    ${an}=b_n \\cdot ${kakko(p)}^{n}であるから$$$$
+    ${an}=${keisu(b)}\\left(n${b*(a[0]*p-b)>=0 ? `+`:`` }${ bunsu(a[0]*p-b,b) } \\right)\\cdot ${kakko(p)}^{n-2}
+    `;
+  }
+
+  question=`$$ 次の条件によって定められる数列\\{ ${an}\\}の一般項を求めよ。$$
+ $$　　　a_{1}=${a[0]}，a_{2}=${a[1]}，${Q}$$`;
+ solution=`$$ ${S} $$`;
+}
+
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>漸化式</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　等差・等比型</option>
+          <option value="2">2.　階差数列型</option>
+          <option value="3">3.　1次関数型</option>
+          <option value="4">4.　色々な漸化式</option>
+          <option value="5">5.　隣接3項間漸化式</option>
+          <option value="0">ランダム</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
