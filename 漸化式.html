@@ -234,7 +234,7 @@ if(i===2){
      `${bunsu(1,m-1)}\\left\\{${kakko(m)}^{n}${teisu(-m+(m-1)*a)} \\right \\}`;
     S=`条件より　${an1}-${an}=${kakko(m)}^n$$$$
     数列\\{ ${an}\\}の階差数列の第~n~項が${kakko(m)}^n であるから，$$$$n\\geqq 2のとき$$$$
-    　　${an}=a_1 +\\sum_{k=1}^{n} ${kakko(m)}^k$$$$
+    　　${an}=a_1 +\\sum_{k=1}^{n-1} ${kakko(m)}^k$$$$
     　=${a}+${m>0 ? `\\frac{${m}(${m}^{n-1}-1)}{${m}-1}`:`\\frac{${m}\\left \\{1-${kakko(m)}^{n-1} \\right \\} }{1-${kakko(m)}}`}$$$$
     　=${answer}
     `;
@@ -246,7 +246,7 @@ if(i===2){
     `\\frac{${keisu(m[0],`n^2 `)}${moji(-m[0]+2*m[1],`n `)}${teisu(-2*m[1]+2*a)} }{2}`;
      S=`条件より　${an1}-${an}=${moji(m[0],`n`)}${teisu(m[1])}$$$$
     数列\\{ ${an}\\}の階差数列の第~n~項が${moji(m[0],`n`)}${teisu(m[1])} であるから，$$$$n\\geqq 2のとき$$$$
-    　　${an}=a_1 +\\sum_{k=1}^{n} ${m[1]===0 ?`${keisu(m[0],`k`)}`:`\\left(  ${keisu(m[0],`k`)}${teisu(m[1])} \\right)`} $$$$
+    　　${an}=a_1 +\\sum_{k=1}^{n-1} ${m[1]===0 ?`${keisu(m[0],`k`)}`:`\\left(  ${keisu(m[0],`k`)}${teisu(m[1])} \\right)`} $$$$
     　=${a}${teisu(m[0])}\\cdot ${bunsu(1,2)}n(n-1) ${moji(m[1],`(n-1)`)}$$$$
     　=${answer}`;
   }
@@ -261,7 +261,7 @@ if(i===2){
      `\\frac{${keisu(p[0],`n^3 `)}${moji(p[1],`n^2 `)}${moji(p[2],`n`)}${teisu(a*p[3])}  } {${p[3]}}`;
      S=`条件より　${an1}-${an}=${moji(m[0],`n^2 `)}${moji(m[1],`n `)}$$$$
     数列\\{ ${an}\\}の階差数列の第~n~項が${moji(m[0],`n^2 `)}${moji(m[1],`n `)} であるから，$$$$n\\geqq 2のとき$$$$
-    　　${an}=a_1 +\\sum_{k=1}^{n} ${m[1]===0 ?`${keisu(m[0],`k^2`)}`:`\\left(  ${keisu(m[0],`k^2`)}${moji(m[1],`k `)} \\right)`} $$$$
+    　　${an}=a_1 +\\sum_{k=1}^{n-1} ${m[1]===0 ?`${keisu(m[0],`k^2`)}`:`\\left(  ${keisu(m[0],`k^2`)}${moji(m[1],`k `)} \\right)`} $$$$
     　=${a}${teisu(m[0])}\\cdot ${bunsu(1,6)}n(n-1)(2n-1) ${moji(m[1],`\\cdot \\frac{1}{2}n(n-1)`)}$$$$
     　=${answer}`;
   }
@@ -615,3 +615,4 @@ if(j<4){
 </body>
 
 </html>
+
