@@ -189,6 +189,8 @@ function generateQuiz() {//問題生成関数
   let i = parseInt(document.getElementById('modeSelect1').value);
 
  if ( i === 0) i = getRandomInt(1, 5);//1～5です。
+	if ( i === 6) i = getRandomInt(1, 3);//1～5です。
+	if ( i === 7) i = getRandomInt(4, 5);//1～5です。
   let question = '', answer = 0, solution = '';
 let an=`a_{n}`; 
 let an1=`a_{n+1}`;
@@ -517,6 +519,8 @@ if(j<4){
           <option value="4">4.　色々な漸化式</option>
           <option value="5">5.　隣接3項間漸化式</option>
           <option value="0">ランダム</option>
+			<option value="6">基本４パターン</option>
+			<option value="7">中級ランダム</option>
         </select>
 
         </label>
@@ -615,4 +619,5 @@ if(j<4){
 </body>
 
 </html>
+
 
