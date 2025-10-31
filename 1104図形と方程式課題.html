@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>11/4 数ⅡA課題《図形と方程式》</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+  #top {
+      height: 10vh;
+      background: #f0f0f0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.5em;
+    }
+    #bottom {
+      height: 90vh;
+      padding: 20px;
+      overflow-y: auto;
+    }
+#soluButton {
+  background-color: orange;
+}
+#nextButton{
+  background-color: cyan;
+}
+    .input-box {
+      width: 70px;
+      height: 50px;
+      font-size: 1.5em;
+      margin: 5px;
+    }
+    .button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+
+    .hidden {
+      display: none;
+    }
+.color0 { background-color: gray; color: white; }
+.color1 { background-color: blue; color: white; }
+.color2 { background-color: green; color: white; }
+.color3 { background-color: red; color: white; }
+
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: auto;
+      height: auto;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+let I = 0;
+let mistakeCount = 0;
+let startTime = null;
+let endTime = null;
+
+let N,an1,an2,bn1,bn2,bn3;
+N=0
+	let kaisu=1;
+    let correctAnswers = [];
+
+function startTask() {
+   const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  const now = new Date();
+  startTime = now;
+  I = 1;
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+ function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+
+    function moji(num, str) {
+      if (num === 0) return "";
+      if (num === 1) return `+${str}`;
+      if (num === -1) return `-${str}`;
+      return num > 0 ? `+${num}${str}` : `${num}${str}`;
+    }
+
+    function teisu(num) {
+      if (num === 0) return "";
+      return num > 0 ? `+${num}` : `${num}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+    function getRandomInt(min, max, excludeZero = false) {
+      let val;
+      do {
+        val = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && val === 0);
+      return val;
+    }
+
+function kaijo(n){
+  let m=1;
+  if(n===0)     return 1;
+  if(n<0)     return null;
+
+  for(let i=1;i<n+1;i++){
+    m*=i;
+  }
+return m;
+
+}
+
+function parm(n,m){
+  let value=kaijo(n)/kaijo(n-m);
+  return value;
+}
+
+function combi(n,r){
+  let value=parm(n,r)/kaijo(r);
+  return value;
+}
+
+function startQuiz() {
+  I = 1;
+  startTime = new Date();
+  document.getElementById("startButton").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function generateQuestion() {
+  let question = "";
+	let solution="";
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextButton").classList.add("hidden");
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+ const questionDiv = document.getElementById("question");
+  const solutionDiv = document.getElementById("solution");
+  const feedbackDiv = document.getElementById("feedback");
+
+
+if (I === 0) {
+    questionDiv.innerHTML = `<p>【課題の取り組み方】</p>
+    <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で10問です。終わったらリザルト画面になります。</p>
+  <p>リザルト画面にある記録ボタンを押し，ダウンロードした画像をロイロで提出してください。</p>
+  <button class="button" onclick="startTask()">開始</button>
+`;
+
+    document.getElementById("ansButton").classList.add("hidden");
+    document.getElementById("soluButton").classList.add("hidden");
+	
+
+    return;
+  }
+
+if (I === 1) {
+let x1,x2,x3,y1,y2,y3;
+x1=getRandomInt(-9,9);
+y1=getRandomInt(-9,9);
+do{
+x2=getRandomInt(-9,9);
+y2=getRandomInt(-9,9);
+}while(x1===x2 && y1===y2)
+
+question=`$$2点\\rm{A}(${x1},${y1})，\\rm{B}(${x2}，${y2})間の距離は$$
+$$ \\fbox{　ｱ　}\\sqrt{\\fbox{　ｲ　}} $$
+$$左から順次ｱ，ｲ。ただし，答えが3のときは3\\sqrt{1}のように解答せよ。$$`;
+let answersq=(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
+ answer= kanyaku(answersq,2);
+let dx = x2 < 0 ? `\\left\\{ ${x1} - (${x2}) \\right\\}^{2}` : `(${x1} - ${x2})^{2}`;
+let dy = y2 < 0 ? `\\left\\{ ${y1} - (${y2}) \\right\\}^{2}` : `(${y1} - ${y2})^{2}`;
+
+ solution=`$$\\rm{AB}=\\sqrt{${dx}+${dy}}=${kanyaku(answersq,1)}$$`;
+    correctAnswers=answer;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 2; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+
+if (I === 2) {
+let x1,x2,x3,y1,y2,y3;
+x1=getRandomInt(-9,9);
+y1=getRandomInt(-9,9);
+do{
+x2=getRandomInt(-9,9);
+y2=getRandomInt(-9,9);
+}while(x1===x2 && y1===y2)
+let j=getRandomInt(1,5);
+let A=[0,0,0,0];
+if(j===1){
+let x = bunsu(x1+x2,2);
+let y = bunsu(y1+y2,2);
+    answer = `\\left(${x}，${y} \\right)`;
+    let X,Y;
+    X=yakubun(x1+x2,2);
+    Y=yakubun(y1+y2,2);
+    A=[X[0],X[1],Y[0],Y[1]];
+    question = `$$2点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2})を結ぶ線分\\rm{AB}について，$$
+$$線分\\rm{AB}の中点\\rm{M}の座標は，$$
+$$ \\left( \\frac{\\fbox{　ｱ　}}{\\fbox{　ｲ　}}，\\frac{\\fbox{　ｳ　}}{\\fbox{　ｴ　}} \\right)である。$$
+$$解答欄は左から順にｱｲｳｴである。 $$$$ただし，\\left(3,${bunsu(-2,3)}\\right) のよう答える時は，順に3,1,-2,3のように答えよ。$$`;
+    solution = `$$点{\\rm{M}}の座標を(x,y)とすると$$
+$$x=\\frac{${x1}+${kakko(x2)}}{2}=${x}$$
+$$y=\\frac{${y1}+${kakko(y2)}}{2}=${y}$$
+$$よって，求める座標は${answer}$$`;
+  } else{//中点以外のパターン
+let m=getRandomInt(1,3);
+let n;
+do{n=getRandomInt(1,4);}while(gcd(m,n)!==1 || m===n)
+let k=getRandomInt(1,2);
+let divine=k===1?`内分`:`外分`;
+let xs = k === 1 ? (n * x1 + m * x2) : (-n * x1 + m * x2);
+let ys = k === 1 ? (n * y1 + m * y2) : (-n * y1 + m * y2);
+let x=k===1 ? bunsu(xs,m+n):bunsu(xs,m-n);
+let y=k===1 ? bunsu(ys,m+n):bunsu(ys,m-n);
+let X=k===1 ? yakubun(xs,m+n):yakubun(xs,m-n);
+let Y=k===1 ? yakubun(ys,m+n):yakubun(ys,m-n);
+let xshiki=k===1?`\\frac{${n}\\cdot${kakko(x1)}+${m}\\cdot${kakko(x2)}}{${m}+${n}}`:`\\frac{${-n}\\cdot${kakko(x1)}+${m}\\cdot${kakko(x2)}}{${m}-${n}}`;
+let yshiki=k===1?`\\frac{${n}\\cdot${kakko(y1)}+${m}\\cdot${kakko(y2)}}{${m}+${n}}`:`\\frac{${-n}\\cdot${kakko(y1)}+${m}\\cdot${kakko(y2)}}{${m}-${n}}`;
+
+answer=`\\left(${x}，${y}\\right)`;
+A=[X[0],X[1],Y[0],Y[1]];
+question=`$$2点\\rm{A}(${x1},${y1}),\\rm{B}(${x2},${y2})を結ぶ線分\\rm{AB}について，$$
+$$${m}：${n}に${divine}する点\\rm{P}の座標は，$$
+$$ \\left( \\frac{\\fbox{　ｱ　}}{\\fbox{　ｲ　}}，\\frac{\\fbox{　ｳ　}}{\\fbox{　ｴ　}} \\right)である。$$
+$$解答欄は左から順にｱｲｳｴである。 $$
+$$ただし，\\left(3,${bunsu(-2,3)}\\right) のよう答える時は，順に3,1,-2,3のように答えよ。$$`;
+
+solution=`$$点{\\rm{P}}の座標を(x,y)とすると$$
+$$x=${xshiki}=${x}$$
+$$y=${yshiki}=${y}$$
+$$よって，求める座標は${answer}$$
+`;
+}
+    correctAnswers=A;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 4; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+
+if (I === 3) {
+    let a,b,p,q;
+    a=[getRandomInt(-4,4),getRandomInt(-4,4)];
+    p=[getRandomInt(-3,3,true),1,getRandomInt(-2,2,true)];
+    b=[a[0]+p[1]*p[2],a[1]+p[0]*p[2]];
+    q=-p[0]*a[0]+a[1];
+    answer=[p[0],Math.abs(q)];
+
+    question=`$$ 2点(${a[0]}，${a[1]})，(${b[0]}，${b[1]})を通る直線の方程式は$$
+    $$ y=\\fbox{　ｱ　}~x${q>=0 ?`+`:`-`}\\fbox{　ｲ　}である。$$`;
+    solution=`$$ 求める直線の方程式は,$$
+    $$ y${teisu(-a[1])}=\\frac{${a[1]}-${kakko(b[1])}}{${a[0]}-${kakko(b[0])}}(x${teisu(-a[0])})$$
+    $$ すなわち，y=${keisu(p[0],`x`)}${teisu(q)} $$`;
+    correctAnswers=answer;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 2; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+if (I === 4) {//点と直線の距離
+    let a,b,c,m,n,p,q,r;
+a=getRandomInt(1,6);
+b=getRandomInt(-6,6,true);
+c=getRandomInt(-9,9);
+
+let d=gcd(a,b);
+let D=gcd(d,c);
+
+let x,y;
+do{
+x=getRandomInt(-9,9,true);
+y=getRandomInt(-9,9,true);}while(a*x+b*y+c===0)
+let line='';
+a/=D;b/=D;c/=D;
+let A=[0,0,0];
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+A[1]=n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+question=`$$点(${x}，${y})と直線${keisu(a,`x`)}${moji(b,`y`)}${teisu(c)}=0との距離は，$$
+$$\\frac{\\fbox{　ｱ　} \\sqrt{\\fbox{　ｲ　}} }{\\fbox{　ｳ　}}  $$
+$$ 左から順にｱｲｳの解答欄とする。$$`;
+solution=`$$求める距離は$$
+$$\\frac{|${a}\\cdot${kakko(x)}${teisu(b)}\\cdot${kakko(y)}${teisu(c)}|}{\\sqrt{${kakko(a)}^{2}+${kakko(b)}^{2}}}=${answer}$$`;
+A[0]=p;A[2]=q;
+    correctAnswers=A;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 5) {  
+let a,b,c,m,n,p,q,r;
+a=getRandomInt(-6,6,true);//中心のｘ座標
+b=getRandomInt(-6,6,true);//中心のｙ座標
+p=[getRandomInt(1,4),getRandomInt(1,3)];
+r=p[0]**2 *p[1];//半径の2乗
+let xs,ys;
+xs = a === 0 ? `x^2` : `(x${teisu(-a)})^{2}`;
+ys = b === 0 ? `y^2` : `(y${teisu(-b)})^{2}`;
+let circle = `${xs}+${ys}=${r}`;
+    
+  
+    question = `$$点(${a}，${b})を中心とし，半径が${kanyaku(r,1)}である円の方程式は，$$
+    $$ \\left(x\\fbox{　ｱ　}\\right)^2+\\left(y\\fbox{　ｲ　}\\right)^2 =\\fbox{　ｳ　}である。$$
+    $$ ただし，(x-2)^2+(y+4)^2=10と入力したいときは，　　-2,+4,10　と入力せよ。$$`;
+    answer=[-a,-b,r]
+    solution = `$$求める方程式は$$
+$$${circle}$$`;
+      correctAnswers=answer;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 6) {  
+let a,b,c,m,n,p,q,r;
+a=getRandomInt(-6,6,true);//中心のｘ座標
+b=getRandomInt(-6,6,true);//中心のｙ座標
+p=[getRandomInt(1,4),getRandomInt(1,3)];
+r=p[0]**2 *p[1];//半径の2乗
+let xs,ys;
+xs = a === 0 ? `x^2` : `(x${teisu(-a)})^{2}`;
+ys = b === 0 ? `y^2` : `(y${teisu(-b)})^{2}`;
+let circle = `${xs}+${ys}=${r}`;
+    
+  let j=getRandomInt(1,3);
+let x,y;
+do{x=getRandomInt(-9,9,true);
+y=getRandomInt(-9,9,true)}while(a===x && b===y)
+if(j===1){r=(a-x)**2+(b-y)**2;
+question=`$$点(${a}，${b})を中心とし，点(${x}，${y})を通る円の方程式は，$$
+$$ \\left(x\\fbox{　ｱ　}\\right)^2+\\left(y\\fbox{　ｲ　}\\right)^2 =\\fbox{　ｳ　}である。$$
+    $$ ただし，(x-2)^2+(y+4)^2=10と入力したいときは，　　-2,+4,10　と入力せよ。$$`;
+solution=`$$半径をrとすると，$$
+$$rは中心(${a}，${b})と点(${x}，${y})との距離であるから$$
+$$r^{2}=(${a}-${kakko(x)})^{2}+(${b}-${kakko(y)})^{2}=${r}$$
+$$よって，求める円の方程式は$$
+$$${xs}+${ys}=${r}$$`;
+answer=[-a,-b,r];
+}//j=1
+if(j===2){//直系の両端
+let x1,y1,x2,y2;
+x1=a+x; y1=b+y;
+x2=a-x; y2=b-y;
+r=x*x+y*y;
+answer=[-a,-b,r];
+question=`$$2点(${x1}，${y1})，(${x2}，${y2})を直径の両端とする円の方程式は，$$
+$$ \\left(x\\fbox{　ｱ　}\\right)^2+\\left(y\\fbox{　ｲ　}\\right)^2 =\\fbox{　ｳ　}である。$$
+    $$ ただし，(x-2)^2+(y+4)^2=10と入力したいときは，　　-2,+4,10　と入力せよ。$$`;
+
+solution=`$$中心の座標は$$
+$$2点(${x1}，${y1})，(${x2}，${y2})を結ぶ線分の中点であるから$$
+$$\\left( \\frac{${x1}+${kakko(x2)}}{2}，\\frac{${y1}+${kakko(y2)}}{2} \\right)$$
+$$すなわち，(${a}，${b})$$
+$$半径をrとすると，$$
+$$rは中心(${a}，${b})と点(${x1}，${y1})との距離であるから$$
+$$r^{2}=(${a}-${kakko(x1)})^{2}+(${b}-${kakko(y1)})^{2}=${r}$$
+$$よって，求める円の方程式は$$
+$$${xs}+${ys}=${r}$$`;
+}//j=2終わり
+if(j===3){//軸に接する
+a=getRandomInt(-9,9,true);
+b=getRandomInt(-9,9,true);
+let k=getRandomInt(1,2);
+r= k===1 ? a*a:b*b;
+let jiku= k===1 ? `y軸`:`x軸`;
+xs= a===0 ? `x^2`:`(x${teisu(-a)})^{2}`;
+ys= b===0 ? `y^2`:`(y${teisu(-b)})^{2}`;
+let circle=`${xs}+${ys}=${r}`;
+question=`$$点(${a}，${b})を中心とし，${jiku}に接する円の方程式は$$
+$$ \\left(x\\fbox{　ｱ　}\\right)^2+\\left(y\\fbox{　ｲ　}\\right)^2 =\\fbox{　ｳ　}である。$$
+    $$ ただし，(x-2)^2+(y+4)^2=10と入力したいときは，　　-2,+4,10　と入力せよ。$$`;
+
+solution=`$$${jiku}に接するとき$$
+$$中心(${a}，${b})と${jiku}との距離${kanyaku(r,1)}は半径rに等しい。$$
+$$よって，求める円の方程式は$$
+$$${xs}+${ys}=${r}$$`;
+answer=[-a,-b,r];
+}//j=3終わり
+
+      correctAnswers=answer;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 7) {  
+let a,b,c,m,n,p,q,r;
+a=getRandomInt(-6,6,true);//中心のｘ座標
+b=getRandomInt(-6,6,true);//中心のｙ座標
+p=[getRandomInt(1,4),getRandomInt(1,3)];
+r=p[0]**2 *p[1];//半径の2乗
+let xs,ys;
+xs = a === 0 ? `x^2` : `(x${teisu(-a)})^{2}`;
+ys = b === 0 ? `y^2` : `(y${teisu(-b)})^{2}`;
+let circle = `${xs}+${ys}=${r}`;
+let j = getRandomInt(3, 8);
+    a = getRandomInt(-6, 6, true);
+    b = getRandomInt(-6, 6, true);
+    xs = a === 0 ? `x^2` : `(x${teisu(-a)})^{2}`;
+    ys = b === 0 ? `y^2` : `(y${teisu(-b)})^{2}`;
+    let C, A;
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+    if (j === 1) {
+      r = getRandomInt(-12, -1);
+      C = Cmake(a, b, r);
+      A = `この方程式が表す図形はない。`;
+    } else if (j === 2) {
+      r = 0;
+      C = Cmake(a, b, r);
+      A = `これは，点(${a}，${b})を表す。`;
+    } else {
+      r = getRandomInt(1, 64);
+      C = Cmake(a, b, r);
+      A = `これは，(${a}，${b})を中心とする半径${kanyaku(r, 1)}の円を表す。`;
+    }
+
+    let rhs = r - a * a - b * b;
+    let completed = `${xs}+${ys}=${r}`;
+    question = `$$円の方程式${C}の中心の座標は(\\fbox{　ｱ　}， \\fbox{　ｲ　})　$$
+    $$ 半径は\\fbox{　ｳ　}\\sqrt{\\fbox{　ｴ　}}$$`;
+    let z=kanyaku(r,2);
+    answer=[0,0,0,0];
+    answer[0]=a;
+    answer[1]=b;
+    answer[2]=z[0];
+    answer[3]=z[1];
+    solution = `$$${C}を変形すると$$
+$$(x^2${moji(-2 * a, 'x')})+(y^2${moji(-2 * b, 'y')})=${rhs}$$
+$$(x^2${moji(-2 * a, 'x')}+${a * a})+(y^2${moji(-2 * b, 'y')}+${b * b})=${rhs}+${a * a}+${b * b}$$
+$$すなわち，${completed}$$
+$$${A}$$`;
+      correctAnswers=answer;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 4; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 7問目終わり
+
+if (I === 8) {  
+let a,b,c,m,n,p,q,r;
+a=getRandomInt(-6,6,true);//中心のｘ座標
+b=getRandomInt(-6,6,true);//中心のｙ座標
+p=[getRandomInt(1,4),getRandomInt(1,3)];
+r=p[0]**2 *p[1];//半径の2乗
+let xs,ys;
+xs = a === 0 ? `x^2` : `(x${teisu(-a)})^{2}`;
+ys = b === 0 ? `y^2` : `(y${teisu(-b)})^{2}`;
+let circle = `${xs}+${ys}=${r}`;
+let k=getRandomInt(1,2);//k=1のときは直径ともう1点，k=2のときは半径5のパターン
+let x1,x2,x3,y1,y2,y3;//A,B,Cの座標成分
+if(k===1){
+do{
+x=getRandomInt(-4,4,true);
+y=getRandomInt(-4,4,true);}while(Math.abs(x)===Math.abs(y))//|x|!=|y|を満たすベクトル
+[x1,y1]=[a+x,b+y];//点A
+[x2,y2]=[a-x,b-y];//点B
+[x3,y3]=[a+y,b+x];
+r=x*x+y*y;
+}//k=1終わり
+if(k===2){//半径が５の倍数
+p=getRandomInt(-2,2,true);//成分の倍数
+q=getRandomInt(1,2);//(3,4)か(4,3)かの判定
+x= q===1 ? 3*p:4*p;
+y= q===1 ? 4*p:3*p;
+r=x*x+y*y;
+[x1,y1]=[a+x,b+y];
+[x2,y2]=[a-y,b-x];
+[x3,y3]=[a+5*p,b];
+}//k=2終わり
+let C=`x^2 + y^2 +mx +ny +l=0`;
+let Ca=`${keisu(x1,`m`)}${moji(y1,`n`)}+l=${-x1*x1-y1*y1}`;
+let Cb=`${keisu(x2,`m`)}${moji(y2,`n`)}+l=${-x2*x2-y2*y2}`;
+let Cc=`${keisu(x3,`m`)}${moji(y3,`n`)}+l=${-x3*x3-y3*y3}`;
+m=-2*a; n=-2*b;
+let l=a*a+b*b-r;
+
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+question=`$$点A(${x1}，${y1})，B(${x2}，${y2})，C(${x3}，${y3})$$
+$$を通る円の方程式は$$
+$$x^2+y^2${m>=0 ? `+`:`-`}\\fbox{　ｱ　} x
+${n>=0 ? `+`:`-`}\\fbox{　ｲ　}y ${l>=0 ? `+`:`-`}\\fbox{　ｳ　}=0である。 $$`;
+answer=[Math.abs(m),Math.abs(n),Math.abs(l)];
+solution=`$$求める方程式を${C}とすると$$
+$$3点A,B,Cを通るので$$
+$$${Ca}\\cdots\\cdots ①$$
+$$${Cb}\\cdots\\cdots ②$$
+$$${Cc}\\cdots\\cdots ③$$
+$$これを解いて，m=${m}，n=${n}，l=${l}$$
+$$よって，${Cmake(a,b,r)}$$`;
+
+      correctAnswers=answer;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+
+if (I === 9) {
+    let a,b,r,m,n;
+do{a=getRandomInt(-4,4,true);
+b=getRandomInt(-4,4,true);}while(Math.abs(a)===Math.abs(b));
+r=a*a+b*b;
+let Y;
+//円と直線の共有点の座標。
+let j=getRandomInt(1,2);//座標の取り方のパターン
+let k=getRandomInt(1,2);//直線の式の表示の仕方。
+let line;
+let x1,y1,x2,y2;
+[x1,y1]=[a,b];
+let hosoku;
+if(j===1){
+[x2,y2]=[b,a];
+line= k===1 ? `y=-x${teisu(a+b)}`:`x+y${teisu(-a-b)}=0`;
+hosoku= k===1 ? ``:`${line}から，y=-x${teisu(a+b)}\\cdots \\cdots ③`;
+Y=`x=${x1}のとき，y=${y1}，x=${x2}のとき，y=${y2}`;
+answer=`(${x1}，${y1})，(${x2}，${y2})`;
+
+}
+if(j===2){
+[x2,y2]=[-b,-a];
+line= k===1 ? `y=x${teisu(-a+b)}`:`x-y${teisu(-a+b)}=0`;
+hosoku= k===1 ? ``:`${line}から，y=x${teisu(-a+b)}\\cdots \\cdots ③`;
+Y=`x=${x1}のとき，y=${y1}，x=${x2}のとき，y=${y2}`;
+answer=`(${x1}，${y1})，(${x2}，${y2})`;
+}
+question=`$$円x^{2}+y^{2}=${r}と直線${line}の共有点の座標は，$$
+$$ (\\fbox{　ｱ　}，\\fbox{　ｲ　})，(\\fbox{　ｳ　}，\\fbox{　ｴ　})である。$$
+$$ただし，\\fbox{　ｱ　}\\lt \\fbox{　ｳ　}とする。$$`;
+solution=`$$\\begin{eqnarray}  \\left\\{
+    \\begin{array}{l}  x^{2}+y^{2}=${r}\\cdots \\cdots ① \\\\
+      ${line}\\cdots \\cdots ②
+    \\end{array}
+  \\right.
+\\end{eqnarray}$$
+$$ ${hosoku}$$
+$$ ${k===1 ? `②`:`③`}を①に代入して整理すると$$
+$$x^{2}${moji(-x1 -x2,`x`)}${teisu(x1*x2)}=0$$
+$$これを解いてx=${x1}${j===3 ? ``:`，${x2}`}$$
+$${k===1 ? `②`:`③`}に代入して$$
+$$${Y}$$
+$$よって，共有点の座標は${answer} $`;
+let Ans=x1<x2 ? [x1,y1,x2,y2]:[x2,y2,x1,y1];
+
+
+correctAnswers=Ans;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 4; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 10) {
+    let a,b,r,m,n;
+do{a=getRandomInt(-4,4,true);
+b=getRandomInt(-4,4,true);}while(Math.abs(a)===Math.abs(b));
+r=a*a+b*b;
+let Y;
+//円と直線の共有点の座標。
+//円の接線
+let j=getRandomInt(1,2);
+if(j===1){
+do{
+a=getRandomInt(-6,6);
+b=getRandomInt(-6,6);
+}while(a===0 && b===0)
+r=a*a+b*b;}
+question=`$$円x^{2}+y^{2}=${r}上の点(${a}，${b})における接線の方程式は$$
+$$ \\fbox{　ｱ　}x \\fbox{　ｲ　}y = \\fbox{　ｳ　}である。 $$
+$$ただし，\\fbox{　ｱ　}\\gt 0 とし，x-2y=5　が答えのときは1,-2,5と入力せよ。$$`;
+let d=gcd(gcd(Math.abs(a),Math.abs(b) ),r);
+let [a1,b1,r1]=[a/d,b/d,r/d]
+if(a1<0){[a1,b1,r1]=[-a1,-b1,-r1];}
+answer=`${keisu(a1,`x`)}${moji(b1,`y`)}=${r1}`;
+
+solution=`$$円x^{2}+y^{2}=${r}上の点(${a}，${b})における接線の方程式は$$
+$$${a}x+${kakko(b)}y=${r}$$
+$$すなわち，${answer}$$`;
+let Ans=[a1,b1,r1];
+correctAnswers=Ans;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 11) {//次はここから。これで最後。
+document.getElementById("Bquestion").innerHTML = "";
+
+showResult();
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 12問目終わり
+
+ window.solutionText = solution;
+}
+
+ function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = '';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+ 
+
+function checkAnswer() {
+const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.add("hidden"); // ボタン非表示に戻
+  let allCorrect = true;
+  for (let i = 0; i < correctAnswers.length; i++) {
+    const input = document.getElementById(`input${i}`);
+    const val = parseInt(input.value);
+    if (val !== correctAnswers[i]) {
+      allCorrect = false;
+    }
+  }
+
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextButton");
+ const soluBtn = document.getElementById("soluButton");
+soluBtn.classList.remove("hidden"); // ボタン表示
+
+  if (allCorrect) {
+    feedback.innerHTML = "<span style='color: green;'>正解！</span>";
+    nextBtn.classList.remove("hidden"); // ボタン表示
+	setTimeout(generateQuiz, 1000);
+  } else {
+    feedback.innerHTML = `<span style='color: red;'>不正解。正解は ${correctAnswers.join(", ")} です。</span>`;
+    nextBtn.classList.add("hidden"); // ボタン非表示に戻す（連打対策）
+        mistakeCount++;
+  }
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+}
+
+function nextQuestion() {
+  I++; // カウントはここで進める
+	kaisu=1;
+ const soluBtn = document.getElementById("soluButton");
+   const ansBtn = document.getElementById("ansButton");
+document.getElementById("nextButton").classList.add("hidden"); // 再び隠す
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+	soluBtn.classList.add("hidden"); 
+window.solutionText = ``;
+ showSolution();
+  generateQuestion();
+}
+
+function regenerateQuestion() {
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden");
+	kaisu++;
+window.solutionText = `${kaisu}回目！`
+showSolution();
+  generateQuestion(); // 問番（I）はそのまま
+}
+
+ function showResult() {
+      endTime = new Date();
+      const durationSec = Math.floor((endTime - startTime) / 1000);
+      const minutes = Math.floor(durationSec / 60);
+      const seconds = durationSec % 60;
+
+      let timeRank = "D";
+      if (durationSec <= 600) timeRank = "S";
+      else if (durationSec <= 1200) timeRank = "A";
+      else if (durationSec <= 1800) timeRank = "B";
+      else if (durationSec <= 2400) timeRank = "C";
+
+      let mistakeRank = "D";
+      if (mistakeCount === 0) mistakeRank = "S";
+      else if (mistakeCount <= 5) mistakeRank = "A";
+      else if (mistakeCount <= 10) mistakeRank = "B";
+      else if (mistakeCount <= 15) mistakeRank = "C";
+
+      document.getElementById('question').innerHTML = `
+      <h1>図形と方程式</h1>  
+      <h2>結果</h2>
+
+        <p>開始時刻: ${startTime.toLocaleTimeString()}</p>
+        <p>終了時刻: ${endTime.toLocaleTimeString()}</p>
+        <p>かかった時間: ${minutes}分${seconds}秒（評価: ${timeRank}）</p>
+        <p>間違えた回数: ${mistakeCount}回（評価: ${mistakeRank}）</p>
+        <button class="button" onclick="copyScreenshot()">記録</button>
+      `;
+    }
+
+function copyScreenshot() {
+ const target = document.querySelector('.container'); // スクショ対象の要素
+
+  html2canvas(target).then(canvas => {
+    // 画像データURLを取得
+    const imageData = canvas.toDataURL("image/png");
+
+    // ダウンロードリンクを作成してクリック
+    const link = document.createElement("a");
+    link.href = imageData;
+    link.download = "screenshot.png"; // 保存時のファイル名
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+    }
+
+
+
+    function startOver() {
+      I = 0;
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden")
+ document.getElementById("soluButton").classList.add("hidden");
+  document.getElementById("ansButton").classList.remove("hidden");
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();    }
+
+window.onload = function () {
+  if (I === 0) {
+    document.getElementById("intro").style.display = "block";
+    document.getElementById("status").textContent = "準備中…";
+  } else {
+    generateQuestion();
+  }
+};
+document.getElementById("soluButton").style.backgroundColor = "orange";
+  </script>
+
+  <!-- MathJax読み込み -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+
+       function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+
+     <div id="top">
+    <div id="status">現在1問目</div>
+    <button class="button" onclick="startOver()">最初から</button>
+  </div>
+
+  <div id="bottom">
+<div id="intro" style="margin-bottom: 1em;">
+  <p>【課題の取り組み方】</p>
+  <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で10問です。終わったらリザルト画面になります。</p>
+  <p>リザルト画面にある記録ボタンを押し，ロイロにペーストしてください。</p>
+  <button class="button" onclick="startTask()">開始</button>
+</div>
+    <div id="Bquestion"></div>
+    <div id="question"></div>
+    <div id="inputs"></div>
+
+    <button class="button hidden" id="ansButton" onclick="checkAnswer()"class="color1">答え合わせ</button>
+ <button class="button hidden" id="soluButton" onclick="showSolution()">解説</button>
+<button class="button" onclick="regenerateQuestion()">この問題をもう一度</button>
+    <button class="button hidden" id="nextButton" onclick="nextQuestion()">次の問題へ</button>
+    <div id="feedback"></div>
+	 <div id="solution" class="solution"></div>
+  </div>
+
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button class="button"onclick="clearBoard()">クリア</button>
+<button class="button"onclick="toggleEraser()">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+
+</html>
