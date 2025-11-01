@@ -230,7 +230,7 @@ function generateQuiz() {//問題生成関数
       
       m=[0,n[0],n[0]*n[2]+n[1],n[1]*n[2]];
       f=`(${keisu(n[0],`x`)}${teisu(n[1])}) (x${teisu(n[2])})`;
-      answer=fx(0,0,2*n[0],n[1]);
+      answer=fx(0,0,2*m[1],m[2]);
     }
     if(j===4){
       let n=getRandomInt(-3,3,true);
@@ -467,4 +467,5 @@ function generateQuiz() {//問題生成関数
 </script>
 
 </body>
+
 </html>
