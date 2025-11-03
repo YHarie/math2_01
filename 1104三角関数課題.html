@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>11/4 数学ⅡB課題《三角関数》</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+  #top {
+      height: 10vh;
+      background: #f0f0f0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.5em;
+    }
+    #bottom {
+      height: 90vh;
+      padding: 20px;
+      overflow-y: auto;
+    }
+#soluButton {
+  background-color: orange;
+}
+#nextButton{
+  background-color: cyan;
+}
+    .input-box {
+      width: 70px;
+      height: 50px;
+      font-size: 1.5em;
+      margin: 5px;
+    }
+    .button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+
+    .hidden {
+      display: none;
+    }
+.color0 { background-color: gray; color: white; }
+.color1 { background-color: blue; color: white; }
+.color2 { background-color: green; color: white; }
+.color3 { background-color: red; color: white; }
+
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: auto;
+      height: auto;
+      touch-action: none;
+    }
+
+  </style>
+  <script>
+let I = 0;
+let mistakeCount = 0;
+let startTime = null;
+let endTime = null;
+
+let N,an1,an2,bn1,bn2,bn3;
+N=0
+	let kaisu=1;
+    let correctAnswers = [];
+
+function startTask() {
+   const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  const now = new Date();
+  startTime = now;
+  I = 1;
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+ function keisu(b, variable = "") {
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+
+    function moji(num, str) {
+      if (num === 0) return "";
+      if (num === 1) return `+${str}`;
+      if (num === -1) return `-${str}`;
+      return num > 0 ? `+${num}${str}` : `${num}${str}`;
+    }
+
+    function teisu(num) {
+      if (num === 0) return "";
+      return num > 0 ? `+${num}` : `${num}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+    function getRandomInt(min, max, excludeZero = false) {
+      let val;
+      do {
+        val = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && val === 0);
+      return val;
+    }
+
+function startQuiz() {
+  I = 1;
+  startTime = new Date();
+  document.getElementById("startButton").style.display = "none";
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();
+}
+
+
+ function generateQuestion() {
+  let question = "";
+	let solution="";
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextButton").classList.add("hidden");
+  const inputsDiv = document.getElementById("inputs");
+  inputsDiv.innerHTML = "";
+ const questionDiv = document.getElementById("question");
+  const solutionDiv = document.getElementById("solution");
+  const feedbackDiv = document.getElementById("feedback");
+
+
+if (I === 0) {
+    questionDiv.innerHTML = `<p>【課題の取り組み方】</p>
+    <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で10問です。終わったらリザルト画面になります。</p>
+  <p>リザルト画面にある記録ボタンを押し，ダウンロードした画像をロイロで提出してください。</p>
+  <p>本日中に２回繰り返し，２回の記録を提出箱に提出をしてください。</p>
+  <button class="button" onclick="startTask()">開始</button>
+`;
+
+    document.getElementById("ansButton").classList.add("hidden");
+    document.getElementById("soluButton").classList.add("hidden");
+	
+
+    return;
+  }
+
+if (I === 1) {
+let sita,a,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,2,3,4,6,8,9,10,12,14,15,16,18,20,21,22];
+n=[0,getRandomInt(0,15)];
+sita=yakubun(a[n[1]],12);
+
+S=`
+$$1.　0 　　　　　　~~2.　${Fra(1,2)} 　　　　　　3.　${Fra(1,`\\sqrt{2}`)}　　　$$
+$$4.　${Fra(`\\sqrt{3}`,2)}　　　　　5.　1　　　　　~~~6.　-${Fra(1,2)} 　　　$$
+$$7.　-${Fra(1,`\\sqrt{2}`)}　　　~~8.　-${Fra(`\\sqrt{3}`,2)}　　　9.　-1　$$`;
+
+
+question = `$$ ${tri[n[0]]} ${sita[1]===1 ?`${keisu(sita[0])}`:` ${bunsu(sita[0],sita[1])}`} \\pi の値を次の選択肢から一つ選べ。$$
+${S}
+`;
+
+let answers=[[1,1,5,9],[5,9,1,1],[4,8,2,6],[3,7,3,7],[,,,],[2,6,4,8]];
+ answer=answers[sita[1]-1];
+m= n[0]===0 && sita[0]>sita[1] ? 1: n[0]===0 && sita[0]<=sita[1] ? 0:
+  n[0]===1 && 2*sita[0]>sita[1] && 2*sita[0]<3*sita[1] ? 3:2;
+  correctAnswers=[answer[m]];
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+if (I === 2) {
+let sita,a,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,2,3,4,6,8,9,10,12,14,15,16,18,20,21,22];
+n=[1,getRandomInt(0,15)];
+sita=yakubun(a[n[1]],12);
+
+S=`
+$$1.　0 　　　　　　~~2.　${Fra(1,2)} 　　　　　　3.　${Fra(1,`\\sqrt{2}`)}　　　$$
+$$4.　${Fra(`\\sqrt{3}`,2)}　　　　　5.　1　　　　　~~~6.　-${Fra(1,2)} 　　　$$
+$$7.　-${Fra(1,`\\sqrt{2}`)}　　　~~8.　-${Fra(`\\sqrt{3}`,2)}　　　9.　-1　$$`;
+
+
+question = `$$ ${tri[n[0]]} ${sita[1]===1 ?`${keisu(sita[0])}`:` ${bunsu(sita[0],sita[1])}`} \\pi の値を次の選択肢から一つ選べ。$$
+${S}
+`;
+
+let answers=[[1,1,5,9],[5,9,1,1],[4,8,2,6],[3,7,3,7],[,,,],[2,6,4,8]];
+ answer=answers[sita[1]-1];
+m= n[0]===0 && sita[0]>sita[1] ? 1: n[0]===0 && sita[0]<=sita[1] ? 0:
+  n[0]===1 && 2*sita[0]>sita[1] && 2*sita[0]<3*sita[1] ? 3:2;
+  correctAnswers=[answer[m]];
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+if (I === 3) {
+let sita,a,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,2,3,4,6,8,9,10,12,14,15,16,18,20,21,22];
+n=[0,getRandomInt(0,15)];
+sita=yakubun(a[n[1]],12);
+let s=getRandomInt(-2,2,true)*2;
+S=`
+$$1.　0 　　　　　　~~2.　${Fra(1,2)} 　　　　　　3.　${Fra(1,`\\sqrt{2}`)}　　　$$
+$$4.　${Fra(`\\sqrt{3}`,2)}　　　　　5.　1　　　　　~~~6.　-${Fra(1,2)} 　　　$$
+$$7.　-${Fra(1,`\\sqrt{2}`)}　　　~~8.　-${Fra(`\\sqrt{3}`,2)}　　　9.　-1　$$`;
+
+
+question = `$$ ${tri[n[0]]} ${sita[1]===1 ?`${keisu(sita[0]+s)}`:` ${bunsu(sita[0]+s*sita[1],sita[1])}`} \\pi の値を次の選択肢から一つ選べ。$$
+${S}
+`;
+
+let answers=[[1,1,5,9],[5,9,1,1],[4,8,2,6],[3,7,3,7],[,,,],[2,6,4,8]];
+ answer=answers[sita[1]-1];
+m= n[0]===0 && sita[0]>sita[1] ? 1: n[0]===0 && sita[0]<=sita[1] ? 0:
+  n[0]===1 && 2*sita[0]>sita[1] && 2*sita[0]<3*sita[1] ? 3:2;
+  correctAnswers=[answer[m]];
+  solution=`$$ 2\\piを足したり，引いたりした角は同じ位置に来るんでしたね。$$
+  $$${-s}\\pi　足して，${tri[n[0]]}${bunsu(sita[0],sita[1])} と同じと考えましょう。$$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+if (I === 4) {
+let sita,a,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,2,3,4,6,8,9,10,12,14,15,16,18,20,21,22];
+n=[1,getRandomInt(0,15)];
+sita=yakubun(a[n[1]],12);
+let s=getRandomInt(-2,2,true)*2;
+S=`
+$$1.　0 　　　　　　~~2.　${Fra(1,2)} 　　　　　　3.　${Fra(1,`\\sqrt{2}`)}　　　$$
+$$4.　${Fra(`\\sqrt{3}`,2)}　　　　　5.　1　　　　　~~~6.　-${Fra(1,2)} 　　　$$
+$$7.　-${Fra(1,`\\sqrt{2}`)}　　　~~8.　-${Fra(`\\sqrt{3}`,2)}　　　9.　-1　$$`;
+
+
+question = `$$ ${tri[n[0]]} ${sita[1]===1 ?`${keisu(sita[0]+s)}`:` ${bunsu(sita[0]+s*sita[1],sita[1])}`} \\pi の値を次の選択肢から一つ選べ。$$
+${S}
+`;
+
+let answers=[[1,1,5,9],[5,9,1,1],[4,8,2,6],[3,7,3,7],[,,,],[2,6,4,8]];
+ answer=answers[sita[1]-1];
+m= n[0]===0 && sita[0]>sita[1] ? 1: n[0]===0 && sita[0]<=sita[1] ? 0:
+  n[0]===1 && 2*sita[0]>sita[1] && 2*sita[0]<3*sita[1] ? 3:2;
+  correctAnswers=[answer[m]];
+  solution=`$$ 2\\piを足したり，引いたりした角は同じ位置に来るんでしたね。$$
+  $$${-s}\\pi　足して，${tri[n[0]]}${bunsu(sita[0],sita[1])} と同じと考えましょう。$$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+if (I === 5) {
+let sita,a,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,2,3,4,8,9,10,12,14,15,16,20,21,22];
+n=[2,getRandomInt(0,13)];
+sita=yakubun(a[n[1]],12);
+
+S=`
+$$1.　0 　　　　~~2.　${Fra(1,`\\sqrt{3}`)} 　　　　3.　1　　　　~~4.　\\sqrt{3}$$
+$$5.　-${Fra(1,`\\sqrt{3}`)}　　　6.　-1　　　~~~7.　-\\sqrt{3}$$`;
+
+
+question = `$$ ${tri[n[0]]} ${sita[1]===1 ?`${keisu(sita[0])}`:` ${bunsu(sita[0],sita[1])}`} \\pi の値を次の選択肢から一つ選べ。$$
+${S}
+`;
+
+let answers=[1,2,3,4,7,6,5];
+ answer=answers[n[1]%7];
+m= n[0]===0 && sita[0]>sita[1] ? 1: n[0]===0 && sita[0]<=sita[1] ? 0:
+  n[0]===1 && 2*sita[0]>sita[1] && 2*sita[0]<3*sita[1] ? 3:2;
+  correctAnswers=[answer];
+  solution=`$$ \\mathrm{tan}\\theta は直線の傾きを表すんでしたね。$$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 6) {
+let sita,a,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,2,3,4,8,9,10,12,14,15,16,20,21,22];
+n=[2,getRandomInt(0,13)];
+sita=yakubun(a[n[1]],12);
+
+S=`
+$$1.　0 　　　　~~2.　${Fra(1,`\\sqrt{3}`)} 　　　　3.　1　　　　~~4.　\\sqrt{3}$$
+$$5.　-${Fra(1,`\\sqrt{3}`)}　　　6.　-1　　　~~~7.　-\\sqrt{3}$$`;
+
+let s=getRandomInt(-3,3,true);
+question = `$$ ${tri[n[0]]} ${sita[1]===1 ?`${keisu(sita[0]+s)}`:` ${bunsu(sita[0]+s*sita[1],sita[1])}`} \\pi の値を次の選択肢から一つ選べ。$$
+${S}
+`;
+
+let answers=[1,2,3,4,7,6,5];
+ answer=answers[n[1]%7];
+m= n[0]===0 && sita[0]>sita[1] ? 1: n[0]===0 && sita[0]<=sita[1] ? 0:
+  n[0]===1 && 2*sita[0]>sita[1] && 2*sita[0]<3*sita[1] ? 3:2;
+  correctAnswers=[answer];
+  solution=`$$ \\mathrm{tan}\\theta は直線の傾きを表すんでしたね。$$`;
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+  for (let i = 0; i < 1; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 7) {
+let sita,a,b,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,`\\frac{1}{2}`,`\\frac{1}{\\sqrt{2}}`,`\\frac{\\sqrt{3}}{2}`,1];
+b=getRandomInt(-1,1,true);
+n=[0,getRandomInt(0,4)];
+m=[ [0,1,1],[1,6,1],[1,4,1],[1,3,1],[1,2,1] ];
+answer=m[n[1]];
+answer[0]=answer[0]*b<0 ? answer[0]+answer[1] : answer[0];
+if(n[0]!==4){answer[2]=answer[0]*b<0  ? 3*answer[1]-answer[0]: answer[1]-answer[0];}
+question = `$$ ${tri[n[0]]} \\theta=${a[n[1]]===0?``:keisu(b)}${a[n[1]]} をみたす\\thetaは$$
+$$\\theta =${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi ${n[1]===4 ?`$$ $$\\fbox{　ｳ　}には${answer[2]}を入力せよ。`: `，${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi$$$$
+ただし，\\fbox{　ｱ　}<\\fbox{　ｳ　}とし，答えが0のときは\\frac{0}{1}\\pi として答えよ。`}
+$$
+`;
+correctAnswers=answer;
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 8) {
+let sita,a,b,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,`\\frac{1}{2}`,`\\frac{1}{\\sqrt{2}}`,`\\frac{\\sqrt{3}}{2}`,1];
+b=getRandomInt(-1,1,true);
+n=[1,getRandomInt(0,4)];
+m=[ [1,2,3],[1,3,5],[1,4,7],[1,6,11],[0,1,0] ];
+answer=m[n[1]];
+if(n[0]!==4){answer[2]=answer[0]*b<0  ? answer[1]+answer[0]: answer[2];}
+answer[0]=b<0 ? Math.abs(answer[0]-answer[1] ): answer[0];
+
+question = `$$ ${tri[n[0]]} \\theta=${a[n[1]]===0?``:keisu(b)}${a[n[1]]} をみたす\\thetaは$$
+$$\\theta =${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi ${n[1]===4 ?`$$ $$\\fbox{　ｳ　}には${answer[2]}を入力せよ。`: `，${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi$$$$
+ただし，\\fbox{　ｱ　}<\\fbox{　ｳ　}とし，答えが0のときは\\frac{0}{1}\\pi として答えよ。`}
+$$
+`;
+correctAnswers=answer;
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+
+if (I === 9) {
+let sita,a,b,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[0,`\\frac{1}{\\sqrt{3}}`,1,`\\sqrt{3}`];
+b=getRandomInt(-1,1,true);
+n=[2,getRandomInt(0,4)];
+m=[ [0,1,1],[1,6,7],[1,4,5],[1,3,4] ];
+answer=m[n[1]];
+if(b<0 && n[1]!==0 ){
+  answer[0]=answer[1]-1;
+  answer[2]=answer[0]+answer[1];
+}
+question = `$$ ${tri[n[0]]} \\theta=${a[n[1]]===0?``:keisu(b)}${a[n[1]]} をみたす\\thetaは$$
+$$\\theta =${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi ${n[1]===4 ?`$$ $$\\fbox{　ｳ　}には${answer[2]}を入力せよ。`: `，${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi$$$$
+ただし，\\fbox{　ｱ　}<\\fbox{　ｳ　}とし，答えが0のときは\\frac{0}{1}\\pi として答えよ。`}
+$$
+`;
+correctAnswers=answer;
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 3; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 10) {
+let sita,a,b,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[`\\frac{1}{2}`,`\\frac{1}{\\sqrt{2}}`,`\\frac{\\sqrt{3}}{2}`];
+b=getRandomInt(-1,1,true);
+n=[0,getRandomInt(0,2)];
+m=[ [1,6,1,0],[1,4,1,0],[1,3,1,0]];
+answer=m[n[1]];
+function ftg(a){
+  if(a>0){return `\\gt`;}
+  if(a<0){return `\\lt`;}
+}
+let c=getRandomInt(-1,1,true);
+answer[3]=b*c>0 ? 1: 2;
+answer[0]=answer[0]*b<0 ? answer[0]+answer[1] : answer[0];
+if(n[0]!==4){answer[2]=answer[0]*b<0  ? 3*answer[1]-answer[0]: answer[1]-answer[0];}
+question = `$$ ${tri[n[0]]} \\theta ${ftg(c)} ${a[n[1]]===0?``:keisu(b)}${a[n[1]]} をみたす\\thetaの範囲は\\fbox{　ｴ　}である。$$
+$$\\fbox{　ｱ　}～\\fbox{　ｳ　}に当てはまる数及び，\\fbox{　ｴ　}の選択肢として正しいものを答えよ。$$
+$$\\fbox{　ｴ　}の選択肢$$
+$$選択肢　1　$$
+$$ ${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi \\lt \\theta \\lt ${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi$$
+$$選択肢　2　$$
+$$ 0\\lt \\theta \\lt ${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi ，${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi \\lt \\theta \\lt 2\\pi$$
+`;
+correctAnswers=answer;
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 4; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+if (I === 11) {
+let sita,a,b,m,n,A,S,tri;
+function Fra(a,b){
+  return `\\frac{${a}}{${b}}`;
+}
+tri=[`\\mathrm{sin}`,`\\mathrm{cos}`,`\\mathrm{tan}`];
+a=[`\\frac{1}{2}`,`\\frac{1}{\\sqrt{2}}`,`\\frac{\\sqrt{3}}{2}`];
+b=getRandomInt(-1,1,true);
+n=[1,getRandomInt(0,2)];
+m=[ [1,3,5,0],[1,4,7,0],[1,6,11,0]];
+answer=m[n[1]];
+function ftg(a){
+  if(a>0){return `\\gt`;}
+  if(a<0){return `\\lt`;}
+}
+let c=getRandomInt(-1,1,true);
+answer[3]=c>0 ? 2: 1;
+if(n[0]!==4){answer[2]=answer[0]*b<0  ? answer[1]+answer[0]: answer[2];}
+answer[0]=b<0 ? Math.abs(answer[0]-answer[1] ): answer[0];
+
+question = `$$ ${tri[n[0]]} \\theta ${ftg(c)} ${a[n[1]]===0?``:keisu(b)}${a[n[1]]} をみたす\\thetaの範囲は\\fbox{　ｴ　}である。$$
+$$\\fbox{　ｱ　}～\\fbox{　ｳ　}に当てはまる数及び，\\fbox{　ｴ　}の選択肢として正しいものを答えよ。$$
+$$\\fbox{　ｴ　}の選択肢$$
+$$選択肢　1　$$
+$$ ${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi \\lt \\theta \\lt ${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi$$
+$$選択肢　2　$$
+$$ 0\\lt \\theta \\lt ${Fra(`\\fbox{　ｱ　}`,`\\fbox{　ｲ　}`)}\\pi ，${Fra(`\\fbox{　ｳ　}`,`\\fbox{　ｲ　}`)}\\pi \\lt \\theta \\lt 2\\pi$$
+`;
+correctAnswers=answer;
+  solution=`$$ 補助輪を使って確認をしましょう。 $$`;
+  
+  // input ボックスの追加
+  inputsDiv.innerHTML = ""; // ← 前の入力を消すと安全
+    for (let i = 0; i < 4; i++) {
+    let input = document.createElement("input");
+    input.className = "input-box";
+    input.type = "number";
+    input.id = `input${i}`;
+    inputsDiv.appendChild(input);
+  }
+
+  document.getElementById("question").innerHTML = question;
+  MathJax.typesetClear();
+  MathJax.typeset();
+
+}// 4問目終わり
+
+if (I === 12) {//次はここから。これで最後。
+document.getElementById("Bquestion").innerHTML = "";
+
+showResult();
+
+  MathJax.typesetClear();
+  MathJax.typeset();
+}// 12問目終わり
+
+ window.solutionText = solution;
+}
+
+ function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = '';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+ 
+
+function checkAnswer() {
+const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.add("hidden"); // ボタン非表示に戻
+  let allCorrect = true;
+  for (let i = 0; i < correctAnswers.length; i++) {
+    const input = document.getElementById(`input${i}`);
+    const val = parseInt(input.value);
+    if (val !== correctAnswers[i]) {
+      allCorrect = false;
+    }
+  }
+
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextButton");
+ const soluBtn = document.getElementById("soluButton");
+soluBtn.classList.remove("hidden"); // ボタン表示
+
+  if (allCorrect) {
+    feedback.innerHTML = "<span style='color: green;'>正解！</span>";
+    nextBtn.classList.remove("hidden"); // ボタン表示
+	setTimeout(generateQuiz, 1000);
+  } else {
+    feedback.innerHTML = `<span style='color: red;'>不正解。正解は ${correctAnswers.join(", ")} です。</span>`;
+    nextBtn.classList.add("hidden"); // ボタン非表示に戻す（連打対策）
+        mistakeCount++;
+  }
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+}
+
+function nextQuestion() {
+  I++; // カウントはここで進める
+	kaisu=1;
+ const soluBtn = document.getElementById("soluButton");
+   const ansBtn = document.getElementById("ansButton");
+document.getElementById("nextButton").classList.add("hidden"); // 再び隠す
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+  document.getElementById("status").textContent = `現在${I}問目`;
+	soluBtn.classList.add("hidden"); 
+window.solutionText = ``;
+ showSolution();
+  generateQuestion();
+}
+
+function regenerateQuestion() {
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden");
+	kaisu++;
+window.solutionText = `${kaisu}回目！`
+showSolution();
+  generateQuestion(); // 問番（I）はそのまま
+}
+
+ function showResult() {
+      endTime = new Date();
+      const durationSec = Math.floor((endTime - startTime) / 1000);
+      const minutes = Math.floor(durationSec / 60);
+      const seconds = durationSec % 60;
+
+      let timeRank = "D";
+      if (durationSec <= 600) timeRank = "S";
+      else if (durationSec <= 1200) timeRank = "A";
+      else if (durationSec <= 1800) timeRank = "B";
+      else if (durationSec <= 2400) timeRank = "C";
+
+      let mistakeRank = "D";
+      if (mistakeCount === 0) mistakeRank = "S";
+      else if (mistakeCount <= 5) mistakeRank = "A";
+      else if (mistakeCount <= 10) mistakeRank = "B";
+      else if (mistakeCount <= 15) mistakeRank = "C";
+
+      document.getElementById('question').innerHTML = `
+        <h1>三角関数</h1>
+        <h2>結果</h2>
+        <p>開始時刻: ${startTime.toLocaleTimeString()}</p>
+        <p>終了時刻: ${endTime.toLocaleTimeString()}</p>
+        <p>かかった時間: ${minutes}分${seconds}秒（評価: ${timeRank}）</p>
+        <p>間違えた回数: ${mistakeCount}回（評価: ${mistakeRank}）</p>
+        <button class="button" onclick="copyScreenshot()">記録</button>
+      `;
+    }
+
+function copyScreenshot() {
+ const target = document.querySelector('.container'); // スクショ対象の要素
+
+  html2canvas(target).then(canvas => {
+    // 画像データURLを取得
+    const imageData = canvas.toDataURL("image/png");
+
+    // ダウンロードリンクを作成してクリック
+    const link = document.createElement("a");
+    link.href = imageData;
+    link.download = "screenshot.png"; // 保存時のファイル名
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+    }
+
+
+
+    function startOver() {
+      I = 0;
+	 const soluBtn = document.getElementById("soluButton");
+  const ansBtn = document.getElementById("ansButton");
+ansBtn.classList.remove("hidden"); // ボタン表示
+
+	soluBtn.classList.add("hidden")
+ document.getElementById("soluButton").classList.add("hidden");
+  document.getElementById("ansButton").classList.remove("hidden");
+  document.getElementById("status").textContent = `現在${I}問目`;
+  generateQuestion();    }
+
+window.onload = function () {
+  if (I === 0) {
+    document.getElementById("intro").style.display = "block";
+    document.getElementById("status").textContent = "準備中…";
+  } else {
+    generateQuestion();
+  }
+};
+document.getElementById("soluButton").style.backgroundColor = "orange";
+  </script>
+
+  <!-- MathJax読み込み -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+
+       function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+
+     <div id="top">
+    <div id="status">現在1問目</div>
+    <button class="button" onclick="startOver()">最初から</button>
+  </div>
+
+  <div id="bottom">
+<div id="intro" style="margin-bottom: 1em;">
+  <p>【課題の取り組み方】</p>
+  <p>解答を入力し、「答え合わせ」で確認してください。不正解なら「この問題をもう一度」で再チャレンジ！</p>
+  <p>準備ができたら「開始」ボタンを押してください。</p>
+  <p>全部で10問です。終わったらリザルト画面になります。</p>
+  <p>リザルト画面にある記録ボタンを押し，ロイロにペーストしてください。</p>
+  <p>本日中に２回繰り返し，２回の記録を提出箱に提出をしてください。</p>
+  <button class="button" onclick="startTask()">開始</button>
+</div>
+    <div id="Bquestion"></div>
+    <div id="question"></div>
+    <div id="inputs"></div>
+
+    <button class="button hidden" id="ansButton" onclick="checkAnswer()"class="color1">答え合わせ</button>
+ <button class="button hidden" id="soluButton" onclick="showSolution()">解説</button>
+<button class="button" onclick="regenerateQuestion()">この問題をもう一度</button>
+    <button class="button hidden" id="nextButton" onclick="nextQuestion()">次の問題へ</button>
+    <div id="feedback"></div>
+	 <div id="solution" class="solution"></div>
+  </div>
+
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button class="button"onclick="clearBoard()">クリア</button>
+<button class="button"onclick="toggleEraser()">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
