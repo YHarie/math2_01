@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>導関数の応用①</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+[s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function tenkai(a,b)//(ax+b)^2の展開したときの係数を返す。
+{
+return [a*a,2*a*b,b*b];//次数順に係数を返す。
+
+}
+function distance(a,b,c,x,y){//点と直線の距離
+let p,q,m,n,r;
+p=Math.abs(a*x+b*y+c);
+[m,n]=kanyaku(a*a+b*b,2);//2は数字配列[外，中]
+q=m*n;
+[p,q]=yakubun(p,q);
+r=kanyaku(n,1);//文字列を返す。
+let answer= n===1 ? `${bunsu(p,q)}`: q===1 ? `${keisu(p)}${r}`: `\\frac{${keisu(p)}${r}}{${q}}`;
+return answer;
+}
+function fx(a,b,c,d){
+  let answer;
+  if(a===0){
+    if(b===0){
+    answer=`${keisu(c,`x`)}${teisu(d)}`;
+    }
+    else{answer=`${keisu(b,`x^2 `)}${moji(c,`x`)}${teisu(d)}`;}
+  }
+  else{
+    answer=`${keisu(a,`x^3 `)}${moji(b,`x^2 `)}${moji(c,`x`)}${teisu(d)}`;
+  }
+  return answer;
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 3);//1～4です。
+  if(i===1){
+    let m,n,a,F,f;
+    function fy(a,b,c,d,e){
+      return a*e**3+b*e**2+c*e+d
+    }
+    m=[0,0,getRandomInt(-4,4),getRandomInt(-5,5)];
+    do{m[0]=getRandomInt(-2,2);
+      m[1]=getRandomInt(-3,3);
+    }while(m[0]===0 && m[1]===0)
+    n=[getRandomInt(-2,2),0];
+    n[1]=fy(m[0],m[1],m[2],m[3],n[0]);
+    F=fx(m[0],m[1],m[2],m[3]);
+    f=fx(0,3*m[0],2*m[1],m[2]);
+    a=fy(0,3*m[0],2*m[1],m[2],n[0]);
+    answer=`y=${keisu(a,`x`)}${teisu(-a*n[0]+n[1])}`;
+    question=`$$ 曲線y=${F}上の点(${n[0]}，${n[1]})における接線の方程式を求めよ。 $$`;
+    solution=`$$ f(x)=${F}とおくと$$
+    $$ f'(x)=${f}$$
+    $$ゆえに，f'(${n[0]})=${keisu(3*m[0],`\\cdot ${kakko(n[0])}^2`)}
+    ${m[0]!==0 && m[1]>0 ?`+`:``} ${keisu(2*m[1],`\\cdot${kakko(n[0])}`)}${teisu(m[2])}=${a}$$
+    $$よって，点(${n[0]}，${n[1]})における接線の方程式は$$
+    $$ y${teisu(-n[1])}=${a}(x${teisu(-n[0])})$$
+    $$すなわち　　${answer} $$`;
+  }
+  if(i===2){
+    let m,n,a,F,f,p;
+    function fy(a,b,c,d,e){
+      return a*e**3+b*e**2+c*e+d
+    }
+    m=[0,0,getRandomInt(-3,3),getRandomInt(-5,5)];
+    do{m[0]=getRandomInt(0,0);
+      m[1]=getRandomInt(-2,2);
+    }while(m[0]===0 && m[1]===0)
+    n=[getRandomInt(-2,2),0];
+    n[1]=fy(m[0],m[1],m[2],m[3],n[0]);
+    F=fx(m[0],m[1],m[2],m[3]);
+    f=fx(0,3*m[0],2*m[1],m[2]);
+    a=fy(0,3*m[0],2*m[1],m[2],n[0]);
+    p=[0,0];
+    do{p[0]=getRandomInt(-3,3);
+      p[1]=a*p[0]-a*n[0]+n[1];
+    }while(n[0]===p[0])
+    let fa=[-2*m[0],-m[1]+p[0]*3*m[0],p[0]*2*m[1],m[2]*p[0]-p[1]+m[3]];
+    if(-2*m[0]<0){
+      fa=[2*m[0],m[1]-p[0]*3*m[0],-p[0]*2*m[1],-m[2]*p[0]+p[1]-m[3]];
+    }
+    if(fa[0]===0 && fa[1]<0){
+      fa=[0,m[1]-p[0]*3*m[0],-p[0]*2*m[1],-m[2]*p[0]+p[1]-m[3]];
+    }
+    let d=gcd(fa[3],  gcd(fa[1],fa[2]) );
+    let A=[fa[3]/(n[0]*d),n[0]];
+    let q=[A[0],fy(m[0],m[1],m[2],m[3],A[0])];
+    let b=fy(0,3*m[0],2*m[1],m[2],q[0]);
+
+    answer=[`y=${keisu(a,`x`)}${teisu(-a*n[0]+n[1])}`,`
+    y=${keisu(b,`x`)}${teisu(-b*q[0]+q[1])}`];
+    question=`$$ 曲線y=${F}に点(${p[0]}，${p[1]})から引いた接線の方程式と$$
+    $$ 接点の座標を求めよ。 $$`;
+    solution=`$$ y=${F}を微分すると y'=${f}$$
+    $$ 求める接点の座標を(a,${keisu(m[0],`a^3 `)}${m[0]!==0 && m[1]>0 ?`+`:``}
+    ${keisu(2*m[1],`a^2 `)}${moji(m[2],`a`)}${teisu(m[3])} )$$
+    $$ とすると，接線の方程式は$$
+    $$ y-(${keisu(m[0],`a^3 `)}${m[0]!==0 && m[1]>0 ?`+`:``}
+    ${keisu(2*m[1],`a^2 `)}${moji(m[2],`a`)}${teisu(m[3])})=
+    (${keisu(3*m[0],`a^2`)}
+    ${m[0]!==0 & m[1]>0 ?`+`:``}${keisu(2*m[1],`a`)}${teisu(m[2])}  )(x-a) $$
+    $$ すなわち　　y=(${keisu(3*m[0],`a^2`)}
+    ${m[0]!==0 & m[1]>0 ?`+`:``}${keisu(2*m[1],`a`)}${teisu(m[2])}  )x
+    ${moji(-2*m[0],`a^3 `)}${moji(-m[1],`a^2 `)}${teisu(m[3])}$$
+    $$この直線が点(${p[0]}，${p[1]})を通るから$$
+    $$　　${p[1]}=${p[0]}\\cdot(${keisu(3*m[0],`a^2`)}
+    ${m[0]!==0 & m[1]>0 ?`+`:``}${keisu(2*m[1],`a`)}${teisu(m[2])}  )
+    ${moji(-2*m[0],`a^3 `)}${moji(-m[1],`a^2 `)}${teisu(m[3])}$$
+    $$ 整理すると$$
+    $$${keisu(fa[0],`a^3`)} ${fa[0]!==0 &&fa[1]>0 ?`+`:``} ${keisu(fa[1],`a^2`)}${moji(fa[2],`a`)}${teisu(fa[3])}=0$$
+    $$因数分解すると，　　${A[0]===0 ?`${keisu(d)}a(a${teisu(-A[1])})`:A[1]===0 ? `${keisu(d,`a`)}(a${teisu(-A[0])})`:
+    `${keisu(d,``)}(a${teisu(-n[0])})(${keisu((fa[1]-fa[0]*n[0])/d,`a`)}${teisu(-fa[3]/(n[0]*d))} )=0`}
+    $$
+    $$ ゆえに，a=${n[0]}，　${fa[3]/(n[0]*d)} $$
+    $$ a=${n[0]}のとき，接点の座標は(${n[0]}，${n[1]})で，接線の方程式は$$
+    $$ ${answer[0]} $$
+    $$ a=${q[0]}のとき，接点の座標は (${q[0]}，${q[1]})で，接線の方程式は$$
+    $$${answer[1]} $$`;
+  }
+  if(i===3){
+    let m,n,a,p,f,F;
+    a=[getRandomInt(-5,5),0];
+    a[1]=a[0]+2*getRandomInt(-2,2,true);
+    a= a[0]>a[1]?[a[1],a[0]]:[a[0],a[1]];
+    let j=getRandomInt(-1,1,true);
+    m=[j,-3*j*(a[0]+a[1])/2,j*a[0]*a[1]*3,getRandomInt(-5,5)];
+    F=fx(m[0],m[1],m[2],m[3]);
+    f=fx(0,3*m[0],2*m[1],m[2]);
+        function fy(a,b,c,d,e){
+      return a*e**3+b*e**2+c*e+d
+    }
+    answer=[fy(m[0],m[1],m[2],m[3],a[0]),fy(m[0],m[1],m[2],m[3],a[1])];
+
+    question=`$$ 関数f(x)=${F}の増減を調べよ。$$`;
+    solution=`$$この関数を微分すると$$
+    $$ f'(x)=${f}=${a[0]===0 ?`${j*3}x(x${teisu(-a[1])})`:
+    a[1]===0 ?`${3*j}x(x${teisu(-a[0])})`:
+     `${j*3}(x${teisu(-a[0])})(x${teisu(-a[1])}) `}$$
+    $$ f'(x)=0 とすると，x=${a} $$
+    $$ f(x)の増減表は次のようになる。 $$
+    $$
+    \\begin{array}{c|ccccc}
+  x     & \\cdots & ${a[0]} & \\cdots & ${a[1]} & \\cdots \\\\ 
+  \\hline
+  f’(x) & ${j>0 ?`+`:`-`} & 0 & ${j>0 ?`–`:`+`} & 0 & ${j>0 ?`+`:`-`} \\\\ 
+  \\hline
+  f(x)  & ${j>0?`\\nearrow`:`\\searrow`} & ${answer[0]} & ${j>0 ?`\\searrow`:`\\nearrow`} & ${answer[1]} & ${j>0?`\\nearrow`:`\\searrow`}
+\\end{array}
+    $$
+    $$ よって，区間x\\leqq ${a[0]}，${a[1]}\\leqq x で${j>0 ?`単調に増加し`:`単調に減少し`}$$
+    $$区間${a[0]}\\leqq x \\leqq ${a[1]} で単調に${j>0 ?`減少`:`増加`}する。 $$`;
+  }
+  if(i===4){
+    let m,n,a,p,f,F;
+    a=[getRandomInt(-5,5),0];
+    let k=getRandomInt(1,3);
+    if(k===1){
+      a[1]=a[0];
+    }
+    if(k>1){
+    a[1]=a[0]+2*getRandomInt(-2,2,true);
+    a= a[0]>a[1]?[a[1],a[0]]:[a[0],a[1]];}
+    let j=getRandomInt(-1,1,true);
+    m=[j,-3*j*(a[0]+a[1])/2,j*a[0]*a[1]*3,getRandomInt(-5,5)];
+    F=fx(m[0],m[1],m[2],m[3]);
+    f=fx(0,3*m[0],2*m[1],m[2]);
+        function fy(a,b,c,d,e){
+      return a*e**3+b*e**2+c*e+d
+    }
+    answer=[fy(m[0],m[1],m[2],m[3],a[0]),fy(m[0],m[1],m[2],m[3],a[1])];
+
+    question=`$$ 関数f(x)=${F}の増減を調べ，極値を求めよ。$$`;
+    if(k===1){
+    solution=`$$この関数を微分すると$$
+    $$ f'(x)=${f}=${a[0]===0 ?``:
+         `${j*3}(x${teisu(-a[0])})^2 `}$$
+    $$ f'(x)=0 とすると，x=${a} $$
+    $$ f(x)の増減表は次のようになる。 $$
+    $$
+    \\begin{array}{c|ccccc}
+  x     & \\cdots & ${a[0]}  & \\cdots \\\\ 
+  \\hline
+  f’(x) & ${j>0 ?`+`:`-`} & 0 &  ${j>0 ?`+`:`-`} \\\\ 
+  \\hline
+  f(x)  & ${j>0?`\\nearrow`:`\\searrow`} & ${answer[0]} & ${j>0?`\\nearrow`:`\\searrow`}
+\\end{array}
+    $$
+    $$ よって，関数f(x)は常に${j>0 ?`単調に増加`:`単調に減少`}し，極値をもたない。$$`;
+    }
+    if(k>1){
+    solution=`$$この関数を微分すると$$
+    $$ f'(x)=${f}=${a[0]===0 ?`${j*3}x(x${teisu(-a[1])})`:
+    a[1]===0 ?`${3*j}x(x${teisu(-a[0])})`:
+     `${j*3}(x${teisu(-a[0])})(x${teisu(-a[1])}) `}$$
+    $$ f'(x)=0 とすると，x=${a} $$
+    $$ f(x)の増減表は次のようになる。 $$
+    $$
+    \\begin{array}{c|ccccc}
+  x     & \\cdots & ${a[0]} & \\cdots & ${a[1]} & \\cdots \\\\ 
+  \\hline
+  f’(x) & ${j>0 ?`+`:`-`} & 0 & ${j>0 ?`–`:`+`} & 0 & ${j>0 ?`+`:`-`} \\\\ 
+  \\hline
+  f(x)  & ${j>0?`\\nearrow`:`\\searrow`} & ${answer[0]} & ${j>0 ?`\\searrow`:`\\nearrow`} & ${answer[1]} & ${j>0?`\\nearrow`:`\\searrow`}
+\\end{array}
+    $$
+    $$ よって，${j>0 ?`x=${a[0]}で極大値${answer[0]}，x=${a[1]}で極小値${answer[1]}`:
+    `x=${a[1]}で極大値${answer[1]}，x=${a[0]}で極小値${answer[0]}`} $$`;
+    }
+  }
+  if(i===5){
+    let m,n,a,p,f,F;
+    a=[getRandomInt(-5,-1),0];
+    a[1]=a[0]+2*getRandomInt(1,3,true);
+    a= a[0]>a[1]?[a[1],a[0]]:[a[0],a[1]];
+    let j=getRandomInt(1,1,true);
+    m=[j,-3*j*(a[0]+a[1])/2,j*a[0]*a[1]*3,getRandomInt(-5,5)];
+    F=fx(m[0],m[1],m[2],m[3]);
+    f=fx(0,3*m[0],2*m[1],m[2]);
+        function fy(a,b,c,d,e){
+      return a*e**3+b*e**2+c*e+d
+    }
+    answer=[fy(m[0],m[1],m[2],m[3],a[0]),fy(m[0],m[1],m[2],m[3],a[1])];
+    let k=getRandomInt(1,4);
+    if(k===1){
+    question=`$$ 関数f(x)=x^3+ax^2 +bx+cが，x=${a[0]}で極大値${answer[0]}をとり，$$
+    $$ x=${a[1]}で極小値をとるように，定数a，b，cの値を定めよ。 $$`;
+    solution=`$$この関数を微分すると$$
+    $$ f'(x)=3x^2+2ax+b $$
+    $$x=${a[0]}で極大値${answer[0]}をとるから$$
+    $$f(${a[0]})=${answer[0]}，f'(${a[0]})=0$$
+    $$また，x=${a[1]}で極小値をとるから$$
+    $$f'(${a[1]})=0$$
+    $$よって，${keisu(a[0]**2,`a`)}${moji(a[0],`b`)}+c=${answer[0]-a[0]**3}$$
+    $$${keisu(2*a[0],`a`)}+b=${-3*a[0]**2}$$
+    $$${keisu(2*a[1],`a`)}+b=${-3*a[1]**2}$$
+      $$これを解いて，a=${m[1]}，b=${m[2]}，c=${m[3]}$$
+    $$ よって，f(x)=${F}$$
+    $$逆にこのとき，f'(x)=${f}となり，$$
+    $$f'(x)=0とすると，x=${a}$$
+    $$ f'(x)=0 とすると，x=${a} $$
+    $$ f(x)の増減表は次のようになる。 $$
+    $$
+    \\begin{array}{c|ccccc}
+  x     & \\cdots & ${a[0]} & \\cdots & ${a[1]} & \\cdots \\\\ 
+  \\hline
+  f’(x) & ${j>0 ?`+`:`-`} & 0 & ${j>0 ?`–`:`+`} & 0 & ${j>0 ?`+`:`-`} \\\\ 
+  \\hline
+  f(x)  & ${j>0?`\\nearrow`:`\\searrow`} & ${answer[0]} & ${j>0 ?`\\searrow`:`\\nearrow`} & ${answer[1]} & ${j>0?`\\nearrow`:`\\searrow`}
+\\end{array}
+    $$
+    $$ したがって，関数f(x)はx=${a[0]}で極大値${answer[0]}をとり，条件をみたす。 $$
+    $$また，x=${a[1]} で極小値${answer[1]}をとる。 $$`;
+  }
+  if(k>1){
+    
+    question=`$$ 関数f(x)=x^3+ax^2 +bx${teisu(m[3])}が，x=${a[0]}で極大値をとり，$$
+    $$ x=${a[1]}で極小値をとるように，定数a，bの値を定めよ。また，極値を求めよ。 $$`;
+    solution=`$$この関数を微分すると$$
+    $$ f'(x)=3x^2+2ax+b $$
+    $$x=${a}で極値をとるから$$
+    $$f'(${a[0]})=0，f'(${a[1]})=0$$
+    $$よって，${keisu(2*a[0],`a`)}+b=${-3*a[0]**2}，
+    ${keisu(2*a[1],`a`)}+b=${-3*a[1]**2}$$
+      $$これを解いて，a=${m[1]}，b=${m[2]}$$
+    $$ よって，f(x)=${F}$$
+    $$逆にこのとき，f'(x)=${f}となり，$$
+    $$ f'(x)=0 とすると，x=${a} $$
+    $$ f(x)の増減表は次のようになる。 $$
+    $$
+    \\begin{array}{c|ccccc}
+  x     & \\cdots & ${a[0]} & \\cdots & ${a[1]} & \\cdots \\\\ 
+  \\hline
+  f’(x) & ${j>0 ?`+`:`-`} & 0 & ${j>0 ?`–`:`+`} & 0 & ${j>0 ?`+`:`-`} \\\\ 
+  \\hline
+  f(x)  & ${j>0?`\\nearrow`:`\\searrow`} & ${answer[0]} & ${j>0 ?`\\searrow`:`\\nearrow`} & ${answer[1]} & ${j>0?`\\nearrow`:`\\searrow`}
+\\end{array}
+    $$
+    $$ したがって，関数f(x)はx=${a[0]}で極大値${answer[0]}，x=${a[1]}で極小値${answer[1]}をとり$$
+    $$条件をみたす。 $$`;
+  }
+}
+
+    document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>導関数の応用①</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　接線の方程式</option>
+          <option value="2">2.　《応用》外側から引いた接線</option>
+          <option value="3">3.　関数の増減</option>
+          <option value="4">4.　極大値・極小値</option>
+          <option value="5">5.　《応用》極値から3次関数の決定</option>
+          <option value="0">0 (ランダム)</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+
+</html>
