@@ -270,8 +270,8 @@ function generateQuiz() {//問題生成関数
 	
     answer=[`y=${keisu(a,`x`)}${teisu(-a*n[0]+n[1])}`,
 			`y=${keisu(b,`x`)}${teisu(-b*q[0]+q[1])}`];
-	  answer[0]=a===0?-a*n[0]+n[1]:answer[0];
-	  answer[1]=b===0?-b*q[0]+q[1]:answer[1];
+	  answer[0]=a===0?`y=${-a*n[0]+n[1]}`:answer[0];
+	  answer[1]=b===0?`y=${-b*q[0]+q[1]}`:answer[1];
     question=`$$ 曲線y=${F}に点(${p[0]}，${p[1]})から引いた接線の方程式と$$
     $$ 接点の座標を求めよ。 $$`;
     solution=`$$ y=${F}を微分すると y'=${f}$$
@@ -769,4 +769,5 @@ function generateQuiz() {//問題生成関数
 </body>
 
 </html>
+
 
