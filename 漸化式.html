@@ -419,8 +419,8 @@ if(j<4){
   a[1]=p[0]+m[0]*a[0];
   p[1]=a[1]-m[1]*a[0];
 
-  answer=m[0]===1 ?`${bunsu(p[0],m[2])}\\cdot${kakko(m[1])}^{n-1} ${moji(-p[1]/Math.abs(p[1]))}${bunsu(Math.abs(p[1]),m[2])}`:
-  `${bunsu(p[0],m[2])}\\cdot${kakko(m[1])}^{n-1} ${moji(-p[1]/Math.abs(p[1]))}${bunsu(Math.abs(p[1]),m[2])}\\cdot${kakko(m[0])}^{n-1}`;
+  answer=m[0]===1 ?`${bunsu(p[1],m[2])}\\cdot${kakko(m[0])}^{n-1} ${moji(-p[0]/Math.abs(p[0]))}${bunsu(Math.abs(p[0]),m[2])}`:
+  `${bunsu(p[1],m[2])}\\cdot${kakko(m[0])}^{n-1} ${moji(-p[0]/Math.abs(p[0]))}${bunsu(Math.abs(p[0]),m[2])}\\cdot${kakko(m[1])}^{n-1}`;
   Q=`a_{n+2}=${keisu(n[0],`${an1}`)}${moji(n[1],`${an}`)}`;
   S=`特性方程式 \\alpha ^2 =${keisu(n[0],`\\alpha `)}${teisu(n[1])}を解くと$$$$
   \\alpha ^2 ${moji(-n[0],`\\alpha `)}${teisu(-n[1])}=0$$$$
@@ -433,10 +433,10 @@ if(j<4){
   数列\\{${an1}${moji(-m[1],`${an}`)} \\}は，
   初項 a_2 ${moji(-m[1],`a_1`)}=${p[1]}，公比${m[0]}$$$$
   のそれぞれ等比数列なので，一般項は$$$$
-  ${an1}${moji(-m[1],`${an}`)}=${p[0]}\\cdot${kakko(m[1])}^{n-1}$$$$
-  ${an1}${moji(-m[0],`${an}`)}=${p[1]}\\cdot${kakko(m[0])}^{n-1}$$$$
+  ${an1}${moji(-m[1],`${an}`)}=${p[1]}\\cdot${kakko(m[0])}^{n-1}$$$$
+  ${an1}${moji(-m[0],`${an}`)}=${p[0]}\\cdot${kakko(m[1])}^{n-1}$$$$
   辺々を引いて$$$$
-  ${keisu(m[0]-m[1],`${an}`)}=${p[0]}\\cdot${kakko(m[1])}^{n-1} ${teisu(-p[1])}\\cdot${kakko(m[0])}^{n-1}$$$$
+  ${keisu(m[0]-m[1],`${an}`)}=${p[1]}\\cdot${kakko(m[0])}^{n-1} ${teisu(-p[0])}\\cdot${kakko(m[1])}^{n-1}$$$$
   よって，${an}=${answer}$$$$
   `;}
   if(j===4){
@@ -619,5 +619,6 @@ if(j<4){
 </body>
 
 </html>
+
 
 
