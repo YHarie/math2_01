@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>積分</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+  [s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+function log(a,b){
+  return `\\log_{${a}} {${b}}`;
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+
+function skb(a,x,n,d){
+if(a===0){
+  return ``;
+}
+  if (n===0)
+{return `${a>0 && d===1 ? `+`:``} ${keisu(a,`${x}`)}`}
+
+  if (n>0)
+{return `${a>0 && d===1 ? `+`:``} ${Math.abs(a/(n+1))===1? `${keisu(a/(n+1))}`:bunsu(a,n+1)}${x}^{${n+1}}  `}
+}
+
+
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 5);//1～5です。
+  let question = '', answer = 0, solution = '';
+
+
+if(i===1){
+let m,f,F;
+m=getRandomInt(0,3);
+let a;
+let d=0;
+f=``;
+F=``;
+let j=getRandomInt(0,5)
+let Q,fx;
+if(j<4){
+for(let k=0;k<=m;k++)
+{
+  a= getRandomInt(-5,5,true);
+  F+=skb(a,`x`,m-k,d);
+  if(d===0){f+= m===0? a: m===1 ? keisu(a,`x`) : keisu(a,`x^{${m-k}}`);
+}
+if(d===1){
+if(m-k===1){
+  f+=moji(a,`x`);
+}
+if(m===k){
+  f+=teisu(a);
+}
+if(k>0 && k<m-1){
+  f+=moji(a,`x^{${m-k}}`);
+}
+}
+d=1;}
+Q=`(${f})`;
+}
+if(j===4){
+a=getRandomInt(-3,3,true);
+f=`(x${teisu(a)})^2`;
+F=`${skb(1,`x`,2,0)}${skb(2*a,`x`,1,1)}${skb(a**2,`x`,0,1)}`
+Q=f;
+fx=`x^2${moji(a*2,`x`)}${teisu(a**2)}`;
+}
+if(j===5){
+a=[getRandomInt(-3,3,true),getRandomInt(-3,3,true)];
+f=`(x${teisu(a[0])})(x${teisu(a[1])})`;
+F=`${skb(1,`x`,2,0)}${skb(a[0]+a[1],`x`,1,1)}${skb(a[0]*a[1],`x`,0,1)}`
+Q=f;
+fx=`x^2${moji(a[0]+a[1],`x`)}${teisu(a[0]*a[1])}`;
+}
+
+question=`$$不定積分　\\int ${Q} dx を求めよ。 $$`;
+solution=`$$
+　\\int${Q}dx$$
+$$${j<4 ? `=`:`= \\int(${fx})dx$$$$=`} ${F}+C (Cは積分定数)
+$$`;
+
+
+}//i=1終わり
+if(i===2){
+  let a,m,n,f,F;
+  m=getRandomInt(-3,3);
+  n=getRandomInt(1,3);
+  let l=m+n;
+  do{
+    a=[getRandomInt(-4,4),getRandomInt(-4,4),getRandomInt(-4,4)];
+  }while(a[0]===0 && a[1]===0 && a[2]=== 0)
+  f= a[0]===0 && a[1]===0 ? `${a[2]}`:a[0]=== 0 ? `${keisu(a[1],`x`)}${teisu(a[2])}`:
+  `${keisu(a[0],`x^2`) }${moji(a[1],`x`)}${teisu(a[2])}`;
+  F= a[0]===0 ?`${skb(a[1],`x`,1,0)}${skb(a[2],`x`,0,1)}`: 
+    `${skb(a[0],`x`,2,0)}${skb(a[1],`x`,1,1)}${skb(a[2],`x`,0,1)}`;
+    let k=2*a[0]*(l**3 - m**3)+3*a[1]*(l**2 - m**2)+ 6*a[2]*(l -m);
+    let A=[bunsu(k,6),`${skb(a[0],`\\cdot${kakko(m)}`,2,0)}${skb(a[1],`\\cdot${kakko(m)}`,1,1)}${skb(a[2],`\\cdot${kakko(m)}`,0,1)}`,
+  `${skb(a[0],`\\cdot${kakko(l)}`,2,0)}${skb(a[1],`\\cdot${kakko(l)}`,1,1)}${skb(a[2],`\\cdot${kakko(l)}`,0,1)}`];
+question=`$$
+\\int_{${m}}^{${l}}(${f})dx　を計算せよ。
+$$`;
+solution=`$$ （与式）=\\left[${F} \\right]_{${m}} ^{${l}} $$
+
+$$ =\\left\\{ ${A[2]}\\right\\}
+-\\left\\{${A[1]} \\right\\}$$ $$=${A[0]} $$`;
+}
+
+if(i===3){
+  let a,m,n,f,F;
+  m=getRandomInt(-3,3);
+  n=getRandomInt(1,3);
+  let l=m+n;
+  do{
+    a=[getRandomInt(-4,4),getRandomInt(-4,4),getRandomInt(-4,4)];
+  }while(a[0]===0 && a[1]===0 && a[2]=== 0)
+  f= a[0]===0 && a[1]===0 ? `${a[2]}`:a[0]=== 0 ? `${keisu(a[1],`x`)}${teisu(a[2])}`:
+  `${keisu(a[0],`x^2`) }${moji(a[1],`x`)}${teisu(a[2])}`;
+  F= a[0]===0 ?`${skb(a[1],`x`,1,0)}${skb(a[2],`x`,0,1)}`: 
+    `${skb(a[0],`x`,2,0)}${skb(a[1],`x`,1,1)}${skb(a[2],`x`,0,1)}`;
+    let k=2*a[0]*(l**3 - m**3)+3*a[1]*(l**2 - m**2)+ 6*a[2]*(l -m);
+    let A=[bunsu(k,6),`${skb(a[0],`\\cdot${kakko(m)}`,2,0)}${skb(a[1],`\\cdot${kakko(m)}`,1,1)}${skb(a[2],`\\cdot${kakko(m)}`,0,1)}`,
+  `${skb(a[0],`\\cdot${kakko(l)}`,2,0)}${skb(a[1],`\\cdot${kakko(l)}`,1,1)}${skb(a[2],`\\cdot${kakko(l)}`,0,1)}`];
+  let j=getRandomInt(0,2)
+  if(j===0){
+    let b;
+    do{b=getRandomInt(-8,8);}while(b===m || b===l)
+    let J=getRandomInt(0,1);
+    question=`$$
+\\int_{${m}}^{${b}}(${f})dx${J===0 ?`+\\int_{${b}}^{${l}}(${f})dx`:`-\\int_{${l}}^{${b}}(${f})dx`}　を計算せよ。
+$$`;
+solution=`$$ （与式）${J===1?`=\\int_{${m}}^{${b}}(${f})dx+\\int_{${b}}^{${l}}(${f})dx`:``} $$
+$$ = \\int_{${m}}^{${l}}(${f})dx$$
+$$=\\left[${F} \\right]_{${m}} ^{${l}} $$
+
+$$ =\\left\\{ ${A[2]}\\right\\}
+-\\left\\{${A[1]} \\right\\}=${A[0]} $$`;
+  }
+  if(j===1){
+    let b,c,g;
+    b=[getRandomInt(1,2),getRandomInt(1,3),getRandomInt(1,3)]
+    g=getRandomInt(-1,1,true);
+    c=[a[0]-b[0]*g,a[1]-b[1]*g,a[2]-b[2]*g];
+    question=`$$
+    \\int_{${m}}^{${l}}(${keisu(c[0],`x^2`)}${moji(c[1],`x`)}${teisu(c[2])})dx
+    ${g===1?`+`:`-`}
+\\int_{${m}}^{${l}}(${keisu(b[0],`x^2`)}${moji(b[1],`x`)}${teisu(b[2])})dx
+　を計算せよ。
+$$`;
+solution=`$$ （与式）=\\int_{${m}}^{${l}}\\{(${keisu(c[0],`x^2`)}${moji(c[1],`x`)}${teisu(c[2])})
+ ${g===1?`+`:`-`}(${keisu(b[0],`x^2`)}${moji(b[1],`x`)}${teisu(b[2])})  
+\\}dx $$
+$$ = \\int_{${m}}^{${l}}(${f})dx$$
+$$=\\left[${F} \\right]_{${m}} ^{${l}} $$
+
+$$ =\\left\\{ ${A[2]}\\right\\}
+-\\left\\{${A[1]} \\right\\}=${A[0]} $$`;
+  }
+  if(j===2){
+    question=`$$
+    \\int_{${m}}^{${m}}(${f})dx
+　を計算せよ。
+$$`;
+solution=`$$ （与式）=0 $$`;
+  }
+
+
+
+}
+if(i===4){
+    let m,n,a,b,f,F;
+    let j=getRandomInt(0,1);
+    if(j===0){
+        m=[getRandomInt(-3,1),0];
+        n=[getRandomInt(1,3),getRandomInt(1,3)];
+        m[1]=m[0]+n[0];
+        a=[getRandomInt(-2,2),0];
+        a[1]=a[0]**2+n[1];
+        f=`x^2${moji(a[0],`x`)}${teisu(a[1])}`;
+        F=`${skb(1,`x`,2,0)}${skb(a[0],`x`,1,1)}${skb(a[1],`x`,0,1)}`;
+        answer=bunsu(2*(m[1]**3-m[0]**3)+a[0]*3*(m[1]**2-m[0]**2)
+        +6*a[1]*(m[1]-m[0])
+        ,6)
+        question=`$$ 放物線y=${f}とx軸，$$
+        $$および2直線x=${m[0]}，x=${m[1]}で囲まれた図形の面積Sを求めよ。 $$`;
+        solution=`$$ 与えられた放物線はx軸の上側にあるから， $$
+        $$ S=\\int_{${m[0]}}^{${m[1]}}(${f})dx$$
+        $$　 =\\left[ ${F}\\right]_{${m[0]}}^{${m[1]}}$$
+        $$　=${answer} $$`;
+    }
+    if(j===1){
+          m=[getRandomInt(-5,5),0];
+  n=getRandomInt(1,6);
+  m[1]=m[0]+n;
+  a=[getRandomInt(-3,3,true),0,0];
+  a[1]=-a[0]*(m[0]+m[1]);
+  a[2]=a[0]*m[0]*m[1];
+  let fa= a[0]<0 ? [a[0],a[1],a[2]]:[-a[0],-a[1],-a[2]];
+  f=`${keisu(a[0],`x^2`)}${moji(a[1],`x`)}${teisu(a[2])}`;
+
+  question=`$$
+  放物線 y=${f}とx軸で囲われた部分の面積を求めよ。
+  $$`;
+  solution=`$$
+  y=0とすると，$$
+  $$ ${f}=0$$
+  $$ x^2${moji(a[1]/a[0],`x`)}${teisu(a[2]/a[0])}=0$$
+  $$ ${m[0]===0 ?`x(x${teisu(-m[1])})=0`:m[1]===0 ?`x(x${teisu(-m[0])})=0`:
+  `(x${teisu(-m[0])})(x${teisu(-m[1])})=0`}$$
+  $$よって，y=${f}とx軸との交点の座標は(${m[0]}，0)，(${m[1]}，0)$$ 
+  $$区間${m[0]}\\leqq x \\leqq ${m[1]}において，y${a[0]<0 ?`\\geqq 0`:`\\leqq 0`}である。
+  $$
+  $$ よって，求める面積は$$
+  $$ ${a[0]>0 ? `-`:``}\\int _{${m[0]}}^{${m[1]}}(${f})dx
+   $$
+   $$=\\left[${skb(fa[0],`x`,2,0)}${skb(fa[1],`x`,1,1)}${skb(fa[2],`x`,0,1)}\\right]_{${m[0]}}^{${m[1]}}$$
+   $$=${bunsu(
+    Math.abs(
+        2*a[0]*(m[0]**3 -m[1]**3)+3*a[1]*(m[0]**2-m[1]**2)+6*a[2]*(m[0]-m[1])
+    )
+   ,6)}
+   $$`;
+
+    }
+}
+
+if(i===5){
+  let m,n,a,f,F;
+  m=[getRandomInt(-3,3),0];
+  n=getRandomInt(1,4);
+  m[1]=m[0]+n;
+  a=[getRandomInt(-2,-1),0,0];
+  a[1]=-a[0]*(m[0]+m[1]);
+  a[2]=a[0]*m[0]*m[1];
+  f=`${keisu(a[0],`x^2`)}${moji(a[1],`x`)}${teisu(a[2])}`;
+  let b=[1,getRandomInt(-3,3),getRandomInt(1,5)];
+  let c=[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+  let g,h;
+   g=`${keisu(b[0],`x^2`)}${moji(b[1],`x`)}${teisu(b[2])}`;
+  if(c[0]===0){
+    h=`${keisu(c[1],`x`)}${teisu(c[2])}`;
+    question=`$$ 放物線y=${g}と直線y=${h} $$$$で囲まれた図形の面積Sを求めよ。 $$`;
+  }
+  if(c[0]!==0){
+    h=`${keisu(c[0],`x^2`)}${moji(c[1],`x`)}${teisu(c[2])}`;
+    question=`$$ 2つの放物線y=${g}とy=${h} $$$$で囲まれた図形の面積Sを求めよ。 $$`;
+
+  }
+  solution=`$$ 2つの図形の交点のx座標は，方程式$$
+  $$ ${g}=${h}$$
+  $$の解である。これを解くと$$
+  $$x^2${moji(a[1]/a[0],`x`)}${teisu(a[2]/a[0])}=0 $$
+  $$ ゆえにx=${m[0]}，${m[1]}$$
+  $$ よって，求める面積Sは$$
+  $$　S=\\int_{${m[0]}}^{${m[1]}} \\left\\{(${h})-(${g}) \\right\\} dx$$
+  $$=\\int _{${m[0]}}^{${m[1]}}(${f})dx$$
+  $$=\\left[${skb(a[0],`x`,2,0)}${skb(a[1],`x`,1,1)}${skb(a[2],`x`,0,1)}\\right]_{${m[0]}}^{${m[1]}}$$
+  $$=${bunsu(
+    Math.abs(
+        2*a[0]*(m[0]**3 -m[1]**3)+3*a[1]*(m[0]**2-m[1]**2)+6*a[2]*(m[0]-m[1])
+    )
+   ,6)} $$`;
+
+}
+
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+    }
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>積分</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　不定積分</option>
+          <option value="2">2.　定積分</option>
+          <option value="3">3.　定積分の性質</option>
+          <option value="4">4.　曲線とx軸で囲まれる部分の面積</option>
+          <option value="5">5.　2つの図形に囲まれた部分の面積</option>
+          <option value="0">ランダム</option>
+        </select>
+
+        </label>
+      <div id="question" class="question"></div>
+       <div>
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
