@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ベクトル</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    #left-area, #right-area {
+      padding: 1em;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    #left-area {
+      flex: 1;
+      background-color: #f9f9f9;
+      font-size: 1em;
+
+    }
+
+    #right-area {
+      flex: 1;
+      background-color: #222;
+      color: white;
+    }
+         body{font-size:1.3em;}
+    @media (orientation: portrait) {
+      .container {
+        flex-direction: column;
+      }
+
+      #left-area, #right-area {
+        height: 50vh;
+      }
+
+
+    body {
+    font-size: 2em;
+  }
+
+   select, button {
+    font-size: 1.5em;
+  }
+}
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #blackboard {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      touch-action: none;
+    }
+label {
+    font-size: 1.5rem;
+  }
+  select {
+    font-size: 1.4rem;
+    margin: 0 0.5em;
+  }
+  </style>
+  <script>
+    function getRandomInt(min, max, excludeZero = false) {
+      let v;
+      do {
+        v = Math.floor(Math.random() * (max - min + 1)) + min;
+      } while (excludeZero && v === 0);
+      return v;
+    }
+//インフラ関数下から。
+function insu(a, b, c) {//因数定理を利用した因数分解。3次式
+  for (let l = -10; l <= 10; l++) {
+    const value = a * l * l + b * l + c;
+    if (value === 0) {
+      return -l; // 最初に見つけた解を返して終了
+    }
+  }
+  return null; // 該当する値がない場合
+}
+
+
+
+    function gcd(a, b) {//最大公約数
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
+    }
+	function lcm(a, b) {//最小公倍数
+	  if (a === 0 || b === 0) return 0; // どちらかが0のときは0
+	  return Math.abs(a * b) / gcd(a, b);
+	}
+
+    function moji(b, variable = "") {//途中の項。プラス，マイナスもつける。
+      if (b === 0) return "";
+      if (b === 1) return `+${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+    function keisu(b, variable = "") {//係数。1，-1のとき省略できるようにする。
+      if (b === 0) return "";
+      if (b === 1) return `${variable}`;
+      if (b === -1) return `-${variable}`;
+      return `${b}${variable}`;
+    }
+  function teisu(b, variable = "") {//定数項
+      if (b === 0) return "";
+     return `${b > 0 ? "+" : ""}${b}${variable}`;
+    }
+
+function kakko(n) {//負の数にカッコをつける
+  return n < 0 ? `(${n})` : `${n}`;
+}
+function kanyaku(n,j) {//ルートの簡約化 j=1の時は文字列，j=2の時は配列で数値を返す。[外，中]
+  if (n < 0) return `i√${-n}`; // 負の数は虚数
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+
+  let outside = 1;
+  let inside = n;
+
+  for (let i = 2; i * i <= inside; i++) {
+    while (inside % (i * i) === 0) {
+      inside /= i * i;
+      outside *= i;
+    }
+  }
+if(j===1){
+ if (inside === 1) return `${outside}`;
+if (outside === 1) return `\\sqrt{${inside}}`;
+
+return `${outside}\\sqrt{${inside}}`;}
+if(j===2){
+return [outside,inside];
+
+}
+}
+
+function bunsu(s, b) {//分数表記してくれる。分母が1のときは自動的に分子だけ返す。yakubunしてから使うといいかも。
+  [s,b]=yakubun(s,b);
+  if (b === 1) { return `${s}`; }
+  if (b === -1) { return `${-s}`; }
+  return s < 0 ? `-\\frac{${-s}}{${b}}` : `\\frac{${s}}{${b}}`;
+}
+
+
+function yakubun(numerator, denominator) {//約分関数。[a,b]=yakubun(a,b)のように使う。
+  if (denominator === 0) {
+    throw new Error("分母が0です");
+  }
+
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  numerator = numerator/divisor;
+  denominator = denominator/divisor;
+
+  // 分母を正にする
+  if (denominator < 0) {
+    numerator = -numerator;
+    denominator = -denominator;
+  }
+
+  return [numerator, denominator];
+}
+function log(a,b){
+  return `\\log_{${a}} {${b}}`;
+}
+//インフラ関数ここまで
+//円の方程式用関数
+function Cmake(a,b,r)//(a,b)を中心とする半径√rの円の一般刑を返す。rの値に注意。
+{
+return  `x^{2}+y^{2}${moji(-2*a,`x`)}${moji(-2*b,`y`)}${teisu(a*a+b*b-r)}=0`;
+
+}
+
+function generateQuiz() {//問題生成関数
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('solution').textContent = '';
+  let i = parseInt(document.getElementById('modeSelect1').value);
+
+ if ( i === 0) i = getRandomInt(1, 8);//1～5です。
+  let question = '', answer = 0, solution = '';
+
+if(i===1){
+  let l,n,m,V;
+  l=[3,3,3,1,1,0,3,3,3,1,1,0];
+  n=[0,0];
+  n[0]=getRandomInt(0,11);
+  n[1]=getRandomInt(0,l[n[0]])
+  V=[[`AB`,`ED`,`FO`,`OC`],[`AF`,`BO`,`OE`,`CD`],[`AO`,`BC`,`FE`,`OD`],[`AC`,`FD`],[`BD`,`AE`],[`AD`],
+  [`BA`,`DE`,`OF`,`CO`],[`FA`,`OB`,`EO`,`DC`],[`OA`,`CB`,`EF`,`DO`],[`CA`,`DF`],[`DB`,`EA`],[`DA`]];
+  m=[[1,0],[0,1],[1,1],[2,1],[1,2],[2,2],[-1,0],[0,-1],[-1,-1],[-2,-1],[-1,-2],[-2,-2]];
+  answer=[`\\vec{a}`,`\\vec{b}`,`${n[1]===0 ?``:`\\overrightarrow{\\mathrm{AO}}=`} \\overrightarrow{\\mathrm{AB}}+\\overrightarrow{\\mathrm{BO}}=\\vec{a}+\\vec{b}`,
+  ` ${n[1]===0 ? `\\overrightarrow{\\mathrm{AB}}+\\overrightarrow{\\mathrm{BO}}+\\overrightarrow{\\mathrm{OC}}`:`\\overrightarrow{\\mathrm{FO}}+\\overrightarrow{\\mathrm{OE}}+\\overrightarrow{\\mathrm{ED}}`}=2\\vec{a}+\\vec{b} `,
+` ${n[1]===0 ? `\\overrightarrow{\\mathrm{BO}}+\\overrightarrow{\\mathrm{OC}}+\\overrightarrow{\\mathrm{CD}}`:`\\overrightarrow{\\mathrm{AF}}+\\overrightarrow{\\mathrm{FO}}+\\overrightarrow{\\mathrm{OE}}`}=\\vec{a}+2\\vec{b} `,
+`2\\overrightarrow{\\mathrm{AO}}=2\\vec{a}+2\\vec{b}`,`-\\vec{a}`,`-\\vec{b}`,`-\\overrightarrow{\\mathrm{AO}}=-\\vec{a}-\\vec{b}`,
+` ${n[1]===0 ? `\\overrightarrow{\\mathrm{CO}}+\\overrightarrow{\\mathrm{OB}}+\\overrightarrow{\\mathrm{BA}}`:`\\overrightarrow{\\mathrm{DE}}+\\overrightarrow{\\mathrm{EO}}+\\overrightarrow{\\mathrm{OF}}`}=-2\\vec{a}-\\vec{b} `,
+` ${n[1]===0 ? `\\overrightarrow{\\mathrm{DE}}+\\overrightarrow{\\mathrm{EO}}+\\overrightarrow{\\mathrm{OB}}`:`\\overrightarrow{\\mathrm{EO}}+\\overrightarrow{\\mathrm{OB}}+\\overrightarrow{\\mathrm{BA}}`}=-\\vec{a}-2\\vec{b} `,
+`-2\\overrightarrow{\\mathrm{AO}}=-2\\vec{a}-2\\vec{b}`];
+  let vect=V[n[0]];
+  
+
+
+question=`$$ 正六角形 \\mathrm{ABCDEF}において，\\overrightarrow{\\mathrm{AB}}=\\vec{a}，\\overrightarrow{\\mathrm{AF}}=\\vec{b}とするとき， $$
+$$ \\overrightarrow{\\mathrm{${vect[n[1]]}}}を\\vec{a}，\\vec{b}を用いて表せ。 $$`;
+solution=`$$ \\overrightarrow{\\mathrm{${vect[n[1]]}}}=${answer[n[0]]} $$`;
+} // if(i===1) 終了
+if(i===2){
+  let a,b,n,m;
+  a=[0,0]; b=[0,0];
+  do{
+    a=[getRandomInt(-4,4),getRandomInt(-3,3)];
+    b=[getRandomInt(-3,3),getRandomInt(-5,5)];
+  }while(a[0]*b[1]-a[1]*b[0]===0)
+  
+  do{
+    n=getRandomInt(-4,4);
+    m=getRandomInt(-4,4);
+  }while(n===0 && m===0)
+  answer=[a[0]*n+b[0]*m,a[1]*n+b[1]*m];
+  question=`$$\\vec{a}=(${a})，\\vec{b}=(${b}) のとき，${keisu(n,`\\vec{a}`)}${n===0 ?`${keisu(m,`\\vec{b}`)}`:`${moji(m,`\\vec{b}`)}`} を成分表示せよ。$$$$また，その大きさを求めよ。$$`;
+solution=`$$
+${keisu(n,`\\vec{a}`)}${n===0 ?`${keisu(m,`\\vec{b}`)}`:`${moji(m,`\\vec{b}`)}`}
+=${keisu(n,`${-2<n && n<2 ? ``:`\\cdot`} (${a})`)}${n===0 ?`${keisu(m,`${-2<m && m<2 ? ``:`\\cdot`} (${b})`)}`:`${moji(m,`${-2<m && m<2 ? ``:`\\cdot`} (${b})`)}`}$$
+$$　　=(${answer})$$
+$$また，その大きさは$$
+$$\\sqrt{${kakko(answer[0])}^2+${kakko(answer[1])}^2 }= ${kanyaku(answer[0]**2+answer[1]**2,1)}
+
+$$`;
+}
+
+if(i===3){
+  let a,b,n,m;
+  a=[0,0]; b=[0,0];
+  do{
+    a=[getRandomInt(-2,2,true),getRandomInt(-2,2,true)];
+    b=[getRandomInt(-3,3),getRandomInt(-3,3)];
+  }while(a[0]*b[1]-a[1]*b[0]===0)
+  
+  do{
+    n=getRandomInt(-4,5,true);
+    m=getRandomInt(-6,4,true);
+  }while(n===0 && m===0)
+  answer=[a[0]*n+b[0]*m,a[1]*n+b[1]*m];
+  question=`$$\\vec{a}=(${a})，\\vec{b}=(${b}) のとき，
+  \\vec{c}=(${answer})をs\\vec{a}+t\\vec{b}の形で表せ。$$`;
+solution=`$$\\vec{c}=s\\vec{a}+t\\vec{b}とおくと$$
+$$ (${answer})=s(${a})+t(${b})$$
+$$　　　=(${keisu(a[0],`s`)}${a[0]===0 ?`${keisu(b[0],`t`)}`:`${moji(b[0],`t`)}`}，
+${keisu(a[1],`s`)}${a[1]===0 ?`${keisu(b[1],`t`)}`:`${moji(b[1],`t`)}`})$$
+$$よって，${keisu(a[0],`s`)}${a[0]===0 ?`${keisu(b[0],`t`)}`:`${moji(b[0],`t`)}`}=${answer[0]}，
+${keisu(a[1],`s`)}${a[1]===0 ?`${keisu(b[1],`t`)}`:`${moji(b[1],`t`)}`}=${answer[1]}$$
+$$ これを解いて　　s=${n}，t=${m}$$
+$$したがって，　　\\vec{c}=${keisu(n,`\\vec{a}`)}${moji(m,`\\vec{b}`)}
+$$`;
+}
+
+
+if(i===4){
+  let a,b,n,m;
+  a=[0,0]; b=[0,0];
+do{
+  a=[getRandomInt(-3,3,true),getRandomInt(-3,3,true)];}while(a[0]===a[1])
+  n=getRandomInt(-4,5,true);
+  m=getRandomInt(-6,4,true);
+  b=[a[0]*n,a[1]*n];
+  let c=[b[0]-m,b[1]-m];
+  question=`$$\\vec{a}=(${a})，\\vec{b}=(x${teisu(c[0])},x${teisu(c[1])}) が平行になるように，
+  xの値を定めよ。$$`;
+solution=`$$
+\\vec{a}\\neq\\vec{0}，\\vec{b}\\neq\\vec{0}であるから，
+\\vec{a}と\\vec{b}が平行になるための必要十分条件は，$$
+$$ \\vec{b}=k\\vec{a}となる実数kが存在することである。$$
+$$\\vec{b}=k\\vec{a}から　　(x${teisu(c[0])},x${teisu(c[1])})=k(${a})$$
+$$よって，　　x${teisu(c[0])}=${keisu(a[0],`k`)}，x${teisu(c[1])}=${keisu(a[1],`k`)}$$
+$$これを解いて　　k=${n}，x=${m}
+$$`;
+}
+if(i===5){
+  let a,b,k,n,m;
+  a=getRandomInt(1,3)*2;
+  b=getRandomInt(1,7);
+  k=[0,30,45,60,90,120,135,150,180];
+  m=[1,`\\frac{\\sqrt{3}}{2}`,`\\frac{1}{\\sqrt{2}}`,`\\frac{1}{2}`,0,`-\\frac{1}{2}`,
+    `-\\frac{1}{\\sqrt{2}}`,`-\\frac{\\sqrt{3}}{2}`,-1];
+  n=getRandomInt(0,8);
+  question=`$$
+  |\\vec{a}|=${a}，
+  |\\vec{b}|=${b}とし，\\vec{a}と\\vec{b}のなす角\\theta＝${k[n]}^{\\circ}であるとき，$$
+  $$\\vec{a}\\cdot \\vec{b}を求めよ。
+  $$`;
+  answer=[a*b,keisu(a*b*0.5,`\\sqrt{3}`),keisu(a*b*0.5,`\\sqrt{2}`),
+    a*b*0.5,0,-a*b*0.5,keisu(-a*b*0.5,`\\sqrt{2}`),keisu(-a*b*0.5,`\\sqrt{3}`),-a*b];
+solution=`$$\\vec{a}\\cdot\\vec{b}=
+|\\vec{a}| |\\vec{b}|\\mathrm{cos}\\theta=${a}\\cdot${b}\\cdot${m[n]}=${answer[n]}$$`
+}
+if(i===6){
+  let a,b,k,n,m,aline,bline,A,B,ab,cos;
+  m=[90,0,45,30];
+  cos=[0,1,`\\frac{1}{\\sqrt{2}}`,`\\frac{\\sqrt{3}}{2}`];
+  n=[getRandomInt(0,3),getRandomInt(0,1),getRandomInt(0,1)];
+  k=[getRandomInt(-3,3,true),0];
+do{k[1]=getRandomInt(-3,3,true);}while(k[0]===k[1])
+  aline=[[k[0],k[0]*getRandomInt(-2,2,true)],
+  [k[0],k[0]*getRandomInt(-2,2,true)],
+  [k[0],3*k[0]],
+  [k[0],keisu(k[0],`\\sqrt{3}`)],[keisu(k[0],`\\sqrt{3}`),3*k[0]]];
+  a=n[1]===0 ? aline[n[0]]:n[0]===3?aline[n[0]+1]:[keisu(aline[n[0]][0],`\\sqrt{3}`)  ,keisu(aline[n[0]][1],`\\sqrt{3}`)];
+  A=n[0]===3&&n[1]===0?2*Math.abs(k[0]):n[0]===3 ? kanyaku(12*k[0]**2,1):
+   kanyaku(n[1]===0 ? (aline[n[0]][0]**2+aline[n[0]][1]**2):(aline[n[0]][0]**2+aline[n[0]][1]**2)*3,1);
+
+  bline=[
+    [k[1]*aline[0][1]/k[0],-k[1]],[k[1],k[1]*aline[1][1]/k[0]],[-k[1],2*k[1]],
+    [keisu(k[1],`\\sqrt{3}`),k[0]],[3*k[1],keisu(k[1],`\\sqrt{3}`)]
+  ];
+b=n[2]===0 ? bline[n[0]]:n[0]===3?bline[n[0]+1]:[keisu(bline[n[0]][0],`\\sqrt{3}`)  ,keisu(bline[n[0]][1],`\\sqrt{3}`)];
+B=n[0]===3&&n[2]===0?Math.abs(2*k[1]):n[0]===3 ? kanyaku(12*k[1]**2,1):
+   kanyaku(n[2]===0 ? (bline[n[0]][0]**2+bline[n[0]][1]**2):(bline[n[0]][0]**2+bline[n[0]][1]**2)*3,1);
+
+   ab=n[0]===0 ?0:
+   n[0]===3 &&n[1]!==n[2]?k[0]*k[1]*6:n[0]===3&&n[1]===0?keisu(k[0]*k[1]*2,`\\sqrt{3}`):
+   n[0]===3?keisu(k[0]*k[1]*6,`\\sqrt{3}`):
+   n[1]*n[2]===1?(aline[n[0]][0]*bline[n[0]][0]+aline[n[0]][1]*bline[n[0]][1])*3:
+   n[1]+n[2]===0 ? aline[n[0]][0]*bline[n[0]][0]+aline[n[0]][1]*bline[n[0]][1]:
+   keisu(aline[n[0]][0]*bline[n[0]][0]+aline[n[0]][1]*bline[n[0]][1],`\\sqrt{3}`) ;
+
+question=`$$
+\\vec{a}=(${a})，\\vec{b}=(${b})のなす角\\theta を求めよ。$$`;
+solution=`$$
+\\vec{a}\\cdot\\vec{b}=${aline[n[0]][0]>0?a[0]:`(${a[0]})`}\\cdot
+${bline[n[0]][0]>0?b[0]:`(${b[0]})`}+${aline[n[0]][1]>0?a[1]:`(${a[1]})`}
+\\cdot ${bline[n[0]][1]>0?b[1]:`(${b[1]})`}
+=${ab}$$$$
+|\\vec{a}|=\\sqrt{${n[1]===0&&aline[n[0]][0]>0?a[0]:`(${a[0]})`}^2+${n[1]===0&&aline[n[0]][1]>0?a[1]:`(${a[1]})`}^2
+}=${A}，　
+|\\vec{b}|=\\sqrt{${n[2]===0&&bline[n[0]][0]>0?b[0]:`(${b[0]})`}^2+${n[2]===0&&bline[n[0]][1]>0?b[1]:`(${b[1]})`}^2
+}=${B}$$
+$$ よって，\\mathrm{cos}\\theta=\\frac{\\vec{a}\\cdot\\vec{b}}  {|\\vec{a}||\\vec{b}|}
+=\\frac{${ab}} {${A}\\cdot ${B}}=${k[0]*k[1]>0||n[0]===0?``:`-`}${cos[n[0]]}$$
+$$0^\\circ \\leqq \\theta \\leqq 180^\\circ であるから，\\theta =${k[0]*k[1]>0 ? m[n[0]]:180-m[n[0]]}^\\circ
+$$`;
+}
+if(i===7){
+let a,b,theta,ab,j,m;
+j=getRandomInt(1,3);
+  a=getRandomInt(1,5);
+  b=getRandomInt(1,2)*2;
+  ab=getRandomInt(-a*b/2,a*b/2);
+  m=[getRandomInt(1,2),getRandomInt(-2,2,true)];
+  if(j===1){
+  question=`$$ 
+  |\\vec{a}|=${a}，|\\vec{b}|=${b}，\\vec{a}\\cdot \\vec{b}=${ab}のとき$$
+  $$|${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|を求めよ。
+  $$`;
+  answer=(m[0]*a)**2+2*m[0]*m[1]*ab+(m[1]*b)**2;
+  solution=`$$
+  |${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|^2=(${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)})\\cdot(${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)})$$
+  $$　　　　=${keisu(m[0]**2,`|\\vec{a}|^2`)}${moji(2*m[0]*m[1],`\\vec{a}\\cdot \\vec{b}`)}${moji(m[1]**2,`|\\vec{b}|^2`)}$$
+  $$　　　　=${m[0]===1 ?``:keisu(m[0]**2,`\\times `)}${a}^2${moji(2*m[0]*m[1],`\\times ${kakko(ab)}`)}${m[1]===1?`+`:moji(m[1]**2,`\\times `)}${b}^2$$
+  $$　　　　=${answer}$$
+  $$|${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|\\geqq 0 であるから，|${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|=${kanyaku(answer,1)}
+  $$`;
+}
+if(j===2){
+  theta=[60,90,120,0.5,0,-0.5];
+  let k=getRandomInt(0,2);
+  question=`$$ 
+  |\\vec{a}|=${a}，|\\vec{b}|=${b}，\\vec{a}と\\vec{b}のなす角が${theta[k]}^{\\circ}のとき$$
+  $$|${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|を求めよ。
+  $$`;
+  ab=a*b*theta[k+3];
+  answer=(m[0]*a)**2+2*m[0]*m[1]*ab+(m[1]*b)**2;
+  solution=`$$
+  |${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|^2=(${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)})\\cdot(${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)})$$
+  $$　　　　=${keisu(m[0]**2,`|\\vec{a}|^2`)}${moji(2*m[0]*m[1],`\\vec{a}\\cdot \\vec{b}`)}${moji(m[1]**2,`|\\vec{b}|^2`)}$$
+  $$　　　　=${keisu(m[0]**2,`|\\vec{a}|^2`)}${moji(2*m[0]*m[1],`|\\vec{a}|| \\vec{b}|\\mathrm{cos}${theta[k]}^{\\circ}`)}${moji(m[1]**2,`|\\vec{b}|^2`)}$$
+  $$　　　　=${m[0]===1 ?``:keisu(m[0]**2,`\\times `)}${a}^2${moji(2*m[0]*m[1],`\\times${a}\\times${b}\\times ${k===0 ?`\\frac{1}{2}`:k===1?`0`:`\\left(-\\frac{1}{2}\\right)`}`)}${m[1]===1?`+`:moji(m[1]**2,`\\times `)}${b}^2$$
+  $$　　　　=${answer}$$
+  $$|${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|\\geqq 0 であるから，|${keisu(m[0],`\\vec{a}`)}${moji(m[1],`\\vec{b}`)}|=${kanyaku(answer,1)}
+  $$`;
+}
+if(j===3){
+  let va,vb,dt;
+  va=`\\vec{a}`; vb=`\\vec{b}`;dt=`\\cdot`;
+  m=[getRandomInt(1,2),getRandomInt(-2,2,true)];
+  a=getRandomInt(1,3);
+  b=getRandomInt(1,2)*2;
+  ab=getRandomInt(-a*b*0.5,a*b*0.5);
+  answer=(m[0]*a)**2+2*m[0]*m[1]*ab+(m[1]*b)**2;
+  question=`$$
+  |${va}|=${a}，|${vb}|=${b},|${keisu(m[0],va)}${moji(m[1],vb)}|=${kanyaku(answer,1)}のとき，${va}${dt}${vb}の値を求めよ。
+  $$`;
+  solution=`$$ 
+  |${keisu(m[0],va)}${moji(m[1],vb)}|^2=${answer}より$$
+  $$${keisu(m[0]**2,`|${va}|^2`)}${moji(2*m[0]*m[1],`${va}${dt}${vb}`)}${moji(m[1]**2,`|${vb}|^2`)}=${answer}$$
+  $$ここで，|${va}|=${a}，|${vb}|=${b}であるから，$$
+  $$ ${m[0]===1?`${a}^2`:keisu(m[0]**2,`\\times${a}^2`)}${moji(2*m[0]*m[1],`${va}${dt}${vb}`)}${Math.abs(m[1])===1?`+${b}^2`:moji(m[1]**2,`\\times${b}^2`)}=${answer} $$
+  $$よって， ${keisu(2*m[0]*m[1],`${va}${dt}${vb}`)}=${ab*2*m[0]*m[1]}$$
+  $$すなわち${va}${dt}${vb}=${ab}
+  $$`;
+}
+
+}
+if(i===8){
+  let a,b,theta,ab,j,m,n;
+  j=getRandomInt(1,2);
+  a=getRandomInt(1,3)*2-1;
+  b=getRandomInt(1,2)*2;
+  ab=getRandomInt(-a*b*0.5,a*b*0.5);
+  m=[0,0];
+  n=0;
+  let N=getRandomInt(1,8);
+  let va=`\\vec{a}`;
+  let vb=`\\vec{b}`;
+  let dt=`\\cdot`;
+  
+  if(j===1){
+  for(let i=1;i<10;i++){
+       
+    for(let k=-5;k<10;k++){
+      if(k===i){}
+      else{
+      let X=(i*a**2-k*b**2)/(k-i);
+      if(X>-a*b && X<a*b){m=[i,-k];if(n===N){break;}else{n+=1;}}
+    }
+  }
+    if(n==N){break;}
+  }
+  
+    question=`$$
+  |${va}|=${a}，|${vb}|=${b}で，ベクトル${va}+${vb}と
+  ${keisu(m[0],`${va}`)}${moji(m[1],`${vb}`)}が垂直であるとき，$$
+  $$${va}${dt}${vb}の値を求めよ。
+  $$`;
+  solution=`$$
+  ${va}+${vb}と
+  ${keisu(m[0],`${va}`)}${moji(m[1],`${vb}`)}が垂直であるから$$
+  $$(${va}+${vb})${dt}(${keisu(m[0],`${va}`)}${moji(m[1],`${vb}`)})=0$$
+  $$すなわち　　${keisu(m[0],`|${va}|^2`)}${moji(m[0]+m[1],`${va}${dt}${vb}`)}${moji(m[1],`|${vb}|^2`)}=0$$
+  $$ここで，|${va}|=${a}，|${vb}|=${b}であるから，$$
+  $$${m[0]===1? `${a}^2`:keisu(m[0],`\\times${a}^2`)}
+  ${moji(m[0]+m[1],`${va}${dt}${vb}`)}${m[1]===-1?`-${b}^2`:moji(m[1],`\\times${b}^2`)}=0$$
+  $$よって，${va}${dt}${vb}=${bunsu(m[0]*a**2+m[1]*b**2,-(m[0]+m[1]))}
+  $$`;
+}
+if(j===2){
+do{ab=getRandomInt(-a*b+1,a*b-1);}while(-ab===b**2)
+answer=bunsu(-(a**2+ab),(b**2+ab));
+   question=`$$
+  |${va}|=${a}，|${vb}|=${b}，${va}${dt}${vb}=${ab}のとき，$$$$
+  ベクトル${va}+${vb}と
+${va}+t${vb}が垂直であるとき，tの値を求めよ。
+  $$`;
+  solution=`$$
+  ${va}+${vb}と
+${va}+t${vb}が垂直であるから$$
+  $$(${va}+${vb})${dt}(${va}+t${vb})=0$$
+  $$すなわち　　|${va}|^2 +(t+1)${va}${dt}${vb}+t|${vb}|^2=0$$
+  $$ここで，|${va}|=${a}，|${vb}|=${b}，${va}${dt}${vb}=${ab}であるから，$$
+  $$(${ab}+${b}^2)t+${a}^2+${kakko(ab)}=0$$
+  $$よって，t=${answer}
+  $$`;
+}
+
+  
+}
+      document.getElementById('question').innerHTML = question;
+      window.correctAnswer = answer;
+      window.solutionText = solution;
+      MathJax.typeset();
+
+// ===== 正六角形の表示制御 =====
+const hexCanvas = document.getElementById("hexCanvas");
+
+if (i === 1) {
+  hexCanvas.style.display = "block";
+  drawRegularHexagon();
+} else {
+  const ctxHex = hexCanvas.getContext("2d");
+  ctxHex.clearRect(0, 0, hexCanvas.width, hexCanvas.height);
+  hexCanvas.style.display = "none";
+}
+
+    }
+
+function drawRegularHexagon() {
+  const canvas = document.getElementById("hexCanvas");
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = Math.min(canvas.width, canvas.height) * 0.35;
+
+  const labels = ["F", "E", "D", "C", "B", "A"];
+  const points = [];
+
+  // ===== 頂点 =====
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 3 * i - Math.PI / 6;
+    points.push({
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle)
+    });
+  }
+
+  // ===== 六角形 =====
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  });
+  ctx.closePath();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "black";
+  ctx.stroke();
+
+  // ===== 対角線 AD, BE, CF =====
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "gray";
+
+  drawSegment(ctx, points[0], points[3]); // A-D
+  drawSegment(ctx, points[1], points[4]); // B-E
+  drawSegment(ctx, points[2], points[5]); // C-F
+
+  // ===== 中心 O =====
+  ctx.beginPath();
+  ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+  ctx.fillStyle = "black";
+  ctx.fill();
+
+  ctx.font = "20px sans-serif";
+  ctx.fillText("O", cx + 6, cy - 6);
+
+  // ===== ラベル =====
+  ctx.font = "20px sans-serif";
+  ctx.fillStyle = "black";
+  points.forEach((p, i) => {
+    ctx.fillText(labels[i], p.x + 6, p.y - 6);
+  });
+}
+
+// 線分描画ヘルパー
+function drawSegment(ctx, p1, p2) {
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.stroke();
+}
+
+    function checkAnswer() {
+      const user = parseFloat(document.getElementById('userInput').value);
+      const correct = window.correctAnswer;
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = (user === correct) ? '正解！' : `不正解。正解は ${correct} です。`;
+    }
+
+   function showSolution() {
+  if (!window.solutionText) {
+    document.getElementById('solution').innerHTML = 'まだ問題が生成されていません。';
+    return;
+  }
+  document.getElementById('solution').innerHTML = window.solutionText;
+  MathJax.typeset();
+}
+
+    window.onload = function () {
+      generateQuiz();
+      resizeCanvas();
+    };
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('blackboard');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: "left" } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="left-area">
+      <h1>平面上のベクトルとその演算</h1>
+      <label >モード:
+        <select id="modeSelect1" onchange="generateQuiz()">
+          <option value="1" selected>1.　ベクトルの分解　</option>
+          <option value="2">2.　成分によるベクトルの演算　</option>
+          <option value="3">3.　ベクトルの分解と成分　</option>
+          <option value="4">4.　ベクトルの平行　</option>
+          <option value="5">5.　ベクトルの内積　</option>
+          <option value="6">6.　ベクトルのなす角　</option>
+          <option value="7">7.　ベクトルの大きさ　</option>
+          <option value="8">8.　ベクトルの垂直　</option>
+          <option value="0">ランダム</option>
+        </select>
+
+        </label>
+        
+      <div id="question" class="question"></div>
+       <div>
+            <!-- 正六角形表示用（i===1 のときだけ表示） -->
+<canvas id="hexCanvas"
+        width="300"
+        height="300"
+        style="border:1px solid #555; display:none; background:white;">
+</canvas>
+
+        <button onclick="showSolution()"style="padding: 1em 2em; font-size: 1.2rem;">解説</button>
+        <button onclick="generateQuiz()"style="padding: 1em 2em; font-size: 1.2rem;">再出題</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="solution" class="solution"></div>
+    </div>
+   <div id="right-area">
+      <p>ここにメモを書いたり、図形を描いたりできます。</p>
+      <canvas id="blackboard" width="700"height="700"></canvas>
+<button onclick="clearBoard()"style="padding: 1em 2em; font-size: 1.2rem;">クリア</button>
+<button onclick="toggleEraser()"style="padding: 1em 2em; font-size: 1.2rem;">消しゴム切替</button>
+      
+    </div>
+  </div>
+
+<script>
+  const canvas = document.getElementById('blackboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let isErasing = false; // 消しゴムモードのフラグ
+
+ function toggleEraser() {
+  isErasing = !isErasing;
+
+  const button = document.querySelector('button[onclick="toggleEraser()"]');
+
+  if (isErasing) {
+    button.style.backgroundColor = "crimson";
+    button.style.color = "white";
+    button.textContent = "消しゴム（使用中）";
+  } else {
+    button.style.backgroundColor = "";
+    button.style.color = "";
+    button.textContent = "消しゴム切替";
+  }
+}
+
+
+  function getStrokeStyle() {
+    return isErasing ? "#222" : "white"; // 黒板色 or 白
+  }
+
+  function getLineWidth() {
+    return isErasing ? 25 : 2; // 消しゴムは太め
+  }
+
+  function drawLine(x, y) {
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = getStrokeStyle();
+    ctx.lineWidth = getLineWidth();
+    ctx.stroke();
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawLine(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    drawing = true;
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawLine(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
